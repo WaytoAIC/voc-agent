@@ -1,0 +1,175 @@
+<title>VOC 现场分析</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* 布局：和 VOC 工作台同一套样式。一页讲完一个产品：结论 → 最该改的 → 用户喜欢的 → 旅程 → 行动 → 原话 */
+:root{
+  --bg:#F3F6FB; --surface:#FFFFFF; --surface-2:#F7F9FD; --ink:#101B31; --muted:#56657D; --faint:#8C98AD;
+  --line:#DFE6F1; --accent:#2257E5; --accent-ink:#FFFFFF; --accent-soft:#E8EEFF;
+  --good:#17895B; --good-soft:#E3F5EC; --warn:#B07800; --warn-soft:#FBF1D9; --bad:#C93A31; --bad-soft:#FCE7E5;
+  --font-body:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --font-num:"IBM Plex Mono",ui-monospace,Menlo,monospace; --ease:cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0B1120; --surface:#121A2C; --surface-2:#0F1626; --ink:#E7ECF6; --muted:#9AA7BE; --faint:#6E7A91;
+  --line:#233049; --accent:#7096FF; --accent-ink:#0B1120; --accent-soft:#1A2849;
+  --good:#43C28C; --good-soft:#123426; --warn:#E3AE44; --warn-soft:#3A2D10; --bad:#F2726A; --bad-soft:#3D1A18; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0B1120; --surface:#121A2C; --surface-2:#0F1626; --ink:#E7ECF6; --muted:#9AA7BE; --faint:#6E7A91;
+  --line:#233049; --accent:#7096FF; --accent-ink:#0B1120; --accent-soft:#1A2849;
+  --good:#43C28C; --good-soft:#123426; --warn:#E3AE44; --warn-soft:#3A2D10; --bad:#F2726A; --bad-soft:#3D1A18; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.6}
+h1,h2,h3{margin:0;text-wrap:balance}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:14px;min-width:0;align-content:start;animation:rise .32s var(--ease) both}
+.panel h2{font-size:16px}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.hint{font-size:12px;color:var(--faint)}
+.row2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px}
+@media (max-width:900px){.row2{grid-template-columns:1fr}}
+.chip{display:inline-flex;align-items:center;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.bad{background:var(--bad-soft);color:var(--bad)} .chip.info{background:var(--accent-soft);color:var(--accent)} .chip.plain{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.top{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted)}
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.hero img{width:96px;height:96px;border-radius:10px;border:1px solid var(--line);object-fit:cover;background:var(--surface-2)}
+.hero h1{font-size:clamp(20px,2.6vw,26px);font-weight:700}
+.hero .en{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.stats span{white-space:nowrap} .stats b{color:var(--ink);font-family:var(--font-num)}
+.summary{font-size:16px;font-weight:700;line-height:1.55;border-left:4px solid var(--accent);padding:4px 0 4px 12px}
+.insight{border:1px solid var(--warn);background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:10px 12px;font-size:13.5px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:2px}
+.kpi span{font-size:12px;color:var(--muted)} .kpi b{font-size:22px;font-family:var(--font-num)} .kpi small{font-size:12px;color:var(--faint)}
+.stars{display:grid;gap:4px}
+.srow{display:grid;grid-template-columns:28px 1fr 28px;gap:8px;align-items:center;font-size:12px}
+.bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;transform-origin:left;animation:grow .56s var(--ease) both}
+.item{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0;padding-top:0}
+.ih{display:grid;grid-template-columns:24px minmax(0,1fr) 120px 64px;gap:10px;align-items:center}
+.rank{width:24px;height:24px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:12px}
+.ih b{display:block} .ih small{display:block;font-size:12px;color:var(--muted)}
+.fix{font-size:13px;background:var(--surface-2);border-radius:8px;padding:8px 10px}
+.quote{border-left:3px solid var(--line);padding:2px 0 2px 10px;display:grid;gap:2px}
+.quote .en{font-size:13px} .quote .zh{font-size:12.5px;color:var(--muted)} .quote .src{font-size:11.5px;color:var(--faint)}
+details summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:12.5px}
+details[open] summary{margin-bottom:6px}
+.chart{overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:720px;height:auto}
+.chart text{font-family:var(--font-body)}
+.acts{display:grid;gap:8px}
+.act{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.act p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 11px;cursor:pointer;font-size:12.5px;transition:background-color .12s,border-color .12s}
+.fchip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:13px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;background:var(--surface-2);white-space:nowrap}
+td .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.foot{font-size:12px;color:var(--faint);text-align:center}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
+@keyframes grow{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+<script id="data" type="application/json">/*DATA*/</script>
+<script>
+(function(){
+  const D=JSON.parse(document.getElementById('data').textContent);
+  const P=D.product, U=D.reviews.filter(r=>!r.vine), N=U.length;
+  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const pct=n=>Math.round(n/N*100)+'%';
+  const day=t=>new Date(t).toISOString().slice(0,10);
+  const Q=q=>q.map(([en,zh,src])=>`<div class="quote"><span class="en">${en}</span><span class="zh">${zh}</span><span class="src">${src}</span></div>`).join('');
+  const neg=U.filter(r=>r.star<=3).length;
+  document.title=`${P.name} · VOC 现场分析`;
+  const probs=D.problems.slice().sort((a,b)=>b.count-a.count), main=probs.filter(p=>p.count>=2), small=probs.filter(p=>p.count<2);
+  const praises=D.praises.slice().sort((a,b)=>b.count-a.count);
+  const maxS=Math.max(...Object.values(D.stars));
+  const C=D.calc||{}, S0=D.journey||[], sgn=v=>(v>0?'+':'')+v, tone=v=>v>=20?'good':v<=-20?'bad':'warn';
+  let html=`
+  <div class="top"><span><span class="chip info">现场分析</span> 数据来自${D.pulled.source}，${D.pulled.at} 拉取，调用 ${D.pulled.calls} 次</span><span>分析对象：公开在售的 Amazon 商品</span></div>
+  <div class="panel">
+    <div class="hero"><img src="${D.imageData||P.image}" alt="${P.name}商品图" onerror="this.remove()">
+      <div><h1>${P.name}</h1><p class="en">${P.title}</p>
+      <div class="stats"><span>品牌 <b>${P.brand}</b></span><span>ASIN <b>${P.asin}</b></span><span>父 ASIN <b>${P.parent}</b></span><span>价格 <b>$${P.price}</b></span><span>评分 <b>${P.rating}</b>（${P.ratings} 个）</span><span>${P.bsr}</span><span>上架 <b>${P.launched}</b></span><span>${P.variants.length} 个款式：${P.variants.join(' / ')}</span></div></div></div>
+    <div class="summary">${D.summary}</div>
+    ${D.insight?`<div class="insight">${D.insight}</div>`:''}
+  </div>
+  <div class="kpis">
+    <div class="kpi"><span>拿到的评论</span><b>${D.pulled.total}</b><small>去掉送测 ${D.pulled.vine} 条，分析 ${N} 条</small></div>
+    <div class="kpi"><span>差评占比（1–3 星）</span><b>${pct(neg)}</b><small>${neg} / ${N} 条</small></div>
+    <div class="kpi"><span>最大的问题</span><b style="font-size:18px;font-family:var(--font-body)">${probs[0].name}</b><small>${probs[0].count} 条 · ${pct(probs[0].count)}</small></div>
+    <div class="kpi"><span>用户最喜欢</span><b style="font-size:18px;font-family:var(--font-body)">${praises[0].name}</b><small>${praises[0].count} 条 · ${pct(praises[0].count)}</small></div>
+  </div>
+  ${C.pareto?`<div class="panel"><div><h2>先改哪几件：${C.pareto.coreCount} 个问题占了 ${C.pareto.coreShare}% 的抱怨</h2><p class="sub">把问题按提到的人数从多到少排，再算累计占比，前面这几件就是二八里的「二」。最后一列是提到这个问题的人平均给几星（全部评论平均 ${C.pareto.avgStarAll} 星）</p></div>
+    <div class="tablewrap"><table style="min-width:640px"><thead><tr><th>问题</th><th>提到的人</th><th style="width:30%">占全部抱怨</th><th>累计</th><th>平均星级</th></tr></thead><tbody>${C.pareto.rows.map(r=>`<tr${r.core?'':' style="color:var(--muted)"'}><td>${r.core?'<span class="chip bad">先改</span> ':''}${r.name}</td><td class="num">${r.count} 条 · ${r.ofReviews}%</td><td><span class="bar"><i style="width:${r.ofComplaints}%;background:${r.core?'var(--bad)':'var(--faint)'}"></i></span></td><td class="num">${r.cum}%</td><td class="num">${r.avgStar}★</td></tr>`).join('')}</tbody></table></div></div>`:''}
+  <div class="row2">
+    <div class="panel"><div><h2>最该改的</h2><p class="sub">按提到的人数排。一条评论可能说了好几件事</p></div>
+      ${main.map((p,i)=>`<div class="item"><div class="ih"><span class="rank">${i+1}</span><div><b>${p.name}</b><small>${p.stage} · 该谁改：${p.owner}${p.hidden?` · <span style="color:var(--warn);font-weight:700">${p.hidden} 条来自 4–5 星</span>`:''}</small></div><span class="bar"><i style="width:${p.count/probs[0].count*100}%;background:var(--bad)"></i></span><span class="num" style="text-align:right">${p.count} 条</span></div>
+        <div class="fix">建议：${p.fix}</div>
+        <details${i===0?' open':''}><summary>看用户原话</summary><div style="display:grid;gap:8px">${Q(p.quotes)}</div></details></div>`).join('')}
+      ${small.length?`<div class="item"><b style="font-size:13px">只有 1 条，先盯住</b>${small.map(p=>`<div class="act"><span class="chip ${p.risk?'bad':'plain'}">${p.risk?'风险':'少量'}</span><div><b>${p.name}</b><p>${p.fix}</p>${p.quotes.length?`<p>“${p.quotes[0][1]}”</p>`:''}</div></div>`).join('')}</div>`:''}
+    </div>
+    <div style="display:grid;gap:18px;align-content:start">
+      <div class="panel"><div><h2>用户最喜欢的</h2><p class="sub">可以直接用在主图和五点里</p></div>
+        ${praises.map(p=>`<div class="item"><div style="display:flex;justify-content:space-between;gap:8px"><b>${p.name}</b><span class="num hint">${p.count} 条</span></div><span class="sub">怎么用：${p.use}</span>${p.quotes.length?Q(p.quotes.slice(0,1)):''}</div>`).join('')}
+      </div>
+      <div class="panel"><h2>星级分布</h2><div class="stars">${[5,4,3,2,1].map(s=>`<div class="srow"><span>${s}★</span><span class="bar"><i style="width:${D.stars[s]/maxS*100}%;background:${s>=4?'var(--good)':s==3?'var(--warn)':'var(--bad)'}"></i></span><span class="num" style="text-align:right">${D.stars[s]}</span></div>`).join('')}</div><p class="hint" style="margin:0">不含送测评论</p></div>
+    </div>
+  </div>
+  ${C.drill?`<div class="panel"><div><h2>按款式看</h2><p class="sub">${C.drill.hot.length?'下面这些问题集中在某一个款式，只改这个款式就行':'没有集中在某一个款式的问题，要改就是全线改'}。评论少于 5 条的款式只列出来，不下结论${C.drill.unlabeled?`；另有 ${C.drill.unlabeled} 条评论没标款式`:''}</p></div>
+    ${C.drill.hot.map(h=>`<div class="insight"><b>「${h.name}」集中在 ${h.sku}</b>：这个款式里 ${h.skuShare}% 的评论在说，全部评论里只有 ${h.allShare}%（${h.count} / ${h.total} 条来自这个款式）</div>`).join('')}
+    <div class="tablewrap"><table style="min-width:600px"><thead><tr><th>款式</th><th>评论</th><th>平均星级</th><th>差评占比</th><th>这个款式最多人说的问题</th></tr></thead><tbody>${C.drill.skus.map(k=>`<tr${k.small?' style="color:var(--muted)"':''}><td>${k.sku}${k.small?' <span class="chip plain">样本少</span>':''}</td><td class="num">${k.n} 条 · ${k.share}%</td><td class="num">${k.avgStar}★</td><td class="num">${k.negShare}%</td><td>${k.top.map(t=>`${t.name} <span class="num hint">${t.count} 条</span>`).join('；')||'<span class="hint">—</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:''}
+  <div class="panel"><div><h2>用户旅程</h2><p class="sub">每个点是一个具体时刻，往上是满意，往下是不满意，点越大说的人越多。${S0.some(s=>s.score!=null)?'阶段下面的分数是满意度：这一段说好的人减说不好的人，除以提到这一段的人，从 −100 到 +100':''}</p></div><div class="chart" id="journey"></div></div>
+  ${C.compare?`<div class="panel"><div><h2>和竞品比</h2><p class="sub">同一套问题分类下，每个问题被多少比例的评论提到。高出竞品平均一半以上、且至少 3 条，标为短板或卖点</p></div>
+    <div class="stats"><span>我：<b>${C.compare.mine.n}</b> 条 · 平均 <b>${C.compare.mine.avgStar}</b>★ · 差评 <b>${C.compare.mine.negShare}%</b></span>${C.compare.comps.map(c=>`<span>${c.brand||c.name}（${c.asin}）：<b>${c.n}</b> 条 · 平均 <b>${c.avgStar}</b>★ · 差评 <b>${c.negShare}%</b></span>`).join('')}</div>
+    <div class="tablewrap"><table style="min-width:640px"><thead><tr><th>用户在说</th><th>我</th>${C.compare.comps.map(c=>`<th>${c.brand||c.name}</th>`).join('')}<th>竞品平均</th><th></th></tr></thead><tbody>${C.compare.rows.map(r=>`<tr><td><span class="chip ${r.kind==='neg'?'bad':'good'}">${r.kind==='neg'?'抱怨':'好评'}</span> ${r.name}</td><td class="num"${r.verdict==='短板'||r.verdict==='不如竞品'?' style="color:var(--bad);font-weight:700"':''}>${r.mine}%</td>${r.comps.map(v=>`<td class="num">${v==null?'<span class="hint">没这一类</span>':v+'%'}</td>`).join('')}<td class="num">${r.avg==null?'—':r.avg+'%'}</td><td>${r.verdict?`<span class="chip ${r.verdict==='短板'||r.verdict==='不如竞品'?'bad':'good'}">${r.verdict}</span>`:''}</td></tr>`).join('')}</tbody></table></div>
+    ${C.compare.compOnlyTags.length?`<p class="hint" style="margin:0">只有竞品被说到的：${C.compare.compOnlyTags.join('、')}</p>`:''}</div>`:''}
+  <div class="panel"><h2>建议的行动</h2><div class="acts">${main.slice(0,3).map((p,i)=>`<div class="act"><span class="chip ${i===0?'bad':'warn'}">${i===0?'先做':'接着做'}</span><div><b>${p.name}：${p.fix}</b><p>该谁改：${p.owner} · 看什么数：评论里提「${p.name}」的占比，现在 ${pct(p.count)}</p></div></div>`).join('')}
+    <div class="act"><span class="chip good">用好评</span><div><b>${praises.map(p=>p.use).slice(0,2).join('；')}</b><p>依据：${praises.slice(0,2).map(p=>`「${p.name}」${p.count} 条`).join('，')}</p></div></div></div></div>
+  <div class="panel"><div><h2>全部原话</h2><p class="sub">点标签筛选</p></div><div class="filters" id="tagf"></div><div class="tablewrap"><table id="rv"></table></div></div>
+  <p class="foot">${P.brand} 是公开在售的 Amazon 品牌，这里只用于演示分析流程。评论不保留买家名字。</p>`;
+  document.getElementById('app').innerHTML=html;
+
+  /* 旅程图 */
+  const S=D.journey, W=960,H=400,L=20,R=20,T=40,B=60,n=S.length,colW=(W-L-R)/n, mid=T+(H-T-B)/2, half=(H-T-B)/2-14;
+  const maxC=Math.max(...S.flatMap(s=>[...s.pos,...s.neg].map(x=>x[1])),1);
+  const off=c=>14+Math.sqrt(c)/Math.sqrt(maxC)*(half-14), cx=i=>L+colW*(i+.5);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="用户旅程：每个阶段满意和不满意的时刻">`;
+  for(let i=1;i<n;i++) s+=`<line x1="${L+colW*i}" x2="${L+colW*i}" y1="${T}" y2="${H-B}" stroke="${css('--line')}" stroke-dasharray="2 4"/>`;
+  s+=`<line x1="${L}" x2="${W-R}" y1="${mid}" y2="${mid}" stroke="${css('--warn')}" stroke-dasharray="5 4" stroke-width="1.4"/><text x="${L+4}" y="${mid-6}" font-size="11" fill="${css('--warn')}">情绪基线</text>`;
+  S.forEach((st,i)=>{
+    const place=(arr,sign,color)=>{ const it=arr.filter(x=>x[1]>0).map(([tx,c])=>({tx,c,o:off(c)})).sort((a,b)=>a.o-b.o);
+      it.forEach((x,j)=>{ x.o=j===0?Math.max(x.o,14):Math.max(x.o,it[j-1].o+17); });
+      it.forEach((x,j)=>{ const r=3+Math.sqrt(x.c)*1.1, X=cx(i)-colW*.32+(j%2)*6, Y=mid-sign*x.o;
+        s+=`<g style="animation:rise .38s var(--ease) ${i*80+150}ms both"><circle cx="${X}" cy="${Y}" r="${r}" fill="${color}" fill-opacity=".9"/><text x="${X+r+5}" y="${Y+4}" font-size="11.5" font-weight="700" fill="${color}" style="paint-order:stroke;stroke:${css('--surface')};stroke-width:3.5px;stroke-linejoin:round">${x.tx} ${x.c}</text></g>`; }); };
+    place(st.pos,1,css('--good')); place(st.neg,-1,css('--bad'));
+    s+=`<text x="${cx(i)}" y="${H-B+24}" text-anchor="middle" font-size="12.5" font-weight="700" fill="${css('--ink')}">${st.n}</text>`;
+    if(st.score!=null) s+=`<text x="${cx(i)}" y="${H-B+44}" text-anchor="middle" font-size="12" font-weight="700" fill="${css('--'+tone(st.score))}">满意度 ${sgn(st.score)}<tspan font-weight="400" fill="${css('--faint')}">（${st.talked} 人）</tspan></text>`;
+  });
+  document.getElementById('journey').innerHTML=s+'</svg>';
+
+  /* 原话表 */
+  const tags=[...D.tagsNeg,...D.tagsPos].filter(t=>U.some(r=>r.tags.includes(t)));
+  let f='全部';
+  function draw(){
+    document.getElementById('tagf').innerHTML=['全部',...tags].map(t=>`<button class="fchip" type="button" data-t="${t}" aria-pressed="${f===t}">${t} <span class="num">${t==='全部'?N:U.filter(r=>r.tags.includes(t)).length}</span></button>`).join('');
+    const rows=U.filter(r=>f==='全部'||r.tags.includes(f));
+    document.getElementById('rv').innerHTML=`<thead><tr><th>星级</th><th>日期</th><th>款式</th><th>原话</th><th>标签</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="num">${r.star}★</td><td class="num">${day(r.t)}</td><td>${r.sku||'<span class="hint">未标</span>'}</td><td>${r.en}<span class="zh">${r.zh}</span></td><td><div class="tags">${r.tags.map(t=>`<span class="chip ${D.tagsNeg.includes(t)?'bad':'good'}">${t}</span>`).join('')}</div></td></tr>`).join('')}</tbody>`;
+  }
+  document.getElementById('tagf').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; f=b.dataset.t; draw(); });
+  draw();
+})();
+</script>

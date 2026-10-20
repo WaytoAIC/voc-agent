@@ -1,0 +1,33 @@
+# === Git协作规范 v1 标准模板(按需微调,别删安全段) ===
+
+# 密钥与凭证:永不入库(宪法铁律三)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials.json
+
+# 依赖与缓存
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 运行产出与快照(贵重数据走各自归档机制,不走 git)
+runs/
+
+# 浏览器/自动化残留
+.playwright-cli/
+.playwright-mcp/
+chrome-profile/
+
+# 系统与临时
+.DS_Store
+~$*
+*.tmp
+
+# 本地分析产出
+voc-reports/
