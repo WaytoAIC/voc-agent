@@ -1123,6 +1123,389 @@
    ],
    "hot": [],
    "unlabeled": 5
+  },
+  "alexa": {
+   "n": 24,
+   "filled": 24,
+   "stance": {
+    "一致": 10,
+    "补充": 12,
+    "有误": 2
+   },
+   "rows": [
+    {
+     "tag": "边角翘、粘不住",
+     "reviews": 12,
+     "ofReviews": 35.3,
+     "alexa": 18
+    },
+    {
+     "tag": "背膜难撕",
+     "reviews": 6,
+     "ofReviews": 17.6,
+     "alexa": 8
+    },
+    {
+     "tag": "运输折痕",
+     "reviews": 3,
+     "ofReviews": 8.8,
+     "alexa": 11
+    },
+    {
+     "tag": "不耐用、偏薄",
+     "reviews": 2,
+     "ofReviews": 5.9,
+     "alexa": 2
+    },
+    {
+     "tag": "尺寸偏小",
+     "reviews": 1,
+     "ofReviews": 2.9,
+     "alexa": 0
+    },
+    {
+     "tag": "不能洗",
+     "reviews": 1,
+     "ofReviews": 2.9,
+     "alexa": 5
+    },
+    {
+     "tag": "伤地板",
+     "reviews": 1,
+     "ofReviews": 2.9,
+     "alexa": 5
+    },
+    {
+     "tag": "收到二手货",
+     "reviews": 1,
+     "ofReviews": 2.9,
+     "alexa": 4
+    }
+   ],
+   "topCovered": 3,
+   "topN": 3,
+   "missed": [],
+   "alexaOnly": []
   }
+ },
+ "alexa": {
+  "items": [
+   {
+    "q": "What are the most common complaints in the negative reviews for this product?",
+    "category": "核心必问",
+    "answer": "Based on reviews of the MontVoo 15PC Jute Stair Treads, here are the most common complaints from lower-rated reviews:Adhesion Issues — The most frequently cited problem. Reviewers report the treads not sticking properly, with insufficient adhesive tape and difficulty keeping corners in place. Some note they had to purchase additional tape for better results.Durability Concerns — Several reviewers report the product damaging their floors within days or weeks, and others mention the adhesive film being easy to tear during installation, making removal difficult.Creasing Problems — Because the treads arrive folded in half for shipping, customers struggle to remove center creases. Some report it takes weeks for the wrinkles to smooth out.Quality Inconsistencies — A few reviewers received treads with the backing already peeled off and damaged upon arrival.On a positive note, even critical reviewers acknowledge the attractive appearance and good slip resistance when they do adhere properly. The product has a 4.2-star rating with 131 total reviews (22% rated 1-3 stars).Would you like to know more about adhesion solutions or see alternative stair tread options?",
+    "zh": "差评里最常见的抱怨：粘不住、四角翘（最多），其次是伤地板、背膜易撕破、折痕、收到背膜已撕开的货；差评也承认好看、防滑。",
+    "tags": [
+     "边角翘、粘不住",
+     "伤地板",
+     "背膜难撕",
+     "运输折痕",
+     "收到二手货",
+     "好看",
+     "防滑安心"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "What specific defects or quality failures do 1-star and 2-star reviewers report?",
+    "category": "核心必问",
+    "answer": "15% of 131 total ratings are 1-2 stars. Based on the detailed feedback available, here are the specific defects and quality failures 1-2 star reviewers report for the MontVoo 15PC Jute Stair Treads:Adhesion Failures — The most critical defect. Reviewers report the self-adhesive backing not sticking properly, with insufficient adhesive tape coverage and corners lifting or peeling off entirely. One reviewer stated they were \"totally regretting it waste of my money they do not stick.\"Durability & Material Quality — Multiple defects reported:\n•Thin, low-quality construction that tears easily during removal of the backing film, making the product miserable to install\n•The adhesive film itself is easy to rip, complicating removal\n•Damage to underlying floors within days to a week of installation\n•Some units arriving with the backing already peeled off and dirty upon arrival\nCreasing Problems — Because treads ship folded in half, reviewers struggle to remove center creases, with some reporting it takes weeks for wrinkles to smooth out—or they never do.Installation Issues — Reviewers mention difficulty peeling the plastic backing film and overall challenging installation despite marketing claims of ease.The product is marked as \"frequently returned,\" which aligns with these quality and adhesion failures reported in lower-rated reviews.",
+    "zh": "1–2 星占 15%。具体缺陷：粘不住、偏薄易撕、背膜难撕、一周内伤地板、收到背膜已撕开且脏的货、折痕难平。",
+    "tags": [
+     "边角翘、粘不住",
+     "不耐用、偏薄",
+     "背膜难撕",
+     "伤地板",
+     "收到二手货",
+     "运输折痕"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "Do customers feel the listing photos or description are misleading versus what arrived?",
+    "category": "核心必问",
+    "answer": "Based on available reviews, customers don't specifically mention the listing photos or description being misleading. However, there are notable gaps between what the product promises and what customers experience:Adhesion Claims vs. Reality — The listing emphasizes \"easy installation\" and \"self-adhesive backing,\" but reviewers repeatedly report the adhesive is insufficient. One customer states the product is \"supposed to be self stick, what a joke.. it is not sticky at all,\" while another notes \"there is not enough extra adhesive tape to do a strip along each edge.\"\"Residue-Free Removal\" Claim — The description claims \"residue-free removal,\" but several reviewers report the backing film tears during removal and is \"miserable trying to take off.\" Some mention the product damaged their floors within days.\"Easy Installation\" Claim — While some reviewers confirm installation is quick (20-30 minutes), others struggle significantly with peeling the plastic backing film, suggesting the description may understate installation difficulty for some users.Customers don't appear to reference the photos being inaccurate, but the marketing language around adhesive strength and ease of removal doesn't align with the experiences reported in critical reviews.",
+    "zh": "没人说图片或描述误导，但「自粘、好装、无残胶」这几个卖点和实际体验有落差。",
+    "tags": [
+     "边角翘、粘不住",
+     "背膜难撕",
+     "伤地板"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "How soon do customers say this product breaks, wears out, or stops working?",
+    "category": "核心必问",
+    "answer": "Based on customer reviews, the MontVoo Jute Stair Treads shows mixed longevity:Positive Long-Term Reports — Some customers report excellent durability over extended use. One reviewer states \"The adhesive has held up well — it's been there for months now and no issues,\" and another reports \"No issues whatsoever and we've had them installed for over 6 months with heavy traffic and several large animals.\"Early Failure Timeline — However, critical reviewers report problems within days to weeks:\n•Within 1 week: One customer notes the product \"damaged the floor in a week\"\n•During installation: Several mention the backing film tears easily, making removal difficult\n•Adhesion failures: Corners and edges often begin lifting within the first few weeks as the self-adhesive weakens\nThe key differentiator appears to be adhesion quality — customers who reinforce the adhesive with extra tape report months of trouble-free use, while those relying solely on the original adhesive often see corner peeling and failure within 2-4 weeks.The product is marked \"Frequently returned,\" which aligns with these early durability issues reported in reviews.",
+    "zh": "寿命两极：有人用了 6 个多月没问题；差评说几天到几周就出问题，四角 2–4 周开始翘。另外提到页面标了「Frequently returned item」。",
+    "tags": [
+     "边角翘、粘不住",
+     "伤地板",
+     "用得住"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "What do customers love most about this product?",
+    "category": "核心必问",
+    "answer": "Customers love several standout features of the MontVoo Jute Stair Treads:Appearance — Reviews consistently highlight how attractive the natural jute material looks. Customers mention they \"look great,\" \"look beautiful,\" and add a refined, elegant aesthetic to their stairs that complements various home décors.Slip Resistance & Safety — Multiple customers emphasize excellent traction, with one noting \"the safety that they offer to our previously slippery bare hardwood steps is unsurpassed.\" Pet owners particularly love that these help elderly or struggling dogs navigate stairs safely.Quality & Feel — When adhesion works well, customers praise the sturdy construction, finding them \"nice quality\" and noting they \"feel good\" underfoot with a solid, textured surface.Pet-Friendly Design — Customers with dogs and cats love that the jute resists scratching (unlike plush fabrics) and doesn't trap pet hair, making maintenance easier.Stability — When properly adhered, reviewers report they \"don't move out of place\" and stay put through regular use and pet traffic.Value — Customers who get good adhesion feel the price is fair for natural material stair treads that look premium in their homes.The consistent theme: customers love what they do (look beautiful, provide safety, resist pet damage) — the main frustration centers on the adhesive backing, not the treads themselves.Would you like solutions for strengthening the adhesion?",
+    "zh": "用户最爱：好看、防滑安全（尤其老年犬）、质感好、防宠物抓挠、贴牢后不移位。",
+    "tags": [
+     "好看",
+     "防滑安心",
+     "宠物不再打滑"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "Which features or qualities are praised most often in 5-star reviews?",
+    "category": "核心必问",
+    "answer": "The MontVoo 15PC Jute Stair Treads has 131 total ratings — 66% 5-star, 12% 4-star, and 22% 1-3 star. The product doesn't have enough written reviews at the 5-star rating level to extract specific themes, but based on all customer feedback, here's what reviewers at higher ratings consistently praise:What 5-star and 4-star reviewers love most:\n•Appearance (17 mentions, 100% positive): Customers consistently highlight how attractive and elegant the natural jute looks. Reviewers mention they \"look great,\" \"look beautiful,\" and add a refined aesthetic to their home. — \"Looks beautiful, great quality and easy installation.\"\n•Slip Resistance & Safety (10 mentions, 83% positive): Reviewers emphasize excellent traction on previously slippery wooden stairs. Pet owners particularly praise how well these help elderly or struggling dogs navigate safely. — \"These are attractive and amazingly slip resistant. The safety that they offer to our previously slippery bare hardwood steps is unsurpassed.\"\n•Quality & Feel (20 mentions, 80% positive): Customers praise the sturdy, well-made construction and solid feel underfoot when the treads stay properly adhered. — \"Looks beautiful, great quality and easy installation.\"\n•Stability (7 mentions, 100% positive): When adhesion works, reviewers report the treads stay perfectly in place without shifting through regular use and heavy traffic. — \"They didn't move out of place.\"\nSee all reviews ›The standout takeaway: buyers who rate this 5 stars love how it looks and performs for safety, but their satisfaction hinges entirely on whether the adhesive holds.",
+    "zh": "评分 131 个：5 星 66%、4 星 12%、1–3 星 22%。好评主题：外观 17 次全正面，防滑 10 次 83% 正面，质感 20 次 80% 正面。",
+    "tags": [
+     "好看",
+     "防滑安心"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "What materials is this product made of, and how is the build quality?",
+    "category": "核心必问",
+    "answer": "The MontVoo Jute Stair Treads are made of tightly woven natural jute, which gives them a refined, textured appearance and good slip resistance.Build Quality — Mixed Feedback:Strengths:\n•Sturdy construction — Customers who keep them report they feel solid and well-made\n•Pet-resistant jute — Unlike plush fabrics, the dense weave resists scratches from claws and doesn't trap pet hair\n•Durable material — When properly adhered, the jute itself holds up well to regular foot traffic\nConcerns:\n•Thin material — Some reviewers note the jute feels thinner than expected, making the backing film easy to tear during removal\n•Adhesive backing weakness — The main quality issue isn't the jute itself but the self-adhesive layer, which reviewers frequently report as insufficient (not enough coverage at corners and edges)\n•Shipping damage — A few customers report treads arriving with backing already peeled off or dirty\n•Creasing — Because they ship folded, creases are difficult to remove and can take weeks to disappear\nCustomer consensus: The jute material and craftsmanship are good for the price, but build quality is compromised by weak adhesive backing. Many customers add extra carpet tape to reinforce it.The product is marked \"Frequently returned,\" largely due to adhesion failures rather than material defects.",
+    "zh": "材质是天然黄麻，做工评价两极：黄麻本身结实，问题出在背胶不够和偏薄；另有运输折痕、收到已撕背膜的货。",
+    "tags": [
+     "不耐用、偏薄",
+     "边角翘、粘不住",
+     "运输折痕",
+     "收到二手货"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "How durable is it over months of regular use, according to reviews?",
+    "category": "核心必问",
+    "answer": "Durability over months — Mixed Results:The MontVoo Jute Stair Treads show highly variable durability depending on adhesion quality:Long-Term Success (Months):\n•Customers who reinforce adhesion with extra carpet tape report excellent durability — one reviewer states \"The adhesive has held up well — it's been there for months now and no issues,\" and another notes \"We've had them installed for over 6 months with heavy traffic and several large animals\"\n•When properly adhered, the jute material itself resists wear from foot traffic and pet claws\nEarly Failure Timeline:\n•Corners lifting within 2–4 weeks as original adhesive weakens\n•Peeling edges often begin failing by week 3–4 with regular use\n•Some report floor damage within 1 week if adhesive fails and backing residue remains\nThe Key Factor: Durability hinges entirely on the self-adhesive backing — the jute material is durable, but insufficient adhesive coverage is the failure point. Reviews show customers who add carpet tape along edges achieve multi-month stability, while those relying on original adhesive often need replacement within weeks.The product is marked \"Frequently returned,\" reflecting these early adhesion failures rather than material defects.Interested in solutions to extend durability?",
+    "zh": "耐用性全看背胶：另加胶带的人用了几个月没问题，只靠原胶的 2–4 周四角开始翘。",
+    "tags": [
+     "边角翘、粘不住",
+     "用得住"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "What are the main features and selling points of this product?",
+    "category": "核心必问",
+    "answer": "The MontVoo 15PC Jute Stair Treads combines natural aesthetics with practical safety features:Key Selling Points:\n•Natural Jute Material — Tightly woven jute adds elegant, refined look while reducing noise on stairs\n•Non-Slip Surface — Excellent traction helps prevent slips on wooden stairs; customers particularly praise the safety for elderly pets and children\n•Pet-Friendly — Resists scratches from claws and prevents pet hair from getting trapped (unlike plush carpet treads)\n•Peel-and-Stick Installation — Easy application with transparent backing film and guide stickers; no tools needed\n•Residue-Free Removal — Self-adhesive backing can be removed cleanly without damaging floors or leaving sticky residue\n•15-Piece Set — Covers 15 stairs at 8\"×30\" per tread\n•Price — $69.98 for the 15-pack; customers find it good value for natural materials\nWhat Customers Love Most:\n•Appearance (100% positive mentions) — looks beautiful and elegant\n•Slip resistance and safety (83% positive)\n•Build quality (80% positive)\n•Stability when properly adhered (100% positive)\nMain Consideration: Adhesion is the primary tradeoff — customers consistently reinforce with extra carpet tape for long-term durability (6+ months), while those relying on original adhesive often see corner peeling within 2–4 weeks. The product is marked \"Frequently returned\" due to adhesion concerns.",
+    "zh": "卖点归纳：天然黄麻、防滑、防宠物、免工具自粘、无残胶、15 片装 $69.98；最需要注意的是粘性。",
+    "tags": [
+     "好看",
+     "防滑安心",
+     "好装",
+     "边角翘、粘不住"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "Which advertised features actually work well in real use, and which disappoint?",
+    "category": "核心必问",
+    "answer": "What Works Well in Real Use:\n•Appearance (100% positive) — The natural jute looks elegant and refined; customers consistently say it looks \"beautiful\" and \"great\" on stairs\n•Slip Resistance & Safety (83% positive) — Delivers excellent traction; customers report it \"prevents slips\" and helps elderly pets navigate safely\n•Quality Material (80% positive) — Jute is sturdy and feels good underfoot; resists pet scratches and doesn't trap hair like plush alternatives\n•Stability (100% positive) — When adhesion holds, treads stay completely in place with no shifting during regular use\n•Easy Removal (advertised) — Comes off cleanly without floor damage when the backing film cooperates\nWhat Disappoints in Real Use:\n•Adhesion (44% positive, 56% negative) — The self-adhesive backing is the main failure point: corners and edges lift within 2–4 weeks; not enough adhesive coverage despite advertising \"reliable self-adhesive backing\"\n•Backing Film Removal (challenging) — Customers report peeling the plastic backing is difficult and can tear easily, contradicting the \"easy installation\" claim\n•Thin Material — The jute feels thinner than expected, making it easier to damage during installation\n•Creasing (60% negative) — Ships folded, creating permanent creases that take weeks to disappear\n•Durability (80% negative) — Despite durability claims, adhesion failures cause early deterioration; some customers report floor damage within a week if adhesive fails\nBottom Line: The product delivers on appearance, safety, and material quality — but fails on its core promise of reliable self-adhesive backing. Most satisfied customers reinforce with extra carpet tape, effectively completing what the adhesive should do alone.Interested in adhesion solutions that actually work?",
+    "zh": "名不副实的卖点：粘性（正面 44%、负面 56%）和「好装」；名副其实的：外观、防滑、质感、贴牢后稳定。",
+    "tags": [
+     "边角翘、粘不住",
+     "背膜难撕",
+     "好看",
+     "防滑安心"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "How easy is this product to set up and start using?",
+    "category": "核心必问",
+    "answer": "Installation is generally easy but has a significant catch:The MontVoo Jute Stair Treads are designed for simple peel-and-stick application with helpful features:\n•Transparent backing film with center slit and guide stickers marking where to peel\n•No tools needed — just peel, position, and press down\n•Quick timing — one customer completed 12 stairs in 20 minutes\n•Residue-free removal — comes off cleanly if you need to reposition\nWhere Setup Gets Tricky:\n•Peeling the backing film is the main frustration — customers report the plastic backing is difficult and easy to tear, with some describing it as \"miserable\" to remove; one reviewer said \"removing the plastic backing SUCKED\"\n•Corners require extra care — adhesion is weak at edges, so many customers add extra carpet tape during installation for proper hold\n•Creases from shipping — arrives folded, creating creases that take 1–2 weeks to disappear and make installation harder\nReal-World Experience:\nMost satisfied customers report \"easy installation\" when they come prepared with extra carpet tape. Without reinforcement, adhesion failures happen quickly (within 2–4 weeks), requiring reinstallation.The product advertises \"easy installation,\" but customers consistently mention needing extra materials and effort beyond what the product provides.",
+    "zh": "安装总体简单（12 级 20 分钟），但背膜难撕、四角要另加胶带、折痕要 1–2 周才平。",
+    "tags": [
+     "好装",
+     "背膜难撕",
+     "边角翘、粘不住",
+     "运输折痕"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "What do customers find confusing or frustrating when first using it?",
+    "category": "核心必问",
+    "answer": "Most Common Frustrations When First Using:1. Peeling the Backing Film (cited most frequently)\n•Customers describe this as \"miserable,\" \"challenging,\" and the worst part of installation\n•The transparent plastic backing tears easily if you pull the wrong way\n•One reviewer said: \"Removing the plastic backing SUCKED\"\n•Tip: Go slowly, use your fingernail carefully, and follow the guide stickers marked on the film\n2. Weak Adhesion at Corners & Edges\n•Corners don't stick down properly despite claims of \"reliable self-adhesive backing\"\n•Customers report needing to add extra carpet tape right from installation to make treads stay\n•One reviewer noted: \"Took off one star because it's hard to get the corners to really stick down well\"\n3. Creasing from Shipping\n•Arrives folded in half, creating deep creases down the middle\n•Takes 1–2 weeks to flatten, making initial installation frustrating\n•Makes the treads harder to position properly during setup\n4. Unclear Expectations\n•Customers expecting the advertised \"easy installation\" and \"reliable self-adhesive backing\" find they need extra supplies and effort beyond what the product provides\n•Some are surprised the jute feels thinner than anticipated\n5. Shipping Damage\n•A few customers report treads arriving with backing already peeled off or dirty\nBottom Line: The frustration isn't the jute quality or appearance—it's the gap between what's advertised (easy peel-and-stick) and what's needed in practice (extra tape, careful backing removal, crease patience).",
+    "zh": "初次使用最烦的：撕背膜（最多）、四角粘不住、折痕、预期落差。",
+    "tags": [
+     "背膜难撕",
+     "边角翘、粘不住",
+     "运输折痕"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "What are the exact dimensions, weight, and capacity of this product?",
+    "category": "核心必问",
+    "answer": "Dimensions & Weight for the MontVoo 15PC Jute Stair Treads:Individual Tread Dimensions:\n•8\" × 30\" per tread (width × length)\nPackage Dimensions:\n•16.73\" × 8.82\" × 7.8\" (ships compressed/folded)\n•Total Weight: 7.77 lbs for all 15 treads (~0.52 lbs per tread)\nSet Capacity:\n•15 treads total — covers 15 standard stairs\n•No weight capacity limit specified; the jute is sturdy for regular foot traffic and safe for pets and children\nThe treads are designed for standard indoor residential stairs. Each tread ships folded (which creates creases that take 1–2 weeks to flatten), but the actual installed dimensions are a consistent 8\" wide by 30\" long.",
+    "zh": "尺寸 8×30 英寸一片，15 片共 7.77 磅，折叠发货。",
+    "tags": [
+     "运输折痕"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "Do customers find the size, fit, or measurements accurate to the listing?",
+    "category": "核心必问",
+    "answer": "Yes, customers consistently confirm the dimensions are accurate to the listing.The MontVoo 15PC Jute Stair Treads measure exactly 8\" × 30\" as advertised. No complaints about sizing inaccuracy appear in customer reviews.What Customers Do Note About Size:\n•Standard fit — The 8\" width matches typical residential stairs perfectly\n•30\" length — Long enough to fully cover most stair widths without overhang\n•Shipping vs. installed size — Treads arrive folded in half (16.73\" × 8.82\" × 7.8\" package), creating permanent creases that take 1–2 weeks to flatten. This doesn't affect the actual installed dimensions, but does impact initial appearance and installation difficulty\n•Weight is accurate — 7.77 lbs total for 15 treads (~0.52 lbs each) matches listing\nKey Takeaway: The measurements are honest and match what you're buying. The confusion isn't about size—it's that customers expect the treads to arrive flat (not folded), which creates the creasing issue that extends installation time and affects initial fit appearance.",
+    "zh": "说尺寸和页面一致、没人抱怨尺寸不准；但评论里有 1 条说对标准台阶太小、准备退货。",
+    "tags": [
+     "运输折痕"
+    ],
+    "stance": "有误"
+   },
+   {
+    "q": "How does this product compare to the top-rated alternatives in its category?",
+    "category": "核心必问",
+    "answer": "Here's how the MontVoo 15PC Jute Stair Treads ($69.98) compares to top-rated alternatives in the category:\n\nProductRatingPriceMaterialAdhesionWashable\n15PC Jute Stair Treads for Wooden Steps-Non Slip Peel and Stick Stair Treads Indoor, Adhesive Staircase Step Treads Residue Free, Cat-Friendly & Scratch-Resistant Durable Stair Runner,8\"x30\" Beige\n($4.67/count)\nAdd to cart\nNo rating yet$69.98Natural JuteSelf-adhesive (weak corners)No — vacuum/damp cloth only\nCOSY HOMEER Edging Stair Treads Non-Slip Carpet Mat 28inX9in,15pc,Beige | Indoor Stair Runner for Wooden Steps,Washable Adhesive Stairs Rugs for Kid,Elder,Dog,Polyester Carpet Stair Treads,TPE Back\n($2.91/square feet)\nAdd to cart\n4.7 (8,728 reviews)$76.49Polyester + TPETPE non-slip — no adhesiveYes — up to 30 washes\nCOSY HOMEER Soft Stair Treads 15pcs Non-Slip Carpet Mat 28inX9in,Beige | Indoor Stair Runners for Wooden Steps,Stair Rugs for Kids and Dogs, 100% Polyester TPE Backing\n($0.02/sq in)\nAdd to cart\n4.7 (1,647 reviews)$74.99Polyester + TPETPE non-slip — no adhesiveYes — machine washable\n15 Pcs Stair Treads Non-Slip for Wooden Steps, 8\"x30\" Beige | Indoor Stair Runner for Kids, Elders & Pets, Washable Polyester Carpet Stair Treads with Peel & Stick Reusable TPE Backing\nAdd to cart\n4.5 (611 reviews)$29.96Polyester + TPEReusable TPE backingYes — machine washable\nLinen Stair Treads for Wooden Steps Indoor 30x8 Inch, 15 Pcs | Self Adhesive Backing Non Slip Stair Carpets, Peel and Stick Stair Runner Rugs, Reusable Staircase Step Treads, Beige\nAdd to cart\n4.4 (566 reviews)$58.99Natural Linen3x stronger self-adhesiveYes — water/vacuum clean\nMBIGM Carpet Stair Treads for Wooden Steps, 15 Pack, 8\" x 30\", Brown Stripe | Four-layer polyester carpet with PP grid base, nonwoven cushion and TPR adhesive backing adds indoor traction and comfort\n($2.80/count)\nAdd to cart\n4.6 (8,755 reviews)$41.994-layer PolyesterTPR non-permanent backingYes — machine washable\n\nKey Takeaways:\n•Natural look: MontVoo's jute has the most natural, elegant aesthetic — if that's your priority, it's the standout in this comparison. The GROWLING Linen (B0CG1FS73G) offers a similar natural look with stronger adhesion.\n•Adhesion: MontVoo's biggest weakness. The COSY HOMEER and MBIGM options use TPE/TPR backing that grips without gluing — and can be washed and reused repeatedly without losing stick.\n•Washability: MontVoo cannot be machine washed — a notable limitation. All 5 alternatives are machine washable, which matters for pet households.\n•Value: The TranquilMoments (B0FD3LVCL8) and MBIGM (B07ZNXYCB6) offer strong ratings at lower price points and are currently on sale.\n•Review confidence: MontVoo is a newer listing. The COSY HOMEER (8,728 reviews, 4.7★) and MBIGM (8,755 reviews, 4.6★) have far more verified buyer data to draw from.\nBottom line: MontVoo wins on natural jute aesthetics but lags behind top-rated alternatives on adhesion, washability, and review volume.",
+    "zh": "和类目头部比：COSY HOMEER 4.7 星（8,728 条评论）$76.49、TPE 防滑底不用胶、可机洗；还有 MBIGM 4.6 星 $41.99 等。",
+    "tags": [
+     "边角翘、粘不住",
+     "不能洗"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "Where do competing products clearly do better than this one?",
+    "category": "核心必问",
+    "answer": "Based on the comparison, here are the areas where competing products clearly outperform the MontVoo Jute Stair Treads:1. Adhesion & Staying Power\n•MontVoo's biggest weakness — corners don't stick well and extra tape is consistently needed\n•COSY HOMEER (both versions) and TranquilMoments use TPE/TPR backing that grips reliably without gluing, with far fewer adhesion complaints\n•GROWLING Linen advertises 3x stronger self-adhesive than standard options\n2. Washability\n•MontVoo cannot be machine washed — jute care is limited to vacuuming or a damp cloth\n•All 5 competing products are machine washable, a significant advantage for homes with pets, kids, or heavy foot traffic\n3. Durability Track Record\n•MontVoo is a newer product (listed August 2025) with limited long-term data; durability reviews are mostly negative so far, including reports of floor damage within a week\n•COSY HOMEER (8,728 reviews, 4.7★) and MBIGM (8,755 reviews, 4.6★) have years of verified buyer data confirming long-term hold\n4. Value\n•At $69.98, MontVoo is among the pricier options despite having the least verified track record\n•TranquilMoments ($29.96, 4.5★) and MBIGM ($41.99, 4.6★) deliver strong performance at significantly lower prices\n5. High Return Rate\n•MontVoo is flagged as a \"Frequently returned item\" on Amazon — a notable concern not seen with the top alternatives\nWhere MontVoo Still Wins: Natural jute aesthetics — if a natural fiber look matters most to you, it remains the standout choice in this comparison.",
+    "zh": "竞品明显更好的地方：TPE 防滑底不靠胶、全部可机洗、评论多且口碑稳、更便宜；还说本品耐用性评论「大多负面」，这一句不对。",
+    "tags": [
+     "边角翘、粘不住",
+     "不能洗"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "Do customers feel this product is worth the price?",
+    "category": "核心必问",
+    "answer": "Customer sentiment on value for the MontVoo 15PC Jute Stair Treads at $69.98 is mixed, leaning cautiously positive — but with some important caveats:Those who feel it's worth it say:\n•\"Price worth it to pay\" — appreciated the natural jute aesthetic over synthetic alternatives\n•\"Look great in our home for the price and make our wood steps feel much safer\"\n•\"Not cheap but I wanted natural materials\" — buyers who specifically wanted jute accept the premium\n•Customers who bought extra carpet tape upfront report being satisfied overall\nThose who don't feel it's worth it say:\n•\"Spend a little more money and get a better quality product. Would not buy again\"\n•Durability concerns — one reported floor damage within a week, raising doubt about long-term value\n•The product is flagged as a \"Frequently returned item\" on Amazon — a meaningful signal about buyer satisfaction at this price point\n•At $69.98 for 15 treads (~$4.67/tread), buyers are paying a premium and still needing to buy extra supplies\nThe value verdict by buyer type:\n•Worth it if: You specifically want natural jute aesthetics and are willing to buy extra tape\n•Not worth it if: You want reliable adhesion, washability, or long-term durability — comparable or better-rated options like MBIGM ($41.99) and TranquilMoments ($29.96) cost significantly less with stronger track records",
+    "zh": "值不值：偏谨慎的正面。想要天然黄麻的人觉得值；但要另买胶带，且页面标了高退货。",
+    "tags": [
+     "比定制便宜",
+     "边角翘、粘不住"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "Who is this product best suited for, and who should avoid it?",
+    "category": "核心必问",
+    "answer": "Best suited for:\n•Design-focused homeowners — If natural jute aesthetics matter more than durability or convenience, this is the standout choice. Customers consistently praise how elegant and refined it looks\n•Pet owners (selective) — The dense jute weave resists scratching and minimizes pet hair buildup. Customers report it \"works great\" for elderly dogs who struggle on hardwood stairs\n•Buyers willing to invest in extras — If you're prepared to purchase additional carpet tape upfront (many reviews mention buying extra), adhesion becomes manageable\n•Low-traffic staircases — Works best on stairs with moderate use, not high-traffic households\nShould avoid if:\n•You need reliable, no-fuss adhesion — Corners regularly don't stick, and reviews show mixed experiences. Competing options like COSY HOMEER ($76.49, 4.7★) and MBIGM ($41.99, 4.6★) have TPE/TPR backing that grips without adhesive tape headaches\n•You need washability — These cannot be machine washed (only vacuum/damp cloth). All competing products are fully washable, a major advantage for pet homes\n•You're budget-conscious — At $69.98 with durability concerns flagged, you'll get better value from TranquilMoments ($29.96, 4.5★) or MBIGM ($41.99, 4.6★)\n•You want long-term durability proof — MontVoo is a newer product (August 2025) with reports of floor damage within a week. Top alternatives have years of verified buyer data\n•You have high-traffic stairs or young children/pets — The \"frequently returned item\" flag signals durability concerns in active households\nBottom line: This product is perfect for aesthetics-first buyers on lower-traffic stairs. For anyone prioritizing reliability, washability, or value, alternatives are stronger choices.",
+    "zh": "适合：重视外观的人、家里有老年犬、愿意另买胶带的人；不适合：要免折腾粘性、要可机洗、预算敏感的人。",
+    "tags": [
+     "好看",
+     "宠物不再打滑",
+     "边角翘、粘不住",
+     "不能洗"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "What concerns or doubts make shoppers hesitate to buy this product?",
+    "category": "核心必问",
+    "answer": "Here are the key concerns making shoppers hesitate about the MontVoo Jute Stair Treads:1. Adhesion Problems (Biggest Concern)\n•Corners don't stick reliably — customers say \"adhesion is not enough\" and \"they do not stick\" — this is the #1 reason for hesitation\n•Reviewers consistently mention needing to buy extra carpet tape to make them stay in place\n•Some report them peeling up over time, especially with vacuuming\n2. Durability Red Flags\n•The product is flagged as a \"Frequently returned item\" on Amazon — a serious hesitation signal\n•One customer reported floor damage within a week of installation\n•Others note the treads are \"easy to rip\" during removal, making mistakes costly\n•Limited long-term data (product launched August 2025) compared to established alternatives\n3. Creasing Issues\n•Shipped folded in half, creating permanent creases that take 1–2 weeks to flatten\n•Customers report difficulty removing these creases, affecting both appearance and adhesion\n•The plastic backing film is described as \"hard to remove\" without ripping the tread\n4. Limited Cleaning Options\n•Not machine washable — only vacuum or damp cloth allowed\n•This is a significant limitation for pet owners, making competing washable options more appealing\n•The product claims \"washable\" in the title but actually isn't machine washable\n5. Price vs. Track Record\n•At $69.98 for jute with adhesion issues and durability concerns, buyers question the value\n•Top-rated alternatives like MBIGM ($41.99, 4.6★ with 8,755 reviews) and TranquilMoments ($29.96, 4.5★) cost much less with proven durability\n6. Missing Adhesive Tape\n•Half of buyers report the adhesive isn't strong enough from the factory\n•Customers expect the product to arrive \"ready to install\" but end up buying supplementary tape\nBottom line: Shoppers hesitate because this is a newer product with a \"frequently returned\" flag, unresolved adhesion issues, and durability concerns — yet it costs more than established alternatives with better reviews.",
+    "zh": "让买家犹豫的：粘不住（第一）、高退货标记、伤地板、折痕、不能机洗、上架时间短。",
+    "tags": [
+     "边角翘、粘不住",
+     "伤地板",
+     "运输折痕",
+     "不能洗"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "What do customers wish they had known before buying it?",
+    "category": "核心必问",
+    "answer": "Based on customer reviews, here's what shoppers wish they had known before buying the MontVoo Jute Stair Treads:1. Adhesion Requires Extra Tape (The #1 Regret)\n•Customers repeatedly say: \"I wish I had known to buy extra adhesive tape upfront\"\n•Reviews mention \"corners don't stick well\" and \"adhesion is not enough\" — plan to spend extra on carpet tape or expect them to peel up over time\n•One customer notes: \"These worked great. I read reviews of others and got more carpet tape to take down\" — meaning experienced buyers know the workaround\n2. Creases Are Permanent\n•Shipped folded in half, leaving center creases that take 1–2 weeks to flatten — some customers say they never fully disappear\n•One buyer: \"Took a couple of weeks to get the crease out... consider shipping flat\"\n•This affects both appearance and adhesion, especially in the creased areas\n3. Removing the Plastic Backing Is Frustrating\n•Multiple customers describe this as surprisingly difficult: \"removing the plastic backing SUCKED\" and \"there's a certain way to pull or it is easy to rip\"\n•Ripping the backing creates holes in the jute, ruining the tread\n4. Floor Damage Risk\n•One customer reported: \"Damaged the floor in a week\" — a serious concern not mentioned in product descriptions\n•Customers wished they knew about this potential risk before installation\n5. The \"Washable\" Claim Is Misleading\n•Product title says \"Washable\" but they're not machine washable — only vacuum or damp cloth\n•Customers with pets felt misled by this marketing claim\n6. Limited Long-Term Durability Data\n•This is a newer product (August 2025) — customers wish they had known it lacks the 2+ year track record of established alternatives\n•One buyer: \"Spend a little more money and get a better quality product\"\n7. Not Ideal for High-Traffic Stairs\n•Customers report that vacuuming can cause peeling over time — wish they'd known this before buying for busy households\nWhat Satisfied Buyers Knew Upfront:\n•They bought extra carpet tape before installation\n•They understood this was a natural jute product requiring careful handling\n•They had realistic expectations about creasing and took time to flatten them\n•They understood the washability limitation",
+    "zh": "买家后悔没早知道的：要提前买胶带（第一）、折痕要很久才平、背膜难撕。",
+    "tags": [
+     "边角翘、粘不住",
+     "运输折痕",
+     "背膜难撕"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "What warranty does it come with, and how is the seller's customer service?",
+    "category": "核心必问",
+    "answer": "The MontVoo Jute Stair Treads product page does not specify a warranty — this is an important gap. The product description mentions \"Residue-Free Removal\" and \"easy replacement,\" but there's no written warranty coverage or protection period listed.What we know about the seller (MontVoo):\n•No warranty information available on the product page\n•Seller responsiveness: Customer reviews don't directly mention seller communication or support responses\n•Return support: The product is flagged as a \"Frequently returned item\" on Amazon, suggesting customers are exercising the standard Amazon return window rather than relying on manufacturer warranty\nWhat this means for you:\n•You'll likely rely on Amazon's standard return policy (typically 30 days for most items, extended during the holiday season) rather than a manufacturer warranty\n•For defects or adhesion failures, your recourse would be through Amazon returns, not the seller directly\n•Several customers report issues (adhesion failure, floor damage) but reviews don't indicate warranty claims — they appear to have returned items instead\nComparison with alternatives:\n•COSY HOMEER (4.7★, 8,728 reviews) and MBIGM (4.6★, 8,755 reviews) also don't advertise extended warranties, but their high review counts and lower return rates suggest better peace of mind\nRecommendation: Before purchasing, contact MontVoo through Amazon's messaging system (if available) to ask about warranty coverage, especially given the adhesion concerns and durability issues reported by other customers.",
+    "zh": "页面没写质保；售后靠亚马逊退货，结合高退货标记，大家是直接退货而不是找卖家。",
+    "tags": [],
+    "stance": "补充"
+   },
+   {
+    "q": "Do customers report shipping damage, missing parts, or packaging problems?",
+    "category": "核心必问",
+    "answer": "Yes, customers report specific shipping and packaging issues with the MontVoo Jute Stair Treads:Shipping Damage & Condition Issues:\n•Pre-peeled backing — Multiple customers report: \"half of the mats in my order came with the backing already peeled off and dirty\" — some even mention visible debris like dead bugs on the adhesive side\n•Center creases (shipped folded) — All 15 treads arrive folded in half, creating permanent center creases that take 1–2 weeks to flatten and may never fully disappear\n•Film removal damage — The plastic backing film is difficult to remove without tearing: \"removing the plastic backing SUCKED\" and \"there's a certain way to pull or it is easy to rip\"\nMissing Parts:\n•No reports of completely missing treads in shipments, but the pre-peeled backing issue effectively renders some treads unusable or already compromised\nPackaging Problem:\n•Shipping flat design needed — Customers consistently suggest: \"Might want to consider shipping flat\" instead of folded, as this would eliminate creasing damage entirely\nWhat This Means:\n•Before installation, expect to inspect all 15 treads for pre-peeled or dirty backing\n•Plan 1–2 weeks for creases to flatten (they may not fully disappear)\n•Budget extra time for careful film removal to avoid tearing and damaging the jute\nCompared to alternatives like MBIGM and TranquilMoments, which don't report these packing issues as frequently, MontVoo's folded shipping is a clear design flaw affecting customer satisfaction before installation even begins.",
+    "zh": "运输问题：有人收到背膜已撕开、还脏的货；全部折叠发货有折痕；没人说少件。",
+    "tags": [
+     "收到二手货",
+     "运输折痕"
+    ],
+    "stance": "一致"
+   },
+   {
+    "q": "What is this brand's reputation, and do buyers trust it?",
+    "category": "核心必问",
+    "answer": "MontVoo's Reputation: Mixed to CautiousBased on customer feedback and product signals, here's what buyers should know:Trust Level: Moderate — Proceed with CautionPositive Signals:\n•Customers consistently praise aesthetics and design — \"looks great,\" \"elegant jute finish,\" \"refined look\"\n•Stability for pets: Elderly and mobility-limited dogs do well on these treads\n•Quality feel: Most describe them as \"good quality\" jute material with solid construction\n•No major complaints about false advertising or misleading product claims\nRed Flags (Trust Concerns):\n•\"Frequently returned item\" flag — Amazon's clearest indicator of durability/satisfaction problems\n•Brand age: MontVoo launched this product August 2025 (just 14 months ago) — customers cannot yet verify long-term durability\n•Adhesion inconsistency: Mixed experiences suggest quality control issues — some buyers get strong adhesion, others report immediate corner failures\n•Packaging issues: Pre-peeled backing and shipping creases suggest operational challenges, not just product design flaws\n•No transparency on warranty or customer service — no visible seller communication or support infrastructure mentioned in reviews\nWhat Customers Say About Trust:\n•Satisfied buyers note: \"I did buy extra adhesive tape to install\" — suggesting experienced customers expect limitations and self-solve\n•Frustrated buyers: \"Spend a little more money and get a better quality product. Would not buy again\" — indicating MontVoo isn't seen as a premium, reliable brand\n•One customer reported floor damage within a week — a serious red flag for brand reliability\nComparison to Established Competitors:\n•MBIGM (8,755 reviews, 4.6★) and COSY HOMEER (8,728 reviews, 4.7★) have 3–4x more reviews and higher consistency\n•These brands have 2+ years of proven track records; MontVoo doesn't yet\nBottom Line on Brand Trust:\n•MontVoo is a newer, design-focused brand — excellent for aesthetics, unproven for durability\n•Buy only if you're willing to add extra adhesive tape and accept potential adhesion inconsistency\n•For peace of mind and proven reliability, established brands like MBIGM and COSY HOMEER are safer choices",
+    "zh": "品牌口碑：谨慎。好看、质感好；但高退货标记、上架才 14 个月、粘性不稳定像品控问题、没写质保。",
+    "tags": [
+     "好看",
+     "边角翘、粘不住"
+    ],
+    "stance": "补充"
+   },
+   {
+    "q": "What improvements do customers most often wish this product had?",
+    "category": "核心必问",
+    "answer": "Customers wish the MontVoo Jute Stair Treads had these key improvements:1. Stronger, Full-Coverage Adhesion (Most Common Wish)\n•\"Adhesion all the way to the corners\" — The #1 request; corners routinely peel up with foot traffic and vacuuming\n•Customers want factory-strength adhesive that doesn't require buying supplementary tape\n•One buyer: \"These are nice, feel good too, just wish the adhesive went all the way to corners\"\n2. Flat Shipping (Not Folded)\n•Multiple customers: \"Might want to consider shipping flat\" instead of folded in half\n•Permanent center creases take 1–2 weeks to flatten and may never fully disappear\n•This single change would eliminate a major pain point\n3. Machine-Washable Option\n•Product title claims \"Washable\" but only vacuum/damp cloth allowed — customers feel misled\n•Pet owners specifically wish for machine-washable versions for easy cleaning after accidents or shedding\n4. Better Plastic Film Removal System\n•Customers describe removing the backing as frustrating and easy to tear\n•Wish: A more intuitive peeling mechanism that doesn't risk ripping the jute\n5. Lighter Color Variation Options\n•While \"natural color variation\" is expected with jute, some customers received darker treads than shown in photos\n•Wish: More consistency or the option to choose lighter/darker shades\n6. Protective Flooring Guidance\n•One customer reported floor damage within a week\n•Wish: Clear warnings about potential floor damage risks with certain finishes and floor types\n7. Better Quality Control on Pre-Installation\n•Half of some orders arrived with backing already peeled off and dirty\n•Wish: 100% inspection before shipping to ensure all treads are pristine on arrival\nWhat This Tells You:\nThese aren't fundamental design flaws — they're refinable issues. Competitors like TranquilMoments ($29.96) address some of these with better adhesion and washability, while MBIGM ($41.99) offers lower cost with proven durability over 3+ years.",
+    "zh": "最希望改进：胶贴到四角（第一）、平着发货、可机洗、背膜更好撕。还说标题写了「Washable」，实际标题里没有。",
+    "tags": [
+     "边角翘、粘不住",
+     "运输折痕",
+     "不能洗",
+     "背膜难撕"
+    ],
+    "stance": "有误"
+   }
+  ],
+  "findings": [
+   {
+    "kind": "一致",
+    "text": "Alexa 也把「粘不住、四角翘」排第一，并告诉买家「最好提前另买胶带」",
+    "why": "评论里 34 条有 12 条在说；24 题里有 18 题的回答提到它。买家在商品页问 Alexa 时，第一句听到的就是这个问题"
+   },
+   {
+    "kind": "补充",
+    "text": "商品页被标了「Frequently returned item」（高退货）",
+    "why": "评论里看不到这个标记，Alexa 在 11 道题的回答里都提到了，并说它是让买家犹豫的主要原因之一"
+   },
+   {
+    "kind": "补充",
+    "text": "头部竞品用 TPE 防滑底、不靠背胶，而且都能机洗",
+    "why": "Alexa 点名 COSY HOMEER（4.7 星，8,728 条评论，$76.49）和 MBIGM（4.6 星，$41.99）。粘性和不能洗正是本品的两个短板，适合作为下一步竞品分析的对象"
+   },
+   {
+    "kind": "补充",
+    "text": "Alexa 看到的价格是 $69.98，比 10-20 拉数据时的 $59.99 高 10 美元",
+    "why": "它在「值不值」「品牌口碑」里都把价格偏高当成扣分项"
+   },
+   {
+    "kind": "有误",
+    "text": "它说标题写了「Washable」，实际标题里没有；它还说尺寸没人抱怨，但评论里有 1 条说太小、要退货",
+    "why": "Alexa 的归纳会出错。引用它的话之前，要和评论原文、页面核对"
+   }
+  ],
+  "price": "$69.98",
+  "source": "apinsight 2.1.0 · 2026-10-27 采集 · 24 道核心题"
  }
 }

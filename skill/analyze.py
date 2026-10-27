@@ -4,12 +4,13 @@
   python3 analyze.py <ASIN>/data.json                       # 分析一个产品
   python3 analyze.py <ASIN>/data.json --vs <竞品>/data.json ...  # 加上竞品对比
 
-做五件事，结果写回 data.json 的 calc 字段（并同步 problems / praises 的条数和 journey）：
+做六件事，结果写回 data.json 的 calc 字段（并同步 problems / praises 的条数和 journey）：
   1. 体检：读入、送测、分析条数；没有标签的评论；没定阶段的标签；AI 写的条数和实际不符的。
   2. 帕累托（二八）：问题按人数排，算累计占比，标出占了八成抱怨的那几件。
   3. 下钻：按款式算评论数、平均星级、差评占比；找出集中在某个款式的问题。
   4. 用户旅程：每个标签按 tagStage 归到阶段，算每段的满意度。
   5. 竞品对比（有 --vs 时）：同一套标签下，我和每个竞品、竞品平均各占多少。
+  6. Alexa 对照（data.json 有 alexa 块时）：评论里的问题 Alexa 提没提，它多说了什么。不计入任何条数。
 
 口径：
   - 只算非送测（vine=false）评论；一条评论提到同一个标签只算一次。
@@ -203,6 +204,37 @@ def compare(d, U, N, others):
             "comps": comps, "rows": rows, "compOnlyTags": only}
 
 
+def alexa(d, U, N):
+    """Alexa 问答：它是平台对评论的 AI 归纳，不计入任何条数，只和评论结论对照。"""
+    A = d.get("alexa") or {}
+    items = A.get("items", [])
+    if not items:
+        return None
+    neg = d.get("tagsNeg", [])
+    said = {}
+    for i in items:
+        for t in i.get("tags", []):
+            said[t] = said.get(t, 0) + 1
+    ranked = sorted(neg, key=lambda t: -count(U, t))
+    rows = [{"tag": t, "reviews": count(U, t), "ofReviews": pct(count(U, t), N), "alexa": said.get(t, 0)}
+            for t in ranked if count(U, t)]
+    stance = {}
+    for i in items:
+        if i.get("stance"):
+            stance[i["stance"]] = stance.get(i["stance"], 0) + 1
+    top = [r for r in rows[:3]]
+    return {
+        "n": len(items),
+        "filled": sum(1 for i in items if i.get("zh")),
+        "stance": stance,
+        "rows": rows,
+        "topCovered": sum(1 for r in top if r["alexa"]),
+        "topN": len(top),
+        "missed": [r["tag"] for r in rows if r["reviews"] >= 2 and not r["alexa"]],
+        "alexaOnly": sorted(t for t in said if t not in set(neg) | set(d.get("tagsPos", []))),
+    }
+
+
 def main():
     args = sys.argv[1:]
     if not args:
@@ -217,6 +249,9 @@ def main():
         d["journey"] = journey(d, U)
     if others:
         calc["compare"] = compare(d, U, N, others)
+    ax = alexa(d, U, N)
+    if ax:
+        calc["alexa"] = ax
     d["calc"] = calc
     path.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
 
@@ -233,6 +268,11 @@ def main():
     if others:
         bad = [r for r in calc["compare"]["rows"] if r["verdict"]]
         print("竞品对比：" + ("；".join(f"{r['name']} {r['verdict']}（我 {r['mine']}% / 竞品平均 {r['avg']}%）" for r in bad) or "没有明显差距"))
+    if ax:
+        print(f"Alexa：{ax['n']} 条回答（已读懂 {ax['filled']}）；评论前 {ax['topN']} 个问题它提到了 {ax['topCovered']} 个"
+              + (f"；评论里有、它没提：{'、'.join(ax['missed'])}" if ax["missed"] else ""))
+        if ax["filled"] < ax["n"]:
+            print("  ⚠ 还有 Alexa 回答没写中文意思和标签")
     print(path)
 
 

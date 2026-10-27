@@ -108,6 +108,7 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 | 按款式看 | 下钻（父体 → 款式） | 问题是全线的，还是集中在某个颜色、规格 |
 | 用户旅程 | 旅程地图 + 满意度 | 从为什么买到用了几个月，哪一段最差 |
 | 和竞品比 | 竞品对标 | 同一个问题，我和竞品各有多少人在说；哪些是短板、哪些是卖点 |
+| Alexa 怎么跟买家说（可选） | 平台归纳对照 | 买家在商品页问 Alexa 时听到什么；评论里的问题它提没提、多说了什么、哪里说错了 |
 | 建议的行动 / 全部原话 | — | 先做什么；每个结论都能翻回原话 |
 
 ### 分工：AI 读懂，脚本算数
@@ -121,6 +122,7 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 - 「分析 B0xxxxxxxx」
 - 「先改哪几件？」「是不是灰色款的问题？」「哪一段体验最差？」
 - 「和这两个竞品比：B0xxxx、B0xxxx」
+- 「问一下 Alexa」「亚马逊怎么跟买家介绍我们？」
 - 「起草一条行动」「用好评写主图文案」
 
 ### 边界
@@ -128,16 +130,18 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 - 只写本地文件；不发消息、不改 listing、不动广告，最多起草，交给人决定。
 - 「和竞品比」只说比例差多少。某个问题让星级掉多少，只靠评论算不出来，需要亚马逊官方评论主题（SP-API Customer Feedback）。
 - 送测（Vine）评论单独记，不进分析；不保留买家名字。
+- Alexa 问答是平台的 AI 归纳，不是买家原话：不计入任何条数，和评论对不上时以评论为准。采集用 [amazon-alexa-insight](https://github.com/WaytoAIC/amazon-alexa-insight) 的 apinsight，需要一个在本机真实登录过的美国站买家号；单号每天别超过 25 个 ASIN。
 
 ### 目录
 
 ```
 skill/
 ├── SKILL.md          # Agent 的工作说明
-├── analyze.py        # 算数：体检、二八、款式下钻、旅程满意度、竞品对比
+├── analyze.py        # 算数：体检、二八、款式下钻、旅程满意度、竞品对比、Alexa 对照
 ├── render.py         # 把 data.json 填进模板，生成「报告.html」
+├── alexa_import.py   # 把 apinsight 采集的 Alexa 问答读进 data.json
 ├── template.html     # 报告模板（自带深浅色）
-└── examples/B0FMJCMKY1/   # 完整样例：data.json + 报告.html
+└── examples/B0FMJCMKY1/   # 完整样例：data.json（含 24 条 Alexa 问答）+ 报告.html
 ```
 
 样例是一款公开在售的黄麻楼梯踏板，只用于演示分析流程。
@@ -156,6 +160,7 @@ skill/
 | By variant | Drill-down (parent → variant) | Whether a problem is product-wide or limited to one color or size |
 | Customer journey | Journey map + satisfaction score | From why they bought to months of use, which stage is worst |
 | Vs. competitors | Competitive benchmark | Share of reviews mentioning each topic, mine vs. each competitor; weaknesses and selling points |
+| What Alexa tells shoppers (optional) | Platform summary cross-check | What shoppers hear when they ask Alexa on the product page; which review problems it mentions, what it adds, and where it is wrong |
 | Actions / all quotes | — | What to do first; every claim traces back to the original review |
 
 ### Division of labor
@@ -169,6 +174,7 @@ skill/
 - Writes local files only. It never sends messages, edits listings, or touches ads; it drafts and leaves decisions to a human.
 - Competitor comparison reports share differences only. Star-rating impact needs Amazon's official review topics (SP-API Customer Feedback).
 - Vine reviews are tracked separately and excluded; reviewer names are not kept.
+- Alexa answers are Amazon's AI summary, not customer quotes. They never enter any count, and reviews win when the two disagree. Collection uses apinsight from [amazon-alexa-insight](https://github.com/WaytoAIC/amazon-alexa-insight) and needs a US buyer account signed in on that machine; keep it under about 25 ASINs per account per day.
 
 The bundled example is a publicly listed jute stair tread, used only to demonstrate the workflow.
 

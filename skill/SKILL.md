@@ -11,6 +11,7 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
 - `template.html`：报告模板；
 - `render.py`：生成报告；
 - `analyze.py`：算所有数字；
+- `alexa_import.py`：把 Alexa 问答读进 data.json；
 - `examples/B0FMJCMKY1/`：完整样例（数据 + 报告），字段照它的 `data.json` 写。
 
 每个产品的数据放在当前工作目录的 `voc-reports/<ASIN>/data.json`，报告生成在同一个文件夹。只需要 Python 3，不用装别的包。
@@ -58,7 +59,24 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
    - 抱怨比竞品平均高一半以上、且至少 3 条的，标「短板」；好评同理标「卖点」。
 4. 重新生成报告，报告里会多出「和竞品比」一块。结论只说比例差了多少，不要说「让星级掉多少」：只靠评论算不出来，要用亚马逊官方评论主题。
 
-## 三、回答追问
+## 三、Alexa 问答（可选，用户说「问一下 Alexa」或要看竞品时）
+
+Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它提问，能拿到亚马逊对全部评论的归纳，竞品也能问，正好补「竞品的退货和买家消息拿不到」的缺口。
+
+**边界**：它的回答是平台的 AI 归纳，不是买家原话。不计入任何条数、二八和满意度，引用时写「据 Alexa」；它和评论说法不一致时，以评论为准，并把不一致写出来。
+
+1. **采集**：用 [apinsight](https://github.com/WaytoAIC/amazon-alexa-insight)（`cli/` 目录）。需要一台装了 Chrome 的电脑和一个在这台电脑上真实登录过的美国站买家号（首次登录、遇到验证码必须由人完成，你不碰账号密码）。先跑 `node bin/apinsight.js doctor --json`，没有可用账号就停下来告诉用户。然后：
+   `node bin/apinsight.js collect --asins <ASIN> --questions summary_all --accounts <账号> --run-id voc-<ASIN>-<日期>`
+   `summary_all` 是 24 道核心题，约 10 分钟一个 ASIN。单个买家号每天别超过 25 个 ASIN。
+2. **读入**：`python3 <skill>/alexa_import.py <apinsight 批次目录> voc-reports/<ASIN>/data.json`，只搬题目和英文回答。
+3. **读懂**：在 `data.json` 的 `alexa.items` 里给每条补：
+   - `zh`：一句中文意思；
+   - `tags`：回答里提到了哪些问题或好评，标签沿用评论的 `tagsNeg` / `tagsPos`，评论里没有的说法可以新建（脚本会单独列出来）；
+   - `stance`：和评论的结论比，是「一致」「补充」（评论里没有的新信息，例如退货标记、竞品名字、价格变化）还是「有误」（和评论或页面事实对不上）。
+   再写 3–6 条 `alexa.findings`：`{"kind": "一致|补充|有误", "text": "结论", "why": "依据"}`，挑对卖家最有用的写。
+4. **重跑** `analyze.py` 和 `render.py`：报告里会多出「Alexa 怎么跟买家说」一块，算出评论里的问题它提没提、它多说了什么。
+
+## 四、回答追问
 
 追问时先读对应的 `data.json`，再回答。
 
@@ -72,5 +90,6 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
   - 「该谁改」：按问题的 owner 字段答。
   - 「起草一条行动」：写成问题、依据（条数 + 原话）、建议、负责人、看什么数、多久后看。
   - 「写主图文案」「写五点」：只用好评里用户自己的说法，附上出处条数。
+  - 「Alexa 怎么说」「亚马逊怎么跟买家介绍我们」：按 `alexa.findings` 和 `calc.alexa` 答，注明是平台归纳；没有 `alexa` 块就按第三部分走。
   - 「和竞品比」：有 `calc.compare` 就直接答；没有就按第二部分走，先让用户确认竞品。
 - 只写本地文件。发消息、改 listing、动广告都不做，最多起草，交给人决定。
