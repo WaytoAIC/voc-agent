@@ -79,8 +79,10 @@ td .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
 .foot{font-size:12px;color:var(--faint);text-align:center}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}}
+.jline{stroke-dasharray:1;stroke-dashoffset:1;animation:jdraw .9s var(--ease) .2s forwards}
+@keyframes jdraw{to{stroke-dashoffset:0}}
 @keyframes grow{from{transform:scaleX(0)}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.jline{stroke-dasharray:none;stroke-dashoffset:0}}
 </style>
 
 <div class="wrap" id="app"></div>
@@ -133,7 +135,7 @@ td .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
   ${C.drill?`<div class="panel"><div><h2>按款式看</h2><p class="sub">${C.drill.hot.length?'下面这些问题集中在某一个款式，只改这个款式就行':'没有集中在某一个款式的问题，要改就是全线改'}。评论少于 5 条的款式只列出来，不下结论${C.drill.unlabeled?`；另有 ${C.drill.unlabeled} 条评论没标款式`:''}</p></div>
     ${C.drill.hot.map(h=>`<div class="insight"><b>「${h.name}」集中在 ${h.sku}</b>：这个款式里 ${h.skuShare}% 的评论在说，全部评论里只有 ${h.allShare}%（${h.count} / ${h.total} 条来自这个款式）</div>`).join('')}
     <div class="tablewrap"><table style="min-width:600px"><thead><tr><th>款式</th><th>评论</th><th>平均星级</th><th>差评占比</th><th>这个款式最多人说的问题</th></tr></thead><tbody>${C.drill.skus.map(k=>`<tr${k.small?' style="color:var(--muted)"':''}><td>${k.sku}${k.small?' <span class="chip plain">样本少</span>':''}</td><td class="num">${k.n} 条 · ${k.share}%</td><td class="num">${k.avgStar}★</td><td class="num">${k.negShare}%</td><td>${k.top.map(t=>`${t.name} <span class="num hint">${t.count} 条</span>`).join('；')||'<span class="hint">—</span>'}</td></tr>`).join('')}</tbody></table></div></div>`:''}
-  <div class="panel"><div><h2>用户旅程</h2><p class="sub">每个点是一个具体时刻，往上是满意，往下是不满意，点越大说的人越多。${S0.some(s=>s.score!=null)?'阶段下面的分数是满意度：这一段说好的人减说不好的人，除以提到这一段的人，从 −100 到 +100':''}</p></div><div class="chart" id="journey"></div></div>
+  <div class="panel"><div><h2>用户旅程</h2><p class="sub">每个点是一个具体时刻，往上是满意，往下是不满意，点越大说的人越多。${S0.some(s=>s.score!=null)?'蓝线是旅程线：把每一段的满意度连起来，看体验在哪一段掉下去。满意度 = 这一段说好的人减说不好的人，除以提到这一段的人，从 −100 到 +100':''}</p></div><div class="chart" id="journey"></div></div>
   ${C.compare?`<div class="panel"><div><h2>和竞品比</h2><p class="sub">同一套问题分类下，每个问题被多少比例的评论提到。高出竞品平均一半以上、且至少 3 条，标为短板或卖点</p></div>
     <div class="stats"><span>我：<b>${C.compare.mine.n}</b> 条 · 平均 <b>${C.compare.mine.avgStar}</b>★ · 差评 <b>${C.compare.mine.negShare}%</b></span>${C.compare.comps.map(c=>`<span>${c.brand||c.name}（${c.asin}）：<b>${c.n}</b> 条 · 平均 <b>${c.avgStar}</b>★ · 差评 <b>${c.negShare}%</b></span>`).join('')}</div>
     <div class="tablewrap"><table style="min-width:640px"><thead><tr><th>用户在说</th><th>我</th>${C.compare.comps.map(c=>`<th>${c.brand||c.name}</th>`).join('')}<th>竞品平均</th><th></th></tr></thead><tbody>${C.compare.rows.map(r=>`<tr><td><span class="chip ${r.kind==='neg'?'bad':'good'}">${r.kind==='neg'?'抱怨':'好评'}</span> ${r.name}</td><td class="num"${r.verdict==='短板'||r.verdict==='不如竞品'?' style="color:var(--bad);font-weight:700"':''}>${r.mine}%</td>${r.comps.map(v=>`<td class="num">${v==null?'<span class="hint">没这一类</span>':v+'%'}</td>`).join('')}<td class="num">${r.avg==null?'—':r.avg+'%'}</td><td>${r.verdict?`<span class="chip ${r.verdict==='短板'||r.verdict==='不如竞品'?'bad':'good'}">${r.verdict}</span>`:''}</td></tr>`).join('')}</tbody></table></div>
@@ -157,6 +159,13 @@ td .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
   let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="用户旅程：每个阶段满意和不满意的时刻">`;
   for(let i=1;i<n;i++) s+=`<line x1="${L+colW*i}" x2="${L+colW*i}" y1="${T}" y2="${H-B}" stroke="${css('--line')}" stroke-dasharray="2 4"/>`;
   s+=`<line x1="${L}" x2="${W-R}" y1="${mid}" y2="${mid}" stroke="${css('--warn')}" stroke-dasharray="5 4" stroke-width="1.4"/><text x="${L+4}" y="${mid-6}" font-size="11" fill="${css('--warn')}">情绪基线</text>`;
+  /* 旅程线：每一段的满意度（−100 到 +100）连起来，画在时刻点后面 */
+  const sy=v=>mid-v/100*half, segs=[[]];
+  S.forEach((st,i)=>{ if(st.score==null){ if(segs[segs.length-1].length) segs.push([]); } else segs[segs.length-1].push([cx(i),sy(st.score),st.score]); });
+  segs.filter(g=>g.length).forEach(g=>{ const pts=g.map(p=>p[0]+','+p[1]).join(' ');
+    s+=`<polyline points="${pts}" fill="none" stroke="${css('--accent')}" stroke-width="12" stroke-linejoin="round" stroke-linecap="round" opacity=".12"/>`;
+    s+=`<polyline class="jline" pathLength="1" points="${pts}" fill="none" stroke="${css('--accent')}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+    g.forEach(([x,y,v])=>{ s+=`<circle cx="${x}" cy="${y}" r="5" fill="${css('--surface')}" stroke="${css('--accent')}" stroke-width="2.4"><title>满意度 ${sgn(v)}</title></circle>`; }); });
   S.forEach((st,i)=>{
     const place=(arr,sign,color)=>{ const it=arr.filter(x=>x[1]>0).map(([tx,c])=>({tx,c,o:off(c)})).sort((a,b)=>a.o-b.o);
       it.forEach((x,j)=>{ x.o=j===0?Math.max(x.o,14):Math.max(x.o,it[j-1].o+17); });

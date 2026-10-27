@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## v1.1.1 · 2026-10-27
+
+- 用户旅程图补上旅程线：把每一段的满意度连成一条线，体验在哪一段掉下去一眼能看出来。
+  The journey chart now draws the journey line, connecting each stage's satisfaction score so drops stand out.
+
 ## v1.1.0 · 2026-10-27
 
 - 新增「Alexa 问答」一步：用 apinsight 向亚马逊 Alexa（原 Rufus）提 24 道核心题，`alexa_import.py` 读进 data.json，AI 写中文意思、标签和与评论的对照。
