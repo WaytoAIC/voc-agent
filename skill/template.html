@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* 布局：和 VOC 工作台同一套样式。一页讲完一个产品：结论 → 最该改的 → 用户喜欢的 → 旅程 → 行动 → 原话 */
+/* 布局：和 VOC 工作台同一套样式。一页讲完一个产品：结论 → 最该改的 → 用户喜欢的 → 旅程 → 竞品 → Alexa → 站外 VOC → 行动 → 原话 */
 :root{
   --bg:#F3F6FB; --surface:#FFFFFF; --surface-2:#F7F9FD; --ink:#101B31; --muted:#56657D; --faint:#8C98AD;
   --line:#DFE6F1; --accent:#2257E5; --accent-ink:#FFFFFF; --accent-soft:#E8EEFF;
@@ -101,6 +101,52 @@ td .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
   const praises=D.praises.slice().sort((a,b)=>b.count-a.count);
   const maxS=Math.max(...Object.values(D.stars));
   const C=D.calc||{}, S0=D.journey||[], sgn=v=>(v>0?'+':'')+v, tone=v=>v>=20?'good':v<=-20?'bad':'warn';
+  /* 站外 VOC · Reddit：数字全部来自 offsite/analyze_offsite.py，这里只画 */
+  const offsiteHtml=O=>{
+    const n=O.relevant, only=O.onsite.filter(o=>o.kind==='neg'&&!o.onsiteTag), top=O.neg[0], demand=O.journey[0]&&O.journey[0].stage;
+    const J=O.journey, Wj=960,Hj=260,lj=46,rj=20,tj=24,bj=34,nj=J.length, jx=i=>lj+(Wj-lj-rj)*(i+.5)/nj, jy=v=>tj+(1-(v+100)/200)*(Hj-tj-bj);
+    let j=`<rect x="${lj}" y="${jy(100)}" width="${Wj-lj-rj}" height="${jy(0)-jy(100)}" fill="${css('--good-soft')}" opacity=".5"/><rect x="${lj}" y="${jy(0)}" width="${Wj-lj-rj}" height="${jy(-100)-jy(0)}" fill="${css('--bad-soft')}" opacity=".5"/>`;
+    [-100,-50,0,50,100].forEach(v=>{ j+=`<line x1="${lj}" x2="${Wj-rj}" y1="${jy(v)}" y2="${jy(v)}" stroke="${css('--line')}"${v?'':' stroke-width="1.5"'}/><text x="${lj-8}" y="${jy(v)+4}" text-anchor="end" font-size="11" fill="${css('--faint')}">${sgn(v)}</text>`; });
+    J.forEach((s,i)=>{ j+=`<text x="${jx(i)}" y="${Hj-10}" text-anchor="middle" font-size="12.5" font-weight="700" fill="${css('--ink')}">${s.stage}</text>`; if(i) j+=`<line x1="${lj+(Wj-lj-rj)*i/nj}" x2="${lj+(Wj-lj-rj)*i/nj}" y1="${tj}" y2="${Hj-bj}" stroke="${css('--line')}" stroke-dasharray="2 4"/>`; });
+    const seg=(key,attrs)=>{ let d='',on=false; J.forEach((s,i)=>{ const v=s[key]; if(v==null){on=false;return;} d+=(on?'L':'M')+jx(i)+','+jy(v)+' '; on=true; }); return d?`<path d="${d}" fill="none" ${attrs} stroke-linejoin="round"/>`:''; };
+    j+=seg('onsite',`stroke="${css('--accent')}" stroke-width="2" stroke-dasharray="6 5" opacity=".8"`)+seg('score',`stroke="${css('--warn')}" stroke-width="3"`);
+    J.forEach((s,i)=>{ if(s.onsite!=null) j+=`<circle cx="${jx(i)}" cy="${jy(s.onsite)}" r="4" fill="${css('--surface')}" stroke="${css('--accent')}" stroke-width="2"><title>站内 ${s.stage}：${sgn(s.onsite)}</title></circle>`;
+      if(s.score!=null){ const r=5+Math.min(9,Math.sqrt(s.talked)*2); j+=`<circle cx="${jx(i)}" cy="${jy(s.score)}" r="${r}" fill="${css('--warn')}" stroke="${css('--surface')}" stroke-width="2"><title>Reddit ${s.stage}：情绪 ${sgn(s.score)}，${s.talked} 个讨论串</title></circle><text x="${jx(i)}" y="${jy(s.score)+(s.score>60?r+14:-r-6)}" text-anchor="middle" font-size="12" font-weight="700" fill="${css('--warn')}">${sgn(s.score)}</text>`; } });
+    const N2=O.needs, mid=O.needMedian||0, Wn=640,Hn=380,ln=46,rn=24,tn=24,bn=40, mx=Math.max(10,Math.ceil(Math.max(...N2.map(s=>Math.max(s.share,s.onsiteShare||0)),1)*1.15/10)*10), nx=v=>ln+v/mx*(Wn-ln-rn), ny=v=>tn+(1-(v+130)/260)*(Hn-tn-bn);
+    let q=`<rect x="${nx(mid)}" y="${ny(0)}" width="${Wn-rn-nx(mid)}" height="${ny(-130)-ny(0)}" fill="${css('--bad-soft')}" opacity=".7"/><rect x="${nx(mid)}" y="${ny(130)}" width="${Wn-rn-nx(mid)}" height="${ny(0)-ny(130)}" fill="${css('--good-soft')}" opacity=".7"/>`;
+    q+=`<line x1="${ln}" x2="${Wn-rn}" y1="${ny(0)}" y2="${ny(0)}" stroke="${css('--faint')}"/><line x1="${nx(mid)}" x2="${nx(mid)}" y1="${tn}" y2="${Hn-bn}" stroke="${css('--faint')}" stroke-dasharray="4 4"/>`;
+    [[Wn-rn-6,ny(130)+14,'end','核心卖点 · 守住','--good'],[Wn-rn-6,ny(-130)-6,'end','最大机会 · 先做','--bad'],[ln+6,ny(130)+14,'start','加分项','--muted'],[ln+6,ny(-130)-6,'start','潜在痛点 · 盯着','--warn']].forEach(([x,y,a,t,c])=>{ q+=`<text x="${x}" y="${y}" text-anchor="${a}" font-size="12" font-weight="700" fill="${css(c)}">${t}</text>`; });
+    [0,.5,1].forEach(k=>{ q+=`<text x="${nx(mx*k)}" y="${Hn-bn+16}" text-anchor="middle" font-size="11" fill="${css('--faint')}">${Math.round(mx*k)}%</text>`; }); [-100,0,100].forEach(v=>{ q+=`<text x="${ln-8}" y="${ny(v)+4}" text-anchor="end" font-size="11" fill="${css('--faint')}">${sgn(v)}</text>`; });
+    q+=`<text x="${(ln+Wn-rn)/2}" y="${Hn-4}" text-anchor="middle" font-size="11.5" fill="${css('--muted')}">被提到的讨论串占比 →</text><text transform="translate(12 ${(tn+Hn-bn)/2}) rotate(-90)" text-anchor="middle" font-size="11.5" fill="${css('--muted')}">满意度 →</text>`;
+    N2.forEach(s=>{ if(s.onsiteShare!=null&&s.onsiteSat!=null) q+=`<line x1="${nx(s.share)}" y1="${ny(s.sat)}" x2="${nx(s.onsiteShare)}" y2="${ny(s.onsiteSat)}" stroke="${css('--accent')}" opacity=".35" stroke-dasharray="3 3"/><circle cx="${nx(s.onsiteShare)}" cy="${ny(s.onsiteSat)}" r="4" fill="${css('--surface')}" stroke="${css('--accent')}" stroke-width="1.6"><title>${s.need} · 站内 ${s.onsiteShare}%，满意度 ${sgn(s.onsiteSat)}</title></circle>`; });
+    const boxes=[], hit=(a,c)=>a.x<c.x+c.w&&c.x<a.x+a.w&&a.y<c.y+c.h&&c.y<a.y+a.h;
+    N2.forEach(s=>boxes.push({x:nx(s.share)-8,y:ny(s.sat)-8,w:16,h:16}));
+    N2.forEach(s=>{ const r=6+Math.sqrt(s.mentions)*2.2, X=nx(s.share), Y=ny(s.sat), w=s.need.length*12.5+4, h=15, c=s.quadrant.startsWith('最大')?'--bad':s.sat>0?'--good':'--warn';
+      q+=`<circle cx="${X}" cy="${Y}" r="${r}" fill="${css(c)}" opacity=".85" stroke="${css('--surface')}" stroke-width="2"><title>${s.need}：${s.mentions} 个讨论串（${s.share}%），满意 ${s.good} / 不满 ${s.bad}</title></circle>`;
+      const tries=[[X+r+5,Y-h/2],[X+r+5,Y+r],[X+r+5,Y-r-h],[X-r-5-w,Y-h/2],[X-r-5-w,Y+r],[X-w/2,Y+r+2],[X-w/2,Y-r-h-2]];
+      const p=tries.find(([bx,by])=>bx>=ln&&bx+w<=Wn&&!boxes.some(c=>hit({x:bx,y:by,w,h},c)))||tries[0]; boxes.push({x:p[0],y:p[1],w,h});
+      q+=`<text x="${p[0]}" y="${p[1]+11.5}" font-size="12" font-weight="700" fill="${css('--ink')}">${s.need}</text>`; });
+    const quad=(name,c)=>{ const a=N2.filter(s=>s.quadrant===name); return `<div class="item"><b style="color:var(${c})">${name}</b>${a.length?a.map(s=>`<span class="sub"><span class="chip ${c==='--muted'?'plain':c.slice(2)}">${s.need}</span> Reddit ${s.share}%，满意度 ${sgn(s.sat??0)}${s.onsiteShare!=null?` · 站内 ${s.onsiteShare}%、${sgn(s.onsiteSat??0)}`:' · 站内没有对应'}</span>`).join(''):'<span class="hint">无</span>'}</div>`; };
+    const list=(rows,unit)=>rows.length?rows.slice(0,6).map(r=>`<div class="srow" style="grid-template-columns:minmax(0,9em) 1fr 48px"><span>${r[0]}</span><span class="bar"><i style="width:${r[1]/rows[0][1]*100}%;background:var(--warn)"></i></span><span class="num">${r[1]}${unit}</span></div>`).join(''):'<span class="hint">无</span>';
+    const low=J.filter(s=>s.score!=null&&s.stage!==demand).sort((a,b)=>a.score-b.score)[0], gap=J.filter(s=>s.onsite==null&&s.talked).map(s=>`「${s.stage}」`);
+    const first=N2.filter(s=>s.quadrant.startsWith('最大')).sort((a,b)=>b.share-a.share)[0];
+    return `<div class="panel"><div><h2>站外 VOC · Reddit</h2><p class="sub">站内评论只看得到买了的人；Reddit 上能看到买之前在犹豫什么、用了很久以后怎么样、不买的人用了什么。单位是讨论串（一个帖子 + 它下面的评论），和站内评论同一套口径对照。</p></div>
+      <div class="stats"><span>相关讨论串 <b>${n}</b>（采集 ${O.pulled}）</span><span>评论 <b>${O.comments}</b></span><span>板块 <b>${O.subreddits}</b></span><span>时间 <b>${O.range[0].slice(0,7)} → ${O.range[1].slice(0,7)}</b></span><span>最常被抱怨 <b>${top?`${top[0]} ${top[1]}`:'—'}</b></span><span>站内看不到的问题 <b>${only.length}</b></span></div>
+      <div><h3 style="font-size:14.5px">⑥ 用户旅程地图（情绪曲线）</h3><p class="sub">每个环节 情绪 =（好评串 − 抱怨串）÷（好评串 + 抱怨串）× 100。橙线 = Reddit，点越大讨论越多；蓝虚线 = 站内评论，站内没有的环节断开。</p></div>
+      <div class="chart"><svg viewBox="0 0 ${Wj} ${Hj}" role="img" aria-label="站外用户旅程情绪曲线">${j}</svg></div>
+      <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${J.map(s=>`<div class="kpi" style="gap:4px"><span><b style="font-size:13px;font-family:var(--font-body);color:var(--ink)">${s.stage}</b> · ${s.stage===demand?`${s.talked} 串说了为什么需要`:s.alt?`${s.alt} 串在比替代方案`:`${s.talked} 串`}</span>${s.pains.length?`<small style="color:var(--bad)">痛点：${s.pains.map(([k,v])=>`${k} ${v}`).join('、')}</small>`:''}${s.gains.length?`<small style="color:var(--good)">爽点：${s.gains.map(([k,v])=>`${k} ${v}`).join('、')}</small>`:''}${s.opportunity?`<small>机会：${s.opportunity}</small>`:''}</div>`).join('')}</div>
+      <p class="hint" style="margin:0">${low?`站外情绪最低的环节是「${low.stage}」（${sgn(low.score)}）。`:''}${gap.length?`${gap.join('、')}站内评论看不到，只有站外在说。`:''}「机会」是根据痛点写的建议，不是数据。</p>
+      <div><h3 style="font-size:14.5px">⑦ 需求四象限（需求地图）</h3><p class="sub">每个需求：被提到的讨论串占比（横轴）× 满意度（纵轴）。竖虚线 = 中位数 ${mid}%；空心蓝点 = 同一个需求在站内评论里的位置。</p></div>
+      <div class="row2"><div class="chart"><svg viewBox="0 0 ${Wn} ${Hn}" role="img" aria-label="需求四象限" style="min-width:520px">${q}</svg></div>
+        <div>${quad('最大机会 · 先做','--bad')}${quad('核心卖点 · 守住','--good')}${quad('潜在痛点 · 盯着','--warn')}${quad('加分项','--muted')}
+          ${first?`<p class="insight" style="margin:8px 0 0">「${first.need}」站外 ${first.share}% 的讨论串在说，${first.onsiteShare!=null?`站内只有 ${first.onsiteShare}%`:'站内评论没有对应'}：评论区看不到、但买之前最在意的缺口。</p>`:''}</div></div>
+      <div class="row2"><div><h3 style="font-size:14px;margin-bottom:6px">Reddit 上在抱怨什么（讨论串）</h3><div class="stars">${list(O.neg,'')}</div>
+          ${only.length?`<p class="hint" style="margin:6px 0 0">站内评论里一条都没有的：${only.map(o=>`${o.topic}（${o.threads}）`).join('、')}</p>`:''}</div>
+        <div><h3 style="font-size:14px;margin-bottom:6px">谁在讨论 · 不买时用什么</h3><div class="stars">${list(O.persona,'')}</div><div class="stars" style="margin-top:8px">${list(O.alt,'')}</div></div></div>
+      <details><summary>看 Reddit 原话（${O.quotes.length} 条）</summary><div style="display:grid;gap:8px">${O.quotes.map(x=>`<div class="quote"><span class="en">${x.en}</span><span class="zh">${x.zh}</span><span class="src">${x.topic?x.topic+' · ':''}r/${x.sub} · ${x.date} · <a href="${x.url}" target="_blank" rel="noopener">原帖 ↗</a></span></div>`).join('')}</div></details>
+      ${O.warnings&&O.warnings.length?`<p class="hint" style="margin:0;color:var(--warn)">⚠ ${O.warnings.join('；')}</p>`:''}
+      <p class="hint" style="margin:0">来源：Reddit（${Object.entries(O.via||{}).map(([k,v])=>`${k} ${v}`).join(' · ')}），${O.asOf} 分析。AI 只给讨论串打标签，所有数字由脚本计算。</p></div>`;
+  };
   let html=`
   <div class="top"><span><span class="chip info">现场分析</span> 数据来自${D.pulled.source}，${D.pulled.at} 拉取，调用 ${D.pulled.calls} 次</span><span>分析对象：公开在售的 Amazon 商品</span></div>
   <div class="panel">
@@ -146,6 +192,7 @@ td .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
     ${A.findings&&A.findings.length?`<div class="acts">${A.findings.map(f=>`<div class="act"><span class="chip ${K[f.kind]||'plain'}">${f.kind}</span><div><b>${f.text}</b>${f.why?`<p>${f.why}</p>`:''}</div></div>`).join('')}</div>`:''}
     ${X.rows&&X.rows.length?`<div class="tablewrap"><table style="min-width:520px"><thead><tr><th>评论里的问题</th><th>评论里提到</th><th>Alexa 回答里提到</th></tr></thead><tbody>${X.rows.map(r=>`<tr><td>${r.tag}</td><td class="num">${r.reviews} 条 · ${r.ofReviews}%</td><td>${r.alexa?`<span class="chip good">${r.alexa} 题提到</span>`:'<span class="chip plain">没提</span>'}</td></tr>`).join('')}</tbody></table></div>`:''}
     <details><summary>看全部 ${A.items.length} 条问答</summary><div style="display:grid;gap:10px">${A.items.map(i=>`<div class="quote"><span class="src">${i.category||''}${i.stance?` · ${i.stance}`:''}</span><span class="en"><b>${i.q}</b></span><span class="zh">${i.zh||'（还没读）'}</span><details><summary>英文原文</summary><span class="en">${i.answer}</span></details></div>`).join('')}</div></details></div>`;})():''}
+  ${D.offsite&&D.offsite.relevant?offsiteHtml(D.offsite):''}
   <div class="panel"><h2>建议的行动</h2><div class="acts">${main.slice(0,3).map((p,i)=>`<div class="act"><span class="chip ${i===0?'bad':'warn'}">${i===0?'先做':'接着做'}</span><div><b>${p.name}：${p.fix}</b><p>该谁改：${p.owner} · 看什么数：评论里提「${p.name}」的占比，现在 ${pct(p.count)}</p></div></div>`).join('')}
     <div class="act"><span class="chip good">用好评</span><div><b>${praises.map(p=>p.use).slice(0,2).join('；')}</b><p>依据：${praises.slice(0,2).map(p=>`「${p.name}」${p.count} 条`).join('，')}</p></div></div></div></div>
   <div class="panel"><div><h2>全部原话</h2><p class="sub">点标签筛选</p></div><div class="filters" id="tagf"></div><div class="tablewrap"><table id="rv"></table></div></div>

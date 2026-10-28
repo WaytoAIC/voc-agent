@@ -109,6 +109,7 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 | 用户旅程 | 旅程地图 + 满意度 | 从为什么买到用了几个月，哪一段最差 |
 | 和竞品比 | 竞品对标 | 同一个问题，我和竞品各有多少人在说；哪些是短板、哪些是卖点 |
 | Alexa 怎么跟买家说（可选） | 平台归纳对照 | 买家在商品页问 Alexa 时听到什么；评论里的问题它提没提、多说了什么、哪里说错了 |
+| 站外 VOC · Reddit（可选） | ⑥ 用户旅程地图（情绪曲线）+ ⑦ 需求四象限（需求地图）+ 站内外对照 | 买之前在犹豫什么、用了很久以后怎么样、不买的人用了什么；哪个环节情绪最低、哪些需求讨论多但满意度低；哪些问题只有站外在说 |
 | 建议的行动 / 全部原话 | — | 先做什么；每个结论都能翻回原话 |
 
 ### 分工：AI 读懂，脚本算数
@@ -123,6 +124,7 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 - 「先改哪几件？」「是不是灰色款的问题？」「哪一段体验最差？」
 - 「和这两个竞品比：B0xxxx、B0xxxx」
 - 「问一下 Alexa」「亚马逊怎么跟买家介绍我们？」
+- 「看看 Reddit 上怎么说」「买之前大家在犹豫什么？」
 - 「起草一条行动」「用好评写主图文案」
 
 ### 边界
@@ -131,6 +133,7 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 - 「和竞品比」只说比例差多少。某个问题让星级掉多少，只靠评论算不出来，需要亚马逊官方评论主题（SP-API Customer Feedback）。
 - 送测（Vine）评论单独记，不进分析；不保留买家名字。
 - Alexa 问答是平台的 AI 归纳，不是买家原话：不计入任何条数，和评论对不上时以评论为准。采集用 [amazon-alexa-insight](https://github.com/WaytoAIC/amazon-alexa-insight) 的 apinsight，需要一个在本机真实登录过的美国站买家号；单号每天别超过 25 个 ASIN。
+- 站外 VOC 只读 Reddit，不发帖、不互动；采集用 [reddit-readonly](https://github.com/WaytoAIC/reddit-market-monitor)（零配置可用，设了 `SORFTIME_KEY` 全站搜索更稳）。Sorftime 的英文摘要是 AI 写的，不当原话引用。Reddit 的政策不允许把它的数据用于商业挖掘或训练 AI，合规责任由使用者承担。
 
 ### 目录
 
@@ -140,6 +143,8 @@ skill/
 ├── analyze.py        # 算数：体检、二八、款式下钻、旅程满意度、竞品对比、Alexa 对照
 ├── render.py         # 把 data.json 填进模板，生成「报告.html」
 ├── alexa_import.py   # 把 apinsight 采集的 Alexa 问答读进 data.json
+├── offsite/          # 站外 VOC · Reddit：collect_reddit.py 采集、TAGGING.md 打标规则、
+│                     #   analyze_offsite.py 算数（⑥ 情绪曲线、⑦ 需求四象限）、to_feishu.py 写飞书、config.example.json
 ├── template.html     # 报告模板（自带深浅色）
 └── examples/B0FMJCMKY1/   # 完整样例：data.json（含 24 条 Alexa 问答）+ 报告.html
 ```
@@ -161,6 +166,7 @@ skill/
 | Customer journey | Journey map + satisfaction score | From why they bought to months of use, which stage is worst |
 | Vs. competitors | Competitive benchmark | Share of reviews mentioning each topic, mine vs. each competitor; weaknesses and selling points |
 | What Alexa tells shoppers (optional) | Platform summary cross-check | What shoppers hear when they ask Alexa on the product page; which review problems it mentions, what it adds, and where it is wrong |
+| Off-site VOC · Reddit (optional) | Journey emotion curve + need quadrant + on/off-site comparison | What people hesitate over before buying, how it holds up after months, what non-buyers use instead; the lowest-emotion stage, needs that are discussed a lot but poorly served, and problems only raised off-site |
 | Actions / all quotes | — | What to do first; every claim traces back to the original review |
 
 ### Division of labor
@@ -175,6 +181,7 @@ skill/
 - Competitor comparison reports share differences only. Star-rating impact needs Amazon's official review topics (SP-API Customer Feedback).
 - Vine reviews are tracked separately and excluded; reviewer names are not kept.
 - Alexa answers are Amazon's AI summary, not customer quotes. They never enter any count, and reviews win when the two disagree. Collection uses apinsight from [amazon-alexa-insight](https://github.com/WaytoAIC/amazon-alexa-insight) and needs a US buyer account signed in on that machine; keep it under about 25 ASINs per account per day.
+- Off-site VOC only reads Reddit, never posts or interacts. Collection uses [reddit-readonly](https://github.com/WaytoAIC/reddit-market-monitor) (works with no keys; `SORFTIME_KEY` makes all-Reddit search steadier). Sorftime's English summaries are AI-written and never quoted as customer voice. Reddit's policy forbids commercial mining or AI training on its data; compliance rests with the user.
 
 The bundled example is a publicly listed jute stair tread, used only to demonstrate the workflow.
 

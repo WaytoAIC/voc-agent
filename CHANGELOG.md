@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## v1.2.0 · 2026-10-28
+
+- 新增「站外 VOC · Reddit」一步（`offsite/`）：`collect_reddit.py` 用 reddit-readonly 采集（设了 `SORFTIME_KEY` 全站搜索先走 Sorftime），`TAGGING.md` 规定 AI 怎么打标，`analyze_offsite.py` 算全部数字，`to_feishu.py` 可选写飞书。品类相关的词表、环节、需求清单都放在每个产品的 `config.json`，附楼梯踏板样例。
+  Added an off-site VOC step for Reddit (`offsite/`): collect via reddit-readonly (Sorftime leads all-Reddit search when `SORFTIME_KEY` is set), tag per `TAGGING.md`, compute everything in `analyze_offsite.py`, optionally write to Feishu. Category-specific vocabulary, stages and needs live in a per-product `config.json`; a stair-tread example is included.
+- 站外分析补上 **⑥ 用户旅程地图（情绪曲线）** 和 **⑦ 需求四象限（需求地图）**，都和站内评论同口径对照；另有站内外同一问题的占比对照、「只有站外在说」的问题。
+  The off-site analysis adds the journey emotion curve and the need quadrant, both compared with on-site reviews on the same formula, plus an on/off-site share comparison and problems raised only off-site.
+- 报告新增「站外 VOC · Reddit」一块；追问可以问「站外在说什么」。
+  New report section "Off-site VOC · Reddit"; follow-ups can ask what is being said off-site.
+
 ## v1.1.1 · 2026-10-27
 
 - 用户旅程图补上旅程线：把每一段的满意度连成一条线，体验在哪一段掉下去一眼能看出来。

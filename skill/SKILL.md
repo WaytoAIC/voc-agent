@@ -1,6 +1,6 @@
 ---
 name: voc-agent
-description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一页 VOC 报告，含先改哪几件（二八）、按款式下钻、用户旅程满意度、和竞品比；之后回答关于这个产品用户声音的任何追问（原话、问题、该谁改、哪个款式、哪一段最差、主图文案）。用户说「分析 B0xxxx」「加一个产品」「和竞品比」「这个产品用户在说什么」或追问已分析产品时用。
+description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一页 VOC 报告，含先改哪几件（二八）、按款式下钻、用户旅程满意度、和竞品比、Alexa 问答、站外 VOC（Reddit 的用户旅程情绪曲线和需求四象限）；之后回答关于这个产品用户声音的任何追问（原话、问题、该谁改、哪个款式、哪一段最差、主图文案、站外在说什么）。用户说「分析 B0xxxx」「加一个产品」「和竞品比」「看看 Reddit / 站外怎么说」「这个产品用户在说什么」或追问已分析产品时用。
 ---
 
 # VOC Agent
@@ -12,6 +12,7 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
 - `render.py`：生成报告；
 - `analyze.py`：算所有数字；
 - `alexa_import.py`：把 Alexa 问答读进 data.json；
+- `offsite/`：站外 VOC（Reddit）——`collect_reddit.py` 采集、`TAGGING.md` 打标规则、`analyze_offsite.py` 算数、`to_feishu.py` 写飞书（可选）、`config.example.json` 配置样例；
 - `examples/B0FMJCMKY1/`：完整样例（数据 + 报告），字段照它的 `data.json` 写。
 
 每个产品的数据放在当前工作目录的 `voc-reports/<ASIN>/data.json`，报告生成在同一个文件夹。只需要 Python 3，不用装别的包。
@@ -76,12 +77,36 @@ Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它�
    再写 3–6 条 `alexa.findings`：`{"kind": "一致|补充|有误", "text": "结论", "why": "依据"}`，挑对卖家最有用的写。
 4. **重跑** `analyze.py` 和 `render.py`：报告里会多出「Alexa 怎么跟买家说」一块，算出评论里的问题它提没提、它多说了什么。
 
-## 四、回答追问
+## 四、站外 VOC · Reddit（可选，用户说「看看 Reddit / 站外怎么说」时）
+
+站内评论只看得到买了的人。Reddit 上能看到买之前在犹豫什么、用了很久以后怎么样、不买的人用了什么。这一步补上两张图：**⑥ 用户旅程地图（情绪曲线）**和**⑦ 需求四象限（需求地图）**，都和站内评论同口径对照。
+
+**需要**：Node 18+，和 [reddit-readonly](https://github.com/WaytoAIC/reddit-market-monitor)（在 `skills/reddit-readonly`）。零配置就能跑（Reddit 官方 RSS + Arctic Shift 存档）；设了 `SORFTIME_KEY` 时全站搜索先走 Sorftime，更稳。
+**边界**：只读，不发帖、不互动。Sorftime 给的英文摘要是 AI 写的，不是用户原话，不能当原声引用。
+
+1. **先建配置**：把 `<skill>/offsite/config.example.json` 复制到 `voc-reports/<ASIN>/offsite/config.json`，按这个产品改写——
+   - `product`（一句话说产品和买家）、`queries`（全站搜索词，英文）、`subreddits`（板块）、`relevance`（标题正文里必须出现的词，决定给哪些帖子拉评论）；
+   - `taxonomy`：抱怨 / 好评 / 人群 / 替代方案 四组词，**能沿用站内标签的说法就沿用**；
+   - `stages`、`stage_of`：站外的旅程环节和每个标签属于哪个环节；`onsite_stage`：站内阶段对到站外环节；
+   - `onsite_map`：站外话题对到站内哪个标签（没有对应的就是「只有站外在说」）；`needs`：需求地图的需求清单，每个需求由哪些站外 / 站内标签组成；
+   - `opportunities`：每个环节的改进建议（报告里会标明「是建议，不是数据」）。
+   配置改动大时先给用户看一眼再跑。
+2. **采集**：`python3 <skill>/offsite/collect_reddit.py voc-reports/<ASIN>/offsite`。结果写 `raw.json`，重复跑只追加新帖。几分钟到十几分钟，后台跑。输出会写付费调用次数（Sorftime / TikHub），跑前先说清楚。
+3. **打标签**：按 `<skill>/offsite/TAGGING.md`，每个讨论串判断相不相关，再从词表里选标签、摘 0–2 句原话，合并成 `offsite/tags.json`。帖子多时分几份并行读。
+4. **跑算数脚本**：`python3 <skill>/offsite/analyze_offsite.py voc-reports/<ASIN>/data.json`。结果写 `offsite/analysis.json`，同时写进 `data.json` 的 `offsite` 块：
+   - **站内外对照**：同一个问题，Reddit 讨论串里的占比 vs 站内评论里的占比；站内没有对应标签的，列为「只有站外在说」。
+   - **⑥ 用户旅程（情绪曲线）**：每个环节 情绪 =（好评串 − 抱怨串）÷（好评串 + 抱怨串）× 100，站内同口径算一条线对照；每个环节列痛点、爽点。
+   - **⑦ 需求四象限**：每个需求 被提到的讨论串占比（横轴）× 满意度（纵轴），按中位数和 0 切成「最大机会 · 先做 / 核心卖点 · 守住 / 潜在痛点 · 盯着 / 加分项」。
+   输出里有 ⚠（词表外的词、没打标签的帖子、没定环节的标签），先修好再跑。
+5. **重新生成报告**：`render.py` 之后报告里多一块「站外 VOC · Reddit」。在对话里交代：情绪最低的环节、站内看不到的环节、「最大机会」象限里的需求、只有站外在说的问题。
+6. **写飞书（可选）**：在 `config.json` 填 `feishu.base` / `feishu.table` 后跑 `python3 <skill>/offsite/to_feishu.py voc-reports/<ASIN>/offsite`（先加 `--dry-run` 看行数）。写之前先问用户。
+
+## 五、回答追问
 
 追问时先读对应的 `data.json`，再回答。
 
 - **先给结论，再给依据**：条数、占比，加 1–3 条原话（英文原文 + 中文意思 + 星级）。
-- **不编**：数据里没有的就说没有，并说明要补什么数据，例如退货原因、买家消息、竞品评论。数字只引用 `calc` 和 `journey` 里的，不自己重新算。
+- **不编**：数据里没有的就说没有，并说明要补什么数据，例如退货原因、买家消息、竞品评论。数字只引用 `calc`、`journey`、`offsite` 里的，不自己重新算。
 - **常见追问怎么答**：
   - 「最大的问题是什么」「先改哪几件」：按 `calc.pareto` 答，说清几个问题占了多少抱怨。
   - 「是不是某个款式的问题」「哪个颜色/规格最差」：按 `calc.drill` 答；样本少的款式要说明不能下结论。
@@ -92,4 +117,5 @@ Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它�
   - 「写主图文案」「写五点」：只用好评里用户自己的说法，附上出处条数。
   - 「Alexa 怎么说」「亚马逊怎么跟买家介绍我们」：按 `alexa.findings` 和 `calc.alexa` 答，注明是平台归纳；没有 `alexa` 块就按第三部分走。
   - 「和竞品比」：有 `calc.compare` 就直接答；没有就按第二部分走，先让用户确认竞品。
+  - 「站外 / Reddit 在说什么」「买之前在犹豫什么」：按 `offsite` 答——`offsite.onsite` 里站内没有对应的问题、`offsite.journey` 情绪最低的环节、`offsite.needs` 里「最大机会 · 先做」的需求，原话用 `offsite.quotes`（带原帖链接）；没有 `offsite` 块就按第四部分走。
 - 只写本地文件。发消息、改 listing、动广告都不做，最多起草，交给人决定。
