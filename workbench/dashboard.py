@@ -74,8 +74,8 @@ def snap(i):
         return out
     now, prev = voices(i), voices(i - 1)
     cnt = Counter(t for r in R for t in r["tags"] if t in neg)
-    top_tag = cnt.most_common(1)[0][0]
-    top_share = lambda w: pct(sum(1 for r in rv(w, w) if top_tag in r["tags"]), len(rv(w, w)))
+    top_tag = cnt.most_common(1)[0][0] if cnt else None      # 评论少的产品可能某几周没有抱怨
+    top_share = lambda w: pct(sum(1 for r in rv(w, w) if top_tag in r["tags"]), len(rv(w, w))) if top_tag else 0.0
     src = {"评论": len(R)}
     for t in ("退货", "换货", "买家消息"):
         src[t] = len(evs(lo, i, t))
@@ -121,7 +121,7 @@ def snap(i):
         journey.append({"stage": st, "good": sum(1 for r in R for t in r["tags"] if t in pos and ts.get(t) == st),
                         "bad": sum(b.values()), "neg": b.most_common()})
     # 退货：原因码 × 备注里的真实原因
-    rets = evs(lo, i, "退货")
+    rets = [dict(e, real=e.get("real") or "说不清（没写备注）") for e in evs(lo, i, "退货")]
     coded = Counter(e.get("code") for e in rets)
     codes = [c for c, _ in coded.most_common()]
     reals = [x for x, _ in Counter(e["real"] for e in rets).most_common()]
@@ -131,13 +131,13 @@ def snap(i):
                "realInTop": Counter(e["real"] for e in rets if e.get("code") == top_code and e.get("hasNote")).most_common(),
                "codes": codes, "reals": reals,
                "matrix": [[sum(1 for e in rets if e.get("code") == c and e["real"] == x) for x in reals] for c in codes]}
-    msgs = Counter(e["real"] for e in evs(lo, i, "买家消息"))
+    msgs = Counter(e.get("real") for e in evs(lo, i, "买家消息"))
     return {
         "idx": i, "week": f"{md(starts[i])}–{md(end(i))}", "end": end(i).isoformat(), "window": f"{md(starts[lo])}–{md(end(i))}",
         "kpi": {"voices": {"now": sum(now.values()), "prev": sum(prev.values()), "split": now},
                 "negShare": {"now": trend[i]["negShare"], "prev": trend[i - 1]["negShare"]},
                 "returns": {"now": now["退货"], "prev": prev["退货"], "d4": src["退货"]},
-                "top": {"tag": top_tag, "now": top_share(i), "prev": top_share(i - 1)}},
+                "top": {"tag": top_tag or "—", "now": top_share(i), "prev": top_share(i - 1)}},
         "sources": src, "pareto": pareto, "change": change, "skus": skus, "hot": hot, "journey": journey, "returns": returns,
         "messages": {"n": sum(msgs.values()), "top": [[k, v] for k, v in msgs.most_common() if k != "其他"][:3]},
         "actions": [{"name": r["name"], "count": r["count"], "owner": problems[r["name"]].get("owner"), "fix": problems[r["name"]].get("fix")}
@@ -145,7 +145,7 @@ def snap(i):
     }
 
 
-snaps = [snap(i) for i in range(7, NW)]
+snaps = [snap(i) for i in range(7, NW)]      # 往前满 8 周的才能选；评论少的产品数字会很小，但不会报错
 
 cmp = (d.get("calc") or {}).get("compare") or {}
 rows = [r for r in cmp.get("rows", []) if r.get("avg") is not None]

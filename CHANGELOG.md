@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## v1.4.0 · 2026-10-28
+
+- 新增 **一键部署**：`DEPLOY.md` 是给 AI 编程助手照着做的部署指南（先问清、每步验收、密钥只进本机）；`AGENTS.md`（`CLAUDE.md` 指向它）告诉 AI 收到「部署」时按它做；`scripts/doctor.sh` 逐项自检。
+  One-step deployment: `DEPLOY.md` is a step-by-step guide for AI coding assistants (ask first, verify every step, keys stay local); `AGENTS.md` (with `CLAUDE.md` pointing to it) routes "deploy" requests there; `scripts/doctor.sh` checks everything.
+- 新增 `agent/`：VOC Agent 的 Hermes profile，`hermes profile install ./agent` 一条命令装好；岗位规则 `SOUL.md` 带占位符，附数据源示例和飞书三张表的结构。
+  New `agent/`: the VOC Agent as a Hermes profile distribution, installable with `hermes profile install ./agent`; a placeholder `SOUL.md`, a data-source example and the Feishu table schema.
+- 工作台接你自己的数据：分析过的 ASIN 自动进产品列表；设 `VOC_OWN_ASIN` 并跑 `dashboard.py` 后首页换成自家产品的看板；评论少的产品也不会报错。
+  The workbench now loads your own data: analyzed ASINs join the product list automatically, and with `VOC_OWN_ASIN` plus `dashboard.py` the home dashboard switches to your product; sparse products no longer break it.
+
 ## v1.3.0 · 2026-10-28
 
 - 开源 **VOC 工作台**（`workbench/`）：首页数据看板（按周切换的时间轴、分析结论、瀑布图、哑铃图等）、我的产品、产品详情、站外 VOC（Reddit 情绪曲线、需求四象限）、Agent 岗位卡，自带楼梯踏板案例数据。

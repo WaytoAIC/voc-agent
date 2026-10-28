@@ -1,0 +1,13 @@
+# 写进 ~/.hermes/profiles/voc/config.yaml 的 mcp_servers 下面：没有这个文件就新建（只写这一段，Hermes 会和默认配置合并）；已有就只追加，不要整个替换。
+# <...> 换成你自己的 key；key 只放本机，不要提交到任何仓库。
+mcp_servers:
+  sellersprite:                     # 卖家精灵：评论原文、商品详情、竞品（必需，现场分析靠它拉评论）
+    url: https://mcp.sellersprite.com/mcp
+    headers:
+      secret-key: <你的卖家精灵 MCP key>
+    connect_timeout: 120   # 卖家精灵握手偶尔很慢
+    timeout: 180
+  sorftime:                         # Sorftime：多平台数据、Reddit 摘要（可选）
+    url: https://mcp.sorftime.com?key=<你的 Sorftime key>
+    connect_timeout: 60
+    timeout: 180

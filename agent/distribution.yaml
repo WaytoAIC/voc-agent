@@ -1,0 +1,47 @@
+name: voc
+version: "1.4.0"
+description: VOC Agent —— 用户声音分析员：读评论、退货、Alexa 问答和 Reddit，脚本算数，给结论和要做的事；配套 VOC 工作台
+author: Way to AIC
+license: MIT
+hermes_requires: ">=0.22.0"
+distribution_owned:
+  - SOUL.md
+  - distribution.yaml
+env_requires:
+  - name: API_SERVER_KEY
+    description: 本机 VOC 工作台连这个 Agent 用的密钥（自己生成一串随机字符，例如 openssl rand -hex 24；只放在本机）
+  - name: API_SERVER_HOST
+    description: Agent 的 API 只监听本机
+    required: false
+    default: 127.0.0.1
+  - name: FEISHU_APP_ID
+    description: 飞书机器人应用的 App ID（不接飞书就不填）
+    required: false
+  - name: FEISHU_APP_SECRET
+    description: 飞书机器人应用的 App Secret（不接飞书就不填）
+    required: false
+  - name: FEISHU_DOMAIN
+    description: feishu（国内）或 lark（海外）
+    required: false
+    default: feishu
+  - name: FEISHU_CONNECTION_MODE
+    description: 用长连接收消息，不需要公网地址
+    required: false
+    default: websocket
+  - name: FEISHU_ALLOWED_USERS
+    description: 允许私聊它的人（open_id，逗号分隔）
+    required: false
+  - name: FEISHU_GROUP_POLICY
+    description: 群里谁能 @ 它：allowlist 只认允许名单里的人
+    required: false
+    default: allowlist
+  - name: FEISHU_HOME_CHANNEL
+    description: 它的主场群 chat_id（VOC 专项群）
+    required: false
+  - name: FEISHU_HOME_CHANNEL_NAME
+    description: 主场群名
+    required: false
+    default: VOC专项群
+  - name: TIKHUB_API_KEY
+    description: 拉 Reddit 用（付费，可选；不填就走免费的官方 RSS + Arctic 存档，慢一些）
+    required: false

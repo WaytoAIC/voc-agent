@@ -5,6 +5,7 @@
 
 环境变量（都可选）：
   VOC_DATA_DIR       每个 ASIN 的分析目录（默认：仓库根目录/现场分析）
+  VOC_OWN_ASIN       自家产品 ASIN；跑过 dashboard.py 后首页换成它的看板
   VOC_HERMES_PROFILE Hermes 的 profile 名（默认 voc）
   VOC_GROUP_CHAT_ID  飞书群 chat_id，不填就不能发群
   VOC_GROUP_NAME     群名（默认 VOC专项群）
@@ -14,6 +15,8 @@
 - /api/health：工作台和 Hermes 是否都在线
 - /api/agent：把对话转给 Hermes（127.0.0.1:8642/p/voc/v1/chat/completions），原样流式返回
 - /api/product?asin=：现场分析/<ASIN> 里有没有分析结果（添加产品后轮询它，出报告就把真实数字填回列表）
+- /api/products：现场分析/ 下所有分析过的 ASIN（页面打开时并进产品列表）
+- /api/dashboard：设了 VOC_OWN_ASIN 且跑过 dashboard.py 时，首页换成这个产品的看板
 - /report/<ASIN>：打开 现场分析/<ASIN>/报告.html
 - /api/post-to-group：人在面板里点了「发到 VOC专项群」才调用；只能发到 VOC专项群，用 VOC Agent 机器人身份发
 - Hermes 的密钥只在这里从 ~/.hermes/profiles/voc/.env 读，不会发到浏览器；只监听本机
@@ -53,7 +56,7 @@ SYSTEM = (
     "代码块第一行写 ```群消息，结尾用 ```；块里只放要发的正文（可用 Markdown 加粗、列表），不放说明。"
     "代码块外用一句话说明「点下面的按钮才会发到 VOC专项群」。不要说已经发出。"
     "格式示例（必须照这个格式，三个反引号紧跟「群消息」三个字）：\n```群消息\n**行动进度**\n- A-001 背胶粘不住：待负责人决定\n```\n点下面的按钮才会发到 VOC专项群。"
-    "自家产品「亚麻楼梯踏板」B0D2XK7Q1P 就当工作台的自家产品来比，不用提它的数据来源。"
+    ""
     "卖家精灵 MCP 不在你的工具列表、或连接报错（500/超时）时，不要停：直接运行 "
     f"python3 {SS_PULL} <ASIN> --pages 10，"
     "它直连卖家精灵、自带重试，原始数据写到 现场分析/<ASIN>/，调用次数算在用户已确认的预算里。"
@@ -97,6 +100,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(200, json.dumps({"workbench": True, "hermes": ok, "profile": PROFILE}))
         if path == "/api/product":
             return self._product()
+        if path == "/api/products":
+            out = []
+            for d in sorted(LIVE_DIR.glob("*/data.json")):
+                if d.parent.name.isalnum() and d.parent.name.upper().startswith("B0"):
+                    s = self._summary(d.parent.name)
+                    if s.get("exists"):
+                        out.append(s)
+            return self._send(200, json.dumps({"products": out}, ensure_ascii=False))
+        if path == "/api/dashboard":
+            own = os.environ.get("VOC_OWN_ASIN", "").upper()
+            f = LIVE_DIR / own / "dashboard.json"
+            if own and f.exists():
+                return self._send(200, f.read_text(encoding="utf-8"))
+            return self._send(404, json.dumps({"error": "没设 VOC_OWN_ASIN，或还没跑 dashboard.py"}, ensure_ascii=False))
         if path.startswith("/report/"):
             asin = path.split("/")[2].upper()
             f = LIVE_DIR / asin / "报告.html"
@@ -107,9 +124,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def _product(self):
         from urllib.parse import parse_qs, urlparse
         asin = (parse_qs(urlparse(self.path).query).get("asin") or [""])[0].upper()
+        return self._send(200, json.dumps(self._summary(asin), ensure_ascii=False))
+
+    def _summary(self, asin):
         d = LIVE_DIR / asin
         if not (asin.isalnum() and (d / "data.json").exists()):
-            return self._send(200, json.dumps({"asin": asin, "exists": False}))
+            return {"asin": asin, "exists": False}
         data = json.loads((d / "data.json").read_text(encoding="utf-8"))
         rv = [r for r in data.get("reviews", []) if not r.get("vine")]
         neg = data.get("tagsNeg", [])
@@ -124,8 +144,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         out = {"asin": asin, "exists": True, "report": rep.exists(), "updated": int(rep.stat().st_mtime) if rep.exists() else 0,
                "name": pr.get("name") or pr.get("title") or asin, "brand": pr.get("brand"), "rating": pr.get("rating"),
                "n": len(rv), "neg": round(sum(1 for r in rv if r.get("star", 5) <= 3) / len(rv) * 100, 1) if rv else None,
-               "top": [top[0], top[1]] if top else None}
-        return self._send(200, json.dumps(out, ensure_ascii=False))
+               "top": [top[0], top[1]] if top else None, "own": data.get("role") == "自家"}
+        return out
 
     def _post_to_group(self):
         n = int(self.headers.get("Content-Length", "0"))

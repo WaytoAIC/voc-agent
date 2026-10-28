@@ -70,6 +70,18 @@
 
 Give the agent an Amazon ASIN. It pulls the reviews, reads them, runs the numbers, and produces a one-page VOC report. Then keep asking follow-up questions in plain language.
 
+## 🧭 搭一整套：VOC 工作台 + VOC Agent
+
+把这个仓库地址发给你的 AI 编程助手（Claude Code、Codex 等），说一句：
+
+> 「按 https://github.com/WaytoAIC/voc-agent 的 DEPLOY.md，帮我把 VOC 工作台和 VOC Agent 搭起来。」
+
+它会按 [DEPLOY.md](DEPLOY.md) 一步步做：装 Hermes 里的 VOC Agent（`agent/`）、接卖家精灵、启动本机工作台（`workbench/`）、跑通第一次分析，可选接飞书群和多维表格；最后用 `scripts/doctor.sh` 自检。
+
+Give this repo to your AI coding assistant and ask it to follow [DEPLOY.md](DEPLOY.md): it sets up the VOC Agent as a Hermes profile, connects Seller Sprite, starts the local workbench, runs a first analysis, optionally wires up Feishu, and finishes with `scripts/doctor.sh`.
+
+---
+
 ## ⚡ 一键安装 Quick Install
 
 ```bash
@@ -149,6 +161,9 @@ skill/
 └── examples/B0FMJCMKY1/   # 完整样例：data.json（含 24 条 Alexa 问答）+ 报告.html
 
 workbench/             # VOC 工作台：看板、问 Agent、现场加产品（见 workbench/README.md）
+agent/                 # VOC Agent 的 Hermes profile：SOUL.md 模板、distribution.yaml、数据源示例、飞书表结构
+scripts/doctor.sh      # 自检：环境、profile、技能、数据源、网关、工作台、飞书
+DEPLOY.md              # 部署指南（给 AI 照着做）
 ```
 
 样例是一款公开在售的黄麻楼梯踏板，只用于演示分析流程。

@@ -1,0 +1,871 @@
+{
+ "base": "VOC工作台",
+ "tables": [
+  {
+   "table": "VOC 事件明细",
+   "fields": [
+    {
+     "name": "阶段",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "为什么买"
+      },
+      {
+       "name": "收货"
+      },
+      {
+       "name": "安装"
+      },
+      {
+       "name": "日常使用"
+      },
+      {
+       "name": "用了几个月"
+      }
+     ],
+     "description": "AI 写"
+    },
+    {
+     "name": "原话",
+     "type": "text",
+     "description": "AI 写（买家原文）"
+    },
+    {
+     "name": "送测",
+     "type": "checkbox",
+     "description": "AI 写（Vine 送测评论）"
+    },
+    {
+     "name": "子ASIN",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "人工意见",
+     "type": "text",
+     "description": "人写"
+    },
+    {
+     "name": "父ASIN",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "问题分类",
+     "type": "select",
+     "multiple": true,
+     "options": [
+      {
+       "name": "边角翘、粘不住"
+      },
+      {
+       "name": "背膜难撕"
+      },
+      {
+       "name": "运输折痕"
+      },
+      {
+       "name": "不耐用、偏薄"
+      },
+      {
+       "name": "尺寸偏小"
+      },
+      {
+       "name": "不能洗"
+      },
+      {
+       "name": "伤地板"
+      },
+      {
+       "name": "收到二手货"
+      },
+      {
+       "name": "好看"
+      },
+      {
+       "name": "好装"
+      },
+      {
+       "name": "宠物不再打滑"
+      },
+      {
+       "name": "防滑安心"
+      },
+      {
+       "name": "比定制便宜"
+      },
+      {
+       "name": "用得住"
+      },
+      {
+       "name": "楼梯变安静"
+      },
+      {
+       "name": "颜色和图片不一样"
+      },
+      {
+       "name": "买多了"
+      },
+      {
+       "name": "缺件"
+      },
+      {
+       "name": "地暖能不能用"
+      },
+      {
+       "name": "不粘地毯"
+      },
+      {
+       "name": "不能裁剪"
+      },
+      {
+       "name": "包装完好"
+      },
+      {
+       "name": "吸灰"
+      },
+      {
+       "name": "异味"
+      },
+      {
+       "name": "无质保"
+      },
+      {
+       "name": "能机洗"
+      },
+      {
+       "name": "边缘磨损"
+      },
+      {
+       "name": "颜色偏差"
+      },
+      {
+       "name": "偏贵"
+      },
+      {
+       "name": "偏长放不下"
+      },
+      {
+       "name": "吸灰显脏"
+      },
+      {
+       "name": "售后好"
+      },
+      {
+       "name": "售后补换难"
+      },
+      {
+       "name": "好打理"
+      },
+      {
+       "name": "好裁剪"
+      },
+      {
+       "name": "尺寸偏大"
+      },
+      {
+       "name": "性价比高"
+      },
+      {
+       "name": "新货不如旧货"
+      },
+      {
+       "name": "晒后褪色"
+      },
+      {
+       "name": "洗后掉粘"
+      },
+      {
+       "name": "白边露底"
+      },
+      {
+       "name": "看着廉价"
+      },
+      {
+       "name": "粘得牢"
+      },
+      {
+       "name": "缺件、有瑕疵"
+      },
+      {
+       "name": "背膜好撕"
+      },
+      {
+       "name": "能重贴不留胶"
+      },
+      {
+       "name": "脚感偏硬"
+      },
+      {
+       "name": "脚感软"
+      },
+      {
+       "name": "起毛掉毛"
+      },
+      {
+       "name": "遮住旧楼梯"
+      }
+     ],
+     "description": "AI 写"
+    },
+    {
+     "name": "中文意思",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "事件ID",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "该谁改",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "产品 · 供应链"
+      },
+      {
+       "name": "产品 · 包装"
+      },
+      {
+       "name": "供应链"
+      },
+      {
+       "name": "产品"
+      },
+      {
+       "name": "运营 · 仓储"
+      },
+      {
+       "name": "运营 · 页面"
+      }
+     ],
+     "description": "AI 写"
+    },
+    {
+     "name": "来源",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "评论"
+      },
+      {
+       "name": "退货"
+      },
+      {
+       "name": "换货"
+      },
+      {
+       "name": "买家消息"
+      },
+      {
+       "name": "Reddit"
+      },
+      {
+       "name": "Alexa 问答"
+      }
+     ],
+     "description": "AI 写"
+    },
+    {
+     "name": "款式",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "产品图",
+     "type": "attachment",
+     "description": "AI 写（该 ASIN 亚马逊主图）"
+    },
+    {
+     "name": "写入方",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "VOC Agent"
+      },
+      {
+       "name": "人工"
+      },
+      {
+       "name": "其他 Agent"
+      }
+     ],
+     "description": "这一行是谁写进来的：我们的 VOC Agent、人工，还是别的 Agent"
+    },
+    {
+     "name": "平台原因码",
+     "type": "text",
+     "description": "AI 写（退货 = 亚马逊退货原因码；换货 = 换货类型；评论/消息留空）"
+    },
+    {
+     "name": "日期",
+     "type": "datetime",
+     "description": "AI 写"
+    },
+    {
+     "name": "处置结果",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "可售"
+      },
+      {
+       "name": "买家损坏"
+      },
+      {
+       "name": "有缺陷"
+      },
+      {
+       "name": "承运商损坏"
+      }
+     ],
+     "description": "AI 写（仅退货：退回件的库存处置状态）"
+    },
+    {
+     "name": "关联行动",
+     "type": "text",
+     "description": "AI 写（对应行动手册的行动编号）"
+    },
+    {
+     "name": "星级",
+     "type": "number",
+     "description": "AI 写"
+    },
+    {
+     "name": "夸还是骂",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "夸"
+      },
+      {
+       "name": "骂"
+      },
+      {
+       "name": "中性"
+      }
+     ],
+     "description": "AI 写"
+    },
+    {
+     "name": "履约方式",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "FBA"
+      },
+      {
+       "name": "FBM"
+      }
+     ],
+     "description": "AI 写（退货/换货走的是 FBA 还是自发货 FBM；评论/消息留空）"
+    }
+   ]
+  },
+  {
+   "table": "行动手册",
+   "fields": [
+    {
+     "name": "依据条数",
+     "type": "number",
+     "description": "AI 写"
+    },
+    {
+     "name": "验收标准",
+     "type": "text",
+     "description": "人写（对标 04 表：做到什么算完成）"
+    },
+    {
+     "name": "AI建议方案",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "问题",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "行动编号",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "AI判断",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "有效"
+      },
+      {
+       "name": "无效"
+      },
+      {
+       "name": "看不出来"
+      }
+     ],
+     "description": "AI 写（验证）"
+    },
+    {
+     "name": "下一步",
+     "type": "text",
+     "description": "人写（复盘）"
+    },
+    {
+     "name": "采纳",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "采纳"
+      },
+      {
+       "name": "改方案"
+      },
+      {
+       "name": "不做"
+      },
+      {
+       "name": "待定"
+      }
+     ],
+     "description": "人写（决定）"
+    },
+    {
+     "name": "来源",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "评论"
+      },
+      {
+       "name": "退货"
+      },
+      {
+       "name": "换货"
+      },
+      {
+       "name": "买家消息"
+      },
+      {
+       "name": "Reddit"
+      }
+     ],
+     "description": "AI 写"
+    },
+    {
+     "name": "写入方",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "VOC Agent"
+      },
+      {
+       "name": "人工"
+      },
+      {
+       "name": "其他 Agent"
+      }
+     ],
+     "description": "这一行是谁写进来的：我们的 VOC Agent、人工，还是别的 Agent"
+    },
+    {
+     "name": "计划完成日",
+     "type": "datetime",
+     "description": "人写"
+    },
+    {
+     "name": "责任人",
+     "type": "user",
+     "multiple": true,
+     "description": "人写"
+    },
+    {
+     "name": "其他资料",
+     "type": "text",
+     "description": "人写（对标 04 表）"
+    },
+    {
+     "name": "产品",
+     "type": "text",
+     "description": "AI 写（文本，不用单选，换品不用改字段）"
+    },
+    {
+     "name": "依据原话",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "起始值",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "问题类别",
+     "type": "select",
+     "multiple": true,
+     "options": [
+      {
+       "name": "边角翘、粘不住"
+      },
+      {
+       "name": "背膜难撕"
+      },
+      {
+       "name": "运输折痕"
+      },
+      {
+       "name": "不耐用、偏薄"
+      },
+      {
+       "name": "尺寸偏小"
+      },
+      {
+       "name": "不能洗"
+      },
+      {
+       "name": "伤地板"
+      },
+      {
+       "name": "收到二手货"
+      }
+     ],
+     "description": "AI 写（对标 04 表的问题类别）"
+    },
+    {
+     "name": "产品图",
+     "type": "attachment",
+     "description": "AI 写（该 ASIN 真实主图）"
+    },
+    {
+     "name": "备注",
+     "type": "text",
+     "description": "人写"
+    },
+    {
+     "name": "状态",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "待决定"
+      },
+      {
+       "name": "执行中"
+      },
+      {
+       "name": "等验证"
+      },
+      {
+       "name": "已复盘"
+      }
+     ],
+     "description": "流转：待决定 → 执行中 → 等验证 → 已复盘"
+    },
+    {
+     "name": "优先级",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "P0"
+      },
+      {
+       "name": "P1"
+      },
+      {
+       "name": "P2"
+      }
+     ],
+     "description": "AI 写，人可改"
+    },
+    {
+     "name": "涉及款式",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "改成的方案",
+     "type": "text",
+     "description": "人写"
+    },
+    {
+     "name": "验证日期",
+     "type": "datetime",
+     "description": "AI 写，人可改（日期字段，可设飞书提醒）"
+    },
+    {
+     "name": "到期实际值",
+     "type": "text",
+     "description": "AI 写（验证）"
+    },
+    {
+     "name": "实际完成日",
+     "type": "datetime",
+     "description": "人写（执行）"
+    },
+    {
+     "name": "看哪个数",
+     "type": "text",
+     "description": "AI 写（验证指标）"
+    },
+    {
+     "name": "复盘结论",
+     "type": "text",
+     "description": "人写（复盘）"
+    },
+    {
+     "name": "估算影响",
+     "type": "text",
+     "description": "AI 写"
+    },
+    {
+     "name": "目标值",
+     "type": "text",
+     "description": "AI 写，人可改"
+    },
+    {
+     "name": "归属部门",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "产品 · 供应链"
+      },
+      {
+       "name": "产品 · 包装"
+      },
+      {
+       "name": "供应链"
+      },
+      {
+       "name": "产品"
+      },
+      {
+       "name": "运营 · 仓储"
+      },
+      {
+       "name": "运营 · 页面"
+      }
+     ],
+     "description": "AI 写，人可改"
+    },
+    {
+     "name": "会议记录",
+     "type": "text",
+     "description": "人写（对标 04 表）"
+    }
+   ]
+  },
+  {
+   "table": "站外 VOC · Reddit",
+   "fields": [
+    {
+     "name": "品牌",
+     "type": "text"
+    },
+    {
+     "name": "一句话",
+     "type": "text"
+    },
+    {
+     "name": "板块",
+     "type": "text"
+    },
+    {
+     "name": "讨论串",
+     "type": "text"
+    },
+    {
+     "name": "采集通道",
+     "type": "select",
+     "multiple": true,
+     "options": [
+      {
+       "name": "RSS"
+      },
+      {
+       "name": "Arctic"
+      },
+      {
+       "name": "Sorftime"
+      },
+      {
+       "name": "TikHub"
+      }
+     ]
+    },
+    {
+     "name": "人群",
+     "type": "select",
+     "multiple": true,
+     "options": [
+      {
+       "name": "养狗"
+      },
+      {
+       "name": "老狗、关节不好"
+      },
+      {
+       "name": "养猫"
+      },
+      {
+       "name": "家有老人"
+      },
+      {
+       "name": "家有小孩"
+      },
+      {
+       "name": "租房"
+      },
+      {
+       "name": "自己滑倒过"
+      }
+     ]
+    },
+    {
+     "name": "发帖日期",
+     "type": "text"
+    },
+    {
+     "name": "原声",
+     "type": "text"
+    },
+    {
+     "name": "写入方",
+     "type": "select",
+     "multiple": false,
+     "options": [
+      {
+       "name": "VOC Agent"
+      },
+      {
+       "name": "人工"
+      },
+      {
+       "name": "其他 Agent"
+      }
+     ]
+    },
+    {
+     "name": "好评",
+     "type": "select",
+     "multiple": true,
+     "options": [
+      {
+       "name": "防滑安心"
+      },
+      {
+       "name": "宠物不再打滑"
+      },
+      {
+       "name": "老人用着踏实"
+      },
+      {
+       "name": "好看"
+      },
+      {
+       "name": "好装"
+      },
+      {
+       "name": "可移除不伤地板"
+      }
+     ]
+    },
+    {
+     "name": "评论数",
+     "type": "number"
+    },
+    {
+     "name": "原帖链接",
+     "type": "text"
+    },
+    {
+     "name": "替代方案",
+     "type": "select",
+     "multiple": true,
+     "options": [
+      {
+       "name": "整条楼梯地毯"
+      },
+      {
+       "name": "防滑胶条"
+      },
+      {
+       "name": "防滑漆、涂层"
+      },
+      {
+       "name": "狗狗防滑袜、脚垫"
+      },
+      {
+       "name": "楼梯门挡"
+      },
+      {
+       "name": "宠物坡道"
+      },
+      {
+       "name": "什么都不铺"
+      }
+     ]
+    },
+    {
+     "name": "抱怨",
+     "type": "select",
+     "multiple": true,
+     "options": [
+      {
+       "name": "粘不住、会滑动"
+      },
+      {
+       "name": "边角翘起"
+      },
+      {
+       "name": "背胶留残胶、伤地板"
+      },
+      {
+       "name": "难清洁"
+      },
+      {
+       "name": "难看、不搭"
+      },
+      {
+       "name": "踩着不舒服"
+      },
+      {
+       "name": "绊脚风险"
+      },
+      {
+       "name": "不能永久安装"
+      },
+      {
+       "name": "对齐费事"
+      },
+      {
+       "name": "颜色和图不符"
+      },
+      {
+       "name": "掉毛起球"
+      }
+     ]
+    },
+    {
+     "name": "采集批次",
+     "type": "text"
+    }
+   ]
+  }
+ ]
+}
