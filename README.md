@@ -147,6 +147,8 @@ skill/
 │                     #   analyze_offsite.py 算数（⑥ 情绪曲线、⑦ 需求四象限）、to_feishu.py 写飞书、config.example.json
 ├── template.html     # 报告模板（自带深浅色）
 └── examples/B0FMJCMKY1/   # 完整样例：data.json（含 24 条 Alexa 问答）+ 报告.html
+
+workbench/             # VOC 工作台：看板、问 Agent、现场加产品（见 workbench/README.md）
 ```
 
 样例是一款公开在售的黄麻楼梯踏板，只用于演示分析流程。

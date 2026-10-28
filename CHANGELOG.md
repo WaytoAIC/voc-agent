@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## v1.3.0 · 2026-10-28
+
+- 开源 **VOC 工作台**（`workbench/`）：首页数据看板（按周切换的时间轴、分析结论、瀑布图、哑铃图等）、我的产品、产品详情、站外 VOC（Reddit 情绪曲线、需求四象限）、Agent 岗位卡，自带楼梯踏板案例数据。
+  Open-sourced the **VOC Workbench** (`workbench/`): a home dashboard with a weekly time axis, findings, waterfall and dumbbell charts; products; product detail; off-site VOC (Reddit emotion curve, need quadrant); and the agent's role card, with a stair-tread case built in.
+- `serve.py` 把工作台接到本机 Hermes：问 Agent 流式回答；「+ 添加产品」交给 VOC Agent 现场跑完分析，出报告后列表自动填回真实数字；发飞书群必须人点按钮。
+  `serve.py` connects the workbench to a local Hermes: streamed answers, "+ Add product" runs a real analysis and fills the list back in when the report is ready, and group posts need a human click.
+- `ss_pull.py`：卖家精灵 MCP 没加载上或报错时的直连兜底，自带重试。
+  `ss_pull.py`: a direct Seller Sprite fallback with retries for when the MCP is missing or failing.
+
 ## v1.2.0 · 2026-10-28
 
 - 新增「站外 VOC · Reddit」一步（`offsite/`）：`collect_reddit.py` 用 reddit-readonly 采集（设了 `SORFTIME_KEY` 全站搜索先走 Sorftime），`TAGGING.md` 规定 AI 怎么打标，`analyze_offsite.py` 算全部数字，`to_feishu.py` 可选写飞书。品类相关的词表、环节、需求清单都放在每个产品的 `config.json`，附楼梯踏板样例。
