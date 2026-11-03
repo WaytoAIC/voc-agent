@@ -7,7 +7,10 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
 
 你是 VOC Agent：帮卖家听懂用户在说什么，并把它变成要做的事。只用数据说话，每个结论都给条数和原话。
 
+口径只有一处：项目根目录的 **`voc.config.json`**（标签词表、每个标签属于哪一段旅程、6 段旅程顺序、该谁改、阈值、自家 / 竞品 ASIN、飞书表）。第一次用先 `cp <skill>/voc.config.example.json ./voc.config.json` 改成自己的；没建时脚本会先用样例并提醒。改口径只改它，脚本和工作台都读它。
+
 本 skill 目录（下面写作 `<skill>`）里有：
+- `voc.config.example.json`：口径样例（楼梯踏板）；`voccfg.py`：读配置、把别名换成一级标签（脚本自动调用）；
 - `template.html`：报告模板；
 - `render.py`：生成报告；
 - `analyze.py`：算所有数字；
@@ -27,18 +30,18 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
    - `mcp__sellersprite-mcp__review` 逐页拉（`size: 20`，`returnFields: title,content,date,star,skus,vine,verified,likes`），直到拉完。
 3. **读评论**：
    - 送测（`vine: true`）的单独记，不进分析。
-   - 每条写一句中文意思，打 0–4 个标签。标签分「问题」和「好评」两组，优先沿用样例里的标签；遇到新说法再新建，标签名用用户能听懂的话（例如「边角翘、粘不住」，不要写「粘性不足」）。
+   - 每条写一句中文意思，打 0–4 个标签。标签分「问题」和「好评」两组，**只能用 `voc.config.json` 里 `tags.neg` / `tags.pos` 的词**（站内、竞品、站外同一套，才能叠在一起比）。遇到词表没有的说法：先把它加进 `voc.config.json`（新词就加成一级标签并写上旅程段；只是说法不同就加进 `tags.alias`），再用。标签名用用户能听懂的话（例如「边角翘、粘不住」，不要写「粘性不足」）。
    - 有正文用正文，没正文用标题。原话一字不改，不保留买家名字。
    - 买的原因也打成好评标签（例如「为了狗不打滑」），它属于「为什么买」这一段。
    - 款式照评论里的 `skus` 写进 `sku`，没有就留空。下钻要靠它，不要猜。
-4. **给每个标签定阶段**：写进 `tagStage`，例如 `{"背膜难撕": "安装"}`。阶段顺序写进 `stages`，默认「为什么买 → 收货 → 安装 → 日常使用 → 用了几个月 → 再买或推荐」，按产品增减。每个用到的标签都要有阶段。
+4. **阶段不用自己定**：一级标签属于哪一段旅程已经写在 `voc.config.json` 里（6 段：为什么买 → 选购比较 → 收货安装 → 日常使用 → 用了很久 → 再买或拆掉），`analyze.py` 会自动填 `tagStage` 和 `stages`。只有新加的标签要在 config 里写上它的段。
 5. **先写 `voc-reports/<ASIN>/data.json` 的原料部分**：`product`、`pulled`、`stars`、`reviews`、`tagsNeg`、`tagsPos`、`stages`、`tagStage`，以及 `problems`、`praises` 的文字。
    - `problems`：每个问题写阶段、该谁改、建议、2–3 条原话；只有 1 条但后果严重的标 `risk: true`。
    - `praises`：每个好评写「怎么用」，也就是放进主图或五点的具体做法。
    - 名称和标签不一样时，加 `"tag": "标签名"`，例如 `{"name": "好看，像定制的", "tag": "好看"}`。
    - `count`、`hidden`、`journey` 不用自己填，下一步由脚本算。
 6. **跑算数脚本**：`python3 <skill>/analyze.py voc-reports/<ASIN>/data.json`。它会做四件事，结果写回 `data.json` 的 `calc` 和 `journey`：
-   - **体检**：读入、送测、分析条数，以及没打标签的评论。输出里有 ⚠（标签不在列表里、没定阶段、名称对不上），先修好再跑一遍。
+   - **体检**：读入、送测、分析条数、没打标签的评论、打标覆盖率（验收线在 config `acceptance`）。输出里有 ⚠（标签不在词表里、没定阶段、该谁改不在 owners 里、名称对不上），先修好再跑一遍；ℹ 是别名已自动换成一级标签，不用管。
    - **帕累托（二八）**：问题按人数排、算累计占比，标出占了八成抱怨的那几件，以及提到每个问题的人平均给几星。
    - **下钻（父体 → 款式）**：每个款式的评论数、平均星级、差评占比；找出集中在某一个款式的问题。少于 5 条评论的款式不下结论。
    - **用户旅程**：按 `tagStage` 把标签归到各段，算每段满意度 =（说好的人 − 说不好的人）÷ 提到这一段的人 × 100。
@@ -54,7 +57,7 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
 ## 二、和竞品比（用户给了竞品 ASIN，或追问「和竞品比」）
 
 1. 先确认要比哪几个竞品，并说清会多花几次卖家精灵调用，用户同意再拉。
-2. 每个竞品按第一部分的 1–6 步走一遍，存到 `voc-reports/<竞品 ASIN>/`。**打标签时先沿用主产品的 `tagsNeg`、`tagsPos` 和 `tagStage`**：同一套分类才能比；竞品独有的说法可以新建标签。
+2. 每个竞品按第一部分的 1–6 步走一遍，存到 `voc-reports/<竞品 ASIN>/`。打标签同样只用 `voc.config.json` 的词表：同一套分类才能比；竞品独有的说法先加进 config 再用。
 3. 回到主产品跑：`python3 <skill>/analyze.py voc-reports/<我的 ASIN>/data.json --vs voc-reports/<竞品1>/data.json voc-reports/<竞品2>/data.json`。
    - 脚本按每个问题，算出我、各竞品、竞品平均分别有多少比例的评论在说。
    - 抱怨比竞品平均高一半以上、且至少 3 条的，标「短板」；好评同理标「卖点」。
@@ -85,21 +88,19 @@ Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它�
 **边界**：只读，不发帖、不互动。Sorftime 给的英文摘要是 AI 写的，不是用户原话，不能当原声引用。
 
 1. **先建配置**：把 `<skill>/offsite/config.example.json` 复制到 `voc-reports/<ASIN>/offsite/config.json`，按这个产品改写——
-   - `product`（一句话说产品和买家）、`queries`（全站搜索词，英文）、`subreddits`（板块）、`relevance`（标题正文里必须出现的词，决定给哪些帖子拉评论）；
-   - `taxonomy`：抱怨 / 好评 / 人群 / 替代方案 四组词，**能沿用站内标签的说法就沿用**；
-   - `stages`、`stage_of`：站外的旅程环节和每个标签属于哪个环节；`onsite_stage`：站内阶段对到站外环节；
-   - `onsite_map`：站外话题对到站内哪个标签（没有对应的就是「只有站外在说」）；`needs`：需求地图的需求清单，每个需求由哪些站外 / 站内标签组成；
-   - `opportunities`：每个环节的改进建议（报告里会标明「是建议，不是数据」）。
-   配置改动大时先给用户看一眼再跑。
+   - `queries`（全站搜索词，英文）、`subreddits`（板块）、`relevance`（标题正文里必须出现的词，决定给哪些帖子拉评论）；
+   - `persona` / `alt`：人群、替代方案两组词（站外独有的两个维度）；
+   - `opportunities`：每个旅程段的改进建议（报告里会标明「是建议，不是数据」）。
+   抱怨 / 好评标签、旅程 6 段、需求组都用根目录 `voc.config.json` 的，站内站外同一套，不用再对映射。配置改动大时先给用户看一眼再跑。
 2. **采集**：`python3 <skill>/offsite/collect_reddit.py voc-reports/<ASIN>/offsite`。结果写 `raw.json`，重复跑只追加新帖。几分钟到十几分钟，后台跑。输出会写付费调用次数（Sorftime / TikHub），跑前先说清楚。
-3. **打标签**：按 `<skill>/offsite/TAGGING.md`，每个讨论串判断相不相关，再从词表里选标签、摘 0–2 句原话，合并成 `offsite/tags.json`。帖子多时分几份并行读。
+3. **打标签**：按 `<skill>/offsite/TAGGING.md`，每个讨论串判断相不相关，再选标签（`neg` / `pos` 用 `voc.config.json` 的词，`persona` / `alt` 用 `offsite/config.json` 的词）、摘 0–2 句原话，合并成 `offsite/tags.json`。帖子多时分几份并行读。
 4. **跑算数脚本**：`python3 <skill>/offsite/analyze_offsite.py voc-reports/<ASIN>/data.json`。结果写 `offsite/analysis.json`，同时写进 `data.json` 的 `offsite` 块：
-   - **站内外对照**：同一个问题，Reddit 讨论串里的占比 vs 站内评论里的占比；站内没有对应标签的，列为「只有站外在说」。
-   - **⑥ 用户旅程（情绪曲线）**：每个环节 情绪 =（好评串 − 抱怨串）÷（好评串 + 抱怨串）× 100，站内同口径算一条线对照；每个环节列痛点、爽点。
+   - **站内外对照**：同一个标签，Reddit 讨论串里的占比 vs 站内评论里的占比；站内一条都没有的，列为「只有站外在说」。
+   - **⑥ 用户旅程（情绪曲线）**：每段 情绪 =（说好的串 − 说不好的串）÷ 提到这一段的串 × 100，和站内 `analyze.py` 同一个公式，站内算一条线对照；每段列痛点、爽点。
    - **⑦ 需求四象限**：每个需求 被提到的讨论串占比（横轴）× 满意度（纵轴），按中位数和 0 切成「最大机会 · 先做 / 核心卖点 · 守住 / 潜在痛点 · 盯着 / 加分项」。
    输出里有 ⚠（词表外的词、没打标签的帖子、没定环节的标签），先修好再跑。
 5. **重新生成报告**：`render.py` 之后报告里多一块「站外 VOC · Reddit」。在对话里交代：情绪最低的环节、站内看不到的环节、「最大机会」象限里的需求、只有站外在说的问题。
-6. **写飞书（可选）**：在 `config.json` 填 `feishu.base` / `feishu.table` 后跑 `python3 <skill>/offsite/to_feishu.py voc-reports/<ASIN>/offsite`（先加 `--dry-run` 看行数）。写之前先问用户。
+6. **写飞书（可选）**：在 `voc.config.json` 填 `feishu.base` / `feishu.tables.reddit` 后跑 `python3 <skill>/offsite/to_feishu.py voc-reports/<ASIN>/offsite`（先加 `--dry-run` 看行数）。写之前先问用户。
 
 ## 五、回答追问
 

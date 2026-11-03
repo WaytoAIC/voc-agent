@@ -19,17 +19,26 @@ import pathlib
 import sys
 from collections import Counter
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import voccfg  # noqa: E402
+
 args = sys.argv[1:]
+LIVE = pathlib.Path(__file__).resolve().parent
 if not args:
-    sys.exit(__doc__)
+    CFG = voccfg.load(LIVE)
+    args = [str(LIVE / CFG["own"]["asin"] / "data.json")]       # 不带参数 = 用 voc.config.json 里的自家产品
 own_path = pathlib.Path(args[0])
+CFG = voccfg.load(own_path)
 d = json.loads(own_path.read_text(encoding="utf-8"))
+voccfg.canonicalize(d, CFG)
+DB = CFG["thresholds"]["dashboard"]
+HOT = CFG["thresholds"]["sku_hot"]
 
 U = [r for r in d["reviews"] if not r.get("vine")]
 day = lambda r: dt.date.fromtimestamp(r["t"] / 1000)
 last = max(day(r) for r in U)
 latest_end = last - dt.timedelta(days=(last.weekday() + 1) % 7)          # 最后一个周日
-NW = 12
+NW = DB["weeks"]
 starts = [latest_end - dt.timedelta(days=6 + 7 * k) for k in range(NW - 1, -1, -1)]
 end = lambda i: starts[i] + dt.timedelta(days=6)
 md = lambda x: f"{x.month}/{x.day}"
@@ -64,7 +73,7 @@ for i in range(NW):
 
 
 def snap(i):
-    lo = i - 3                                   # 近 4 周
+    lo = i - (DB["window_weeks"] - 1)             # 近 4 周
     R = rv(lo, i)
 
     def voices(w):
@@ -84,12 +93,12 @@ def snap(i):
     rows, cum = [], 0.0
     for name, c in cnt.most_common():
         sh = pct(c, tot)
-        rows.append({"name": name, "count": c, "share": sh, "stage": ts.get(name, ""), "core": cum < 80})
+        rows.append({"name": name, "count": c, "share": sh, "stage": ts.get(name, ""), "core": cum < CFG["thresholds"]["pareto_core_pct"]})
         cum += sh
     core = [r for r in rows if r["core"]]
     pareto = {"rows": rows, "mentions": tot, "core": [r["name"] for r in core], "cum": round(sum(r["share"] for r in core), 1)}
     # 抱怨怎么变
-    B = rv(i - 7, i - 4)
+    B = rv(i - 2 * DB["window_weeks"] + 1, i - DB["window_weeks"])
     change = []
     for t in neg:
         a, b = sum(1 for r in B if t in r["tags"]), sum(1 for r in R if t in r["tags"])
@@ -97,7 +106,7 @@ def snap(i):
             kind = "新出现" if a == 0 else "已解决" if b == 0 else "变严重" if b > a else "变轻" if b < a else "持平"
             change.append({"tag": t, "before": a, "recent": b, "delta": b - a, "kind": kind})
     change.sort(key=lambda x: -abs(x["delta"]))
-    # 各款式；某个问题在某款的占比是全店的 1.8 倍以上、且至少 5 条，标为热点
+    # 各款式；某个问题在某款的占比是全店的 lift 倍以上、且满足 voc.config.json thresholds.sku_hot，标为热点
     skus = []
     for s in d["product"].get("variants", []):
         rs = [r for r in R if r.get("sku") == s]
@@ -108,15 +117,15 @@ def snap(i):
     for t in neg:
         for s in skus:
             c = sum(1 for r in R if r.get("sku") == s["sku"] and t in r["tags"])
-            if c >= 5 and cnt.get(t):
+            if c >= HOT["min_count"] and s["n"] >= HOT["min_sku_reviews"] and cnt.get(t):
                 lift = round(pct(c, s["n"]) / pct(cnt[t], len(R)), 1)
-                if lift >= 1.8 and (hot is None or lift > hot["lift"]):
+                if lift >= HOT["lift"] and pct(c, s["n"]) >= pct(cnt[t], len(R)) + HOT["margin_pct"] and (hot is None or lift > hot["lift"]):
                     others = [x for x in skus if x["sku"] != s["sku"]]
                     hot = {"name": t, "sku": s["sku"], "count": c, "total": cnt[t], "lift": lift, "negShare": s["negShare"],
                            "othersNeg": round(sum(x["negShare"] * x["n"] for x in others) / max(sum(x["n"] for x in others), 1), 1)}
     # 用户旅程：每个环节好评、抱怨的标签提及次数
     journey = []
-    for st in d.get("stages", []):
+    for st in CFG["stages"]["order"]:
         b = Counter(t for r in R for t in r["tags"] if t in neg and ts.get(t) == st)
         journey.append({"stage": st, "good": sum(1 for r in R for t in r["tags"] if t in pos and ts.get(t) == st),
                         "bad": sum(b.values()), "neg": b.most_common()})
@@ -145,7 +154,7 @@ def snap(i):
     }
 
 
-snaps = [snap(i) for i in range(7, NW)]      # 往前满 8 周的才能选；评论少的产品数字会很小，但不会报错
+snaps = [snap(i) for i in range(DB["min_weeks_for_snapshot"] - 1, NW)]      # 往前满 8 周的才能选；评论少的产品数字会很小，但不会报错
 
 cmp = (d.get("calc") or {}).get("compare") or {}
 rows = [r for r in cmp.get("rows", []) if r.get("avg") is not None]

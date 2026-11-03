@@ -109,6 +109,16 @@ mkdir -p <仓库目录>/现场分析
 
 **检查**：`~/.hermes/profiles/voc/skills/ecommerce/voc-agent/SKILL.md` 存在；`grep -c "{{" ~/.hermes/profiles/voc/SOUL.md`，不接飞书时应为 0。
 
+## 第 4.5 步：建口径文件 voc.config.json
+
+```bash
+cp <仓库目录>/skill/voc.config.example.json <仓库目录>/voc.config.json
+```
+
+这是整套系统唯一的口径来源：标签词表、每个标签属于哪一段旅程、6 段旅程、该谁改、阈值、自家 / 竞品 ASIN、飞书表和群。先把 `own.asin`、`competitors` 换成用户的；标签词表第一次分析时可以先用样例的，分析自己品类时再改。以后改口径只改这一个文件，脚本、报告、工作台一起变。
+
+**检查**：`python3 -m json.tool <仓库目录>/voc.config.json >/dev/null` 没报错；`own.asin` 是用户的 ASIN。
+
 ## 第 5 步：接数据源
 
 把 `agent/mcp.example.yaml` 里的 `sellersprite`（必需）和 `sorftime`（可选）写进 `~/.hermes/profiles/voc/config.yaml` 的 `mcp_servers:` 下，`<...>` 换成用户给的 key。刚装的 profile 没有 `config.yaml` 就新建，只写 `mcp_servers` 这一段（Hermes 会和默认配置合并）；已经有就只追加这一段，**不要整个替换**。
@@ -144,10 +154,10 @@ curl -s http://127.0.0.1:8642/v1/health
 ## 第 7 步：启动工作台
 
 ```bash
-cd <仓库目录> && VOC_OWN_ASIN=<自家产品 ASIN> python3 workbench/serve.py
+cd <仓库目录> && python3 workbench/serve.py
 ```
 
-浏览器打开 http://127.0.0.1:8790 。这个终端别关；以后每次开机都要跑这一条（或者让 AI 帮你做成开机自启）。
+浏览器打开 http://127.0.0.1:8790 。自家产品、群、飞书表都从 `voc.config.json` 读（环境变量 `VOC_OWN_ASIN` 等只做临时覆盖）。这个终端别关；以后每次开机都要跑这一条（或者让 AI 帮你做成开机自启）。
 
 **检查**：
 
@@ -166,7 +176,7 @@ curl -s http://127.0.0.1:8790/api/health
 5. 生成首页看板（自家产品要有近 8 周以上的评论，数字才有意义）：
 
 ```bash
-cd <仓库目录> && python3 workbench/dashboard.py 现场分析/<自家ASIN>/data.json --vs 现场分析/<竞品1>/data.json 现场分析/<竞品2>/data.json
+cd <仓库目录> && python3 workbench/dashboard.py 现场分析/<自家ASIN>/data.json
 ```
 
 刷新工作台，首页就换成自家产品的看板；产品列表里会自动出现所有分析过的 ASIN。
@@ -184,7 +194,7 @@ HERMES_HOME=~/.hermes/profiles/voc lark-cli config bind --source hermes --identi
 ```
 
 4. **填占位符**：SOUL.md 里飞书两节的 `{{BASE_TOKEN}}`、三个 `{{TABLE_...}}`、`{{LARK_CLI}}`、`{{HERMES_PROFILE_DIR}}`、`{{OWNER_OPEN_ID}}`、`{{OWNER_NAME}}`、`{{GROUP_NAME}}`、`{{GROUP_CHAT_ID}}`。
-5. **工作台连飞书**：启动工作台时加 `VOC_GROUP_CHAT_ID=<群 chat_id>`（人点按钮才发群）；`workbench/index.html` 里的 `FS_URL`、`FS_T` 填多维表格链接和两个 table_id。
+5. **工作台连飞书**：在 `voc.config.json` 的 `feishu` 段填 `wiki_url`（多维表格链接）、`base`、三个 `tables`、`group_chat_id`（人点按钮才发群）。页面里不用改任何东西。
 
 **检查**：飞书私聊它「你能做什么」能回；群里 @ 它能回；它往「VOC 事件明细」写一行测试数据、写入方是「VOC Agent」，然后删掉。
 
@@ -206,6 +216,7 @@ bash <仓库目录>/scripts/doctor.sh
 | 面板显示连不上 Agent | `curl http://127.0.0.1:8642/v1/health` 不通就 `hermes gateway restart`；通了就检查 profile 的 `API_SERVER_KEY` |
 | 加产品后一直「分析中」 | 多半在等你在右边面板回「确认」 |
 | 卖家精灵报 500 / 工具列表里没有它 | 对方偶发故障；Agent 会改用 `workbench/ss_pull.py` 直连，或稍后再试 |
-| 首页还是案例数据 | 启动工作台时没加 `VOC_OWN_ASIN`，或还没跑第 8 步的 `dashboard.py` |
+| 首页还是案例数据 | `voc.config.json` 的 `own.asin` 没改成自己的，或还没跑第 8 步的 `dashboard.py` |
+| 脚本提示「没找到 voc.config.json，先用样例」 | 还没做第 4.5 步；或者不是在仓库目录下跑的（也可以设环境变量 `VOC_CONFIG=<路径>`） |
 | 首页数字很小或很多 0 | 自家产品近几周评论太少；接上自家店铺的退货、买家消息（比如紫鸟 SP-API）会更准 |
 | 飞书里它不回 | 发消息的人不在 `FEISHU_ALLOWED_USERS`；或应用权限、版本没发布 |

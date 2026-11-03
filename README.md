@@ -128,7 +128,8 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 
 - **AI 负责**：读原话、写中文意思、打标签、写建议。
 - **`analyze.py` 负责**：所有条数、占比、排序、满意度，AI 不手算，也不改脚本算出的数。
-- 每次跑脚本先做体检：没打标签的评论、没定阶段的标签、名称对不上的，会直接提示。
+- 每次跑脚本先做体检：没打标签的评论、词表外的标签、该谁改不在列表里、名称对不上的，会直接提示。
+- **口径只有一处**：`voc.config.json`。标签（一级固定 + 别名合并）、旅程 6 段、阈值、ASIN、飞书表都在里面；站内评论、竞品、站外 Reddit 用同一套标签，才能叠在一起比。
 
 ### 常用说法
 
@@ -150,8 +151,10 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 ### 目录
 
 ```
+voc.config.json        # 唯一口径文件（从 skill/voc.config.example.json 复制）：标签词表、旅程 6 段、该谁改、阈值、ASIN、飞书表
 skill/
 ├── SKILL.md          # Agent 的工作说明
+├── voc.config.example.json / voccfg.py   # 口径样例 + 加载器（analyze / dashboard / offsite / serve 都读它）
 ├── analyze.py        # 算数：体检、二八、款式下钻、旅程满意度、竞品对比、Alexa 对照
 ├── render.py         # 把 data.json 填进模板，生成「报告.html」
 ├── alexa_import.py   # 把 apinsight 采集的 Alexa 问答读进 data.json

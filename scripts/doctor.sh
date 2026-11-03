@@ -24,6 +24,13 @@ has_key "$PD/.env" API_SERVER_KEY && pass "profile 的 API_SERVER_KEY 已设" ||
 has_key "$HOME/.hermes/.env" API_SERVER_KEY && pass "网关 API 已开（~/.hermes/.env）" || fail "网关 API 没开" "在 ~/.hermes/.env 里加 API_SERVER_KEY=<随机串> 和 API_SERVER_HOST=127.0.0.1"
 grep -q "sellersprite" "$PD/config.yaml" 2>/dev/null && pass "卖家精灵 MCP 已配置" || fail "没配卖家精灵 MCP" "把 agent/mcp.example.yaml 合并进 $PD/config.yaml"
 
+echo "== 口径文件"
+if [ -f "$REPO/voc.config.json" ]; then
+  python3 -m json.tool "$REPO/voc.config.json" >/dev/null 2>&1 && pass "voc.config.json 在，JSON 合法" || fail "voc.config.json 不是合法 JSON" "修好它（可对照 skill/voc.config.example.json）"
+else
+  warn "没有 voc.config.json：脚本会先用 skill/voc.config.example.json（cp 一份到仓库根目录改成自己的）"
+fi
+
 echo "== 运行状态"
 if curl -s -m 3 http://127.0.0.1:8642/v1/health >/dev/null 2>&1; then pass "Hermes 网关在线（127.0.0.1:8642）"; else fail "Hermes 网关没在跑" "hermes gateway install && hermes gateway start（或前台：hermes gateway run）"; fi
 H=$(curl -s -m 3 http://127.0.0.1:8790/api/health 2>/dev/null)

@@ -1,6 +1,6 @@
 """站外 VOC · Reddit 采集：只拉数据、去重、存原始数据，不做任何判断。
 
-用法：python3 collect_reddit.py voc-reports/<ASIN>/offsite [--comments 40]
+用法：python3 <skill>/offsite/collect_reddit.py voc-reports/<ASIN>/offsite [--comments 40]
 - 读同目录 config.json（queries / subreddits / subreddit_query / relevance / comments）
 - 帖子：reddit-readonly 全站搜索 + 板块内搜索；评论：只给标题/正文命中 relevance 的帖子拉前 N 条
 - 后端由 reddit-readonly 按能力路由：设了 SORFTIME_KEY 时全站搜索先走 Sorftime，板块搜索走 Arctic / RSS；
@@ -22,7 +22,6 @@ RAW = OUT / "raw.json"
 NC = int(sys.argv[sys.argv.index("--comments") + 1]) if "--comments" in sys.argv else int(CFG.get("comments", 40))
 
 REL = "reddit-readonly/scripts/reddit-readonly.mjs"
-# 本 skill 在 <skills>/voc-agent/ 或 <skills>/<分类>/voc-agent/ 下，两层都找
 HERE = pathlib.Path(__file__).resolve()
 near = [p for base in (HERE.parents[2], HERE.parents[3]) for p in (base / REL, *base.glob(f"*/{REL}"))]
 candidates = [os.environ.get("REDDIT_RO"), *near,
@@ -81,12 +80,16 @@ with ThreadPoolExecutor(4) as ex:
         print(f"{'全站「' + q + '」' if where == 'all' else 'r/' + where}：{len(d.get('posts', []))} 条（{src}）", file=sys.stderr)
 
 rule = CFG.get("relevance") or {}
+
+
 def relevant(p):
     t = f"{p['title']} {p['text']} {p.get('summary') or ''}".lower()
     return all(k in t for k in rule.get("all", [])) and (not rule.get("any") or any(k in t for k in rule["any"]))
 
 
 todo = [p for p in posts.values() if relevant(p) and not p["comments"]]
+
+
 def pull(p):
     d = ro("thread", p["id"], "--commentLimit", str(NC)) or {}
     post = d.get("post") or {}

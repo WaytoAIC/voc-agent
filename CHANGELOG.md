@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- 新增 **唯一口径文件 `voc.config.json`**（样例 `skill/voc.config.example.json`，加载器 `voccfg.py`）：一级标签词表 + 别名合并表、旅程 6 段（为什么买 → 选购比较 → 收货安装 → 日常使用 → 用了很久 → 再买或拆掉）、该谁改、阈值、自家 / 竞品 ASIN、飞书表和群。`analyze.py`、`dashboard.py`、站外脚本、`serve.py` 全部读它；站内、竞品、站外 Reddit 用同一套标签。
+  New single source of truth `voc.config.json` (example in `skill/voc.config.example.json`, loader `voccfg.py`): first-level tags with alias merging, the six journey stages, owners, thresholds, own/competitor ASINs, Feishu table IDs. Every script and the workbench read it; on-site, competitor and Reddit tagging share one vocabulary.
+- 站外 VOC 的词表、环节、需求组、飞书 ID 从 `offsite/config.json` 移到 `voc.config.json`；`offsite/config.json` 只留搜什么、去哪搜、人群 / 替代方案和每段的机会建议。情绪分改成和站内同一个公式。
+  Off-site taxonomy, stages, needs and Feishu IDs moved from `offsite/config.json` into `voc.config.json`; the per-product file keeps only queries, subreddits, persona/alt words and per-stage opportunities. The emotion score now uses the same formula as on-site.
+- 工作台页面不再内嵌任何数据：`serve.py` 启动时注入配置、产品列表（`products.json`）、看板、站外、Alexa；新增 `build_export.py` 生成同源离线版。页面 678KB → 328KB。
+  The workbench page embeds no data any more: `serve.py` injects config, products, dashboard, off-site and Alexa at load; `build_export.py` writes an offline copy from the same sources.
+- 体检新增打标覆盖率（验收线 `acceptance.tag_coverage_pct`）、词表外标签、该谁改校验。
+  Data check now reports tag coverage against the acceptance line, out-of-vocabulary tags and unknown owners.
+
 ## v1.4.0 · 2026-10-28
 
 - 新增 **一键部署**：`DEPLOY.md` 是给 AI 编程助手照着做的部署指南（先问清、每步验收、密钥只进本机）；`AGENTS.md`（`CLAUDE.md` 指向它）告诉 AI 收到「部署」时按它做；`scripts/doctor.sh` 逐项自检。

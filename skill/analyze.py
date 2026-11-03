@@ -16,16 +16,26 @@
   - 只算非送测（vine=false）评论；一条评论提到同一个标签只算一次。
   - 差评 = 1–3 星。
   - 旅程满意度 = (这一段说好的人数 − 说不好的人数) ÷ 提到这一段的人数 × 100，范围 −100 到 +100。
-  - 款式集中度 = 这个问题在该款式的占比 ÷ 该款式在全部评论里的占比。算「集中」要同时满足：
-    集中度 ≥1.5、至少 2 条、这个款式至少 5 条评论、比整体占比高 5 个点以上。
+  - 款式集中度 = 这个问题在该款式的占比 ÷ 该款式在全部评论里的占比。算「集中」的四个阈值在 voc.config.json 的 thresholds.sku_hot。
   - problems / praises 的名称和标签不一样时，用 "tag" 字段指明对应哪个标签。
+  - 标签名、旅程环节、阈值都来自项目根目录的 voc.config.json（唯一真相源）。data.json 里用了别名会被自动换成一级标签并在体检里提醒。
 """
 import json
 import pathlib
 import sys
 
-DEFAULT_STAGES = ["为什么买", "收货", "安装", "日常使用", "用了几个月", "再买或推荐"]
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import voccfg  # noqa: E402
+
+CFG = None          # main() 里按 data.json 的位置加载
 NO_SKU = "款式未标"
+
+
+def TH(*keys):
+    v = CFG["thresholds"]
+    for k in keys:
+        v = v[k]
+    return v
 
 
 def load(path):
@@ -72,14 +82,25 @@ def check(d, U, N):
                     item["hidden"] = hidden
                 else:
                     item.pop("hidden", None)
+    vneg, vpos, _ = voccfg.vocab(CFG)
+    owners, oalias = set(CFG["owners"]["list"]), {k: v for k, v in CFG["owners"]["alias"].items() if not k.startswith("_")}
+    bad_owner = []
+    for item in d.get("problems", []):
+        for part in str(item.get("owner") or "").split("·"):
+            part = part.strip()
+            if part and oalias.get(part, part) not in owners:
+                bad_owner.append(f'{item["name"]}：{part}')
     return {
         "read": len(d["reviews"]),
         "vine": len(d["reviews"]) - N,
         "analyzed": N,
         "untagged": sum(1 for r in U if not r.get("tags")),
         "unknownTags": sorted(used - known),
+        "notInVocab": sorted(used - vneg - vpos),
         "noStage": sorted(t for t in used & known if t not in stage_of),
+        "badOwner": bad_owner,
         "countFixed": fixed,
+        "taggedPct": pct(sum(1 for r in U if r.get("tags")), N),
     }
 
 
@@ -98,7 +119,7 @@ def pareto(d, U, N):
             avgStar=avg_star(hit),
             core=not core_done,
         )
-        if r["cum"] >= 80:
+        if r["cum"] >= TH("pareto_core_pct"):
             core_done = True
     core = [r for r in rows if r["core"]]
     return {
@@ -126,7 +147,7 @@ def drill(d, U, N):
             "avgStar": avg_star(rows),
             "negShare": pct(sum(1 for r in rows if r["star"] <= 3), len(rows)),
             "top": [{"name": t, "count": c, "share": pct(c, len(rows))} for t, c in top],
-            "small": len(rows) < 5,
+            "small": len(rows) < TH("sku_hot", "min_sku_reviews"),
         })
     hot = []
     for t in neg:
@@ -138,7 +159,8 @@ def drill(d, U, N):
                 continue
             c = count(rows, t)
             lift = (c / total) / (len(rows) / N) if c else 0
-            if c >= 2 and len(rows) >= 5 and lift >= 1.5 and pct(c, len(rows)) >= pct(total, N) + 5:
+            h = TH("sku_hot")
+            if c >= h["min_count"] and len(rows) >= h["min_sku_reviews"] and lift >= h["lift"] and pct(c, len(rows)) >= pct(total, N) + h["margin_pct"]:
                 hot.append({
                     "name": t, "sku": sku, "count": c, "total": total,
                     "skuShare": pct(c, len(rows)), "allShare": pct(total, N), "lift": round(lift, 1),
@@ -148,7 +170,7 @@ def drill(d, U, N):
 
 def journey(d, U):
     stage_of = d.get("tagStage", {})
-    order = d.get("stages") or DEFAULT_STAGES
+    order = list(CFG["stages"]["order"])
     order = order + [s for s in dict.fromkeys(stage_of.values()) if s not in order]
     neg, pos = set(d.get("tagsNeg", [])), set(d.get("tagsPos", []))
     out = []
@@ -173,6 +195,7 @@ def compare(d, U, N, others):
     comps = []
     for path in others:
         _, c = load(path)
+        voccfg.canonicalize(c, CFG)
         cu, cn = base(c)
         comps.append({"asin": c["product"]["asin"], "name": c["product"]["name"], "brand": c["product"].get("brand", ""),
                       "n": cn, "avgStar": avg_star(cu), "negShare": pct(sum(1 for r in cu if r["star"] <= 3), cn),
@@ -188,13 +211,16 @@ def compare(d, U, N, others):
         mine = pct(mc, N)
         verdict = ""
         if avg is not None:
-            if kind == "neg" and mc >= 3 and mine >= max(avg * 1.5, avg + 5):
+            cth = TH("compare")
+            big = mc >= cth["weak_min_count"] and mine >= max(avg * cth["weak_ratio"], avg + cth["weak_margin_pct"])
+            small = avg >= cth["better_min_avg_pct"] and mine <= avg * cth["better_ratio"]
+            if kind == "neg" and big:
                 verdict = "短板"
-            elif kind == "neg" and avg >= 5 and mine <= avg * 0.5:
+            elif kind == "neg" and small:
                 verdict = "比竞品好"
-            elif kind == "pos" and mc >= 3 and mine >= max(avg * 1.5, avg + 5):
+            elif kind == "pos" and big:
                 verdict = "卖点"
-            elif kind == "pos" and avg >= 5 and mine <= avg * 0.5:
+            elif kind == "pos" and small:
                 verdict = "不如竞品"
         rows.append({"name": t, "kind": kind, "mine": mine, "mineCount": mc, "comps": vals, "avg": avg, "verdict": verdict})
     only = sorted({t for c in comps for t in c["_tags"]} - {t for t, _ in mine_tags})
@@ -241,6 +267,9 @@ def main():
         sys.exit(__doc__)
     others = args[args.index("--vs") + 1:] if "--vs" in args else []
     path, d = load(args[0])
+    global CFG
+    CFG = voccfg.load(path)
+    notes = voccfg.canonicalize(d, CFG)
     U, N = base(d)
     if not N:
         sys.exit("没有可分析的评论（全部是送测或为空）")
@@ -256,8 +285,11 @@ def main():
     path.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
 
     c, p, dr = calc["check"], calc["pareto"], calc["drill"]
-    print(f"体检：读入 {c['read']}，送测 {c['vine']}，分析 {c['analyzed']}，没打标签 {c['untagged']}")
-    for k, label in (("unknownTags", "标签不在 tagsNeg/tagsPos 里"), ("noStage", "标签没定阶段"), ("countFixed", "条数已按标签改正")):
+    print(f"体检：读入 {c['read']}，送测 {c['vine']}，分析 {c['analyzed']}，没打标签 {c['untagged']}（打标覆盖 {c['taggedPct']}%，验收线 {CFG['acceptance']['tag_coverage_pct']}%）")
+    if notes["aliased"]:
+        print("  ℹ 别名已换成一级标签：" + "、".join(f"{a}→{b}" for a, b in notes["aliased"].items()))
+    for k, label in (("unknownTags", "标签不在 tagsNeg/tagsPos 里"), ("notInVocab", "标签不在 voc.config.json 词表里（先加进去再用）"),
+                     ("noStage", "标签没定阶段"), ("badOwner", "该谁改 不在 owners 列表里"), ("countFixed", "条数已按标签改正")):
         if c[k]:
             print(f"  ⚠ {label}：{'、'.join(c[k])}")
     print(f"二八：{p['coreCount']} 个问题占了 {p['coreShare']}% 的抱怨 → " + " / ".join(r["name"] for r in p["rows"] if r["core"]))

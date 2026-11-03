@@ -13,11 +13,11 @@
 | VOC Agent | Agent 岗位卡：职责、入口、技能、数据权限、权限边界、工作架构 |
 | 行动 / 新机会 / 设置 | 行动手册、ABA 机会、数据接入与运行记录 |
 
-页面里自带一套楼梯踏板的案例数据（自家产品是课程案例，5 个竞品用公开评论分析），可以直接打开看。
+页面本身不带数据：启动 `serve.py` 时，它把 `voc.config.json`（口径、ASIN、飞书表）、`products.json`（产品列表展示行）、自家产品的 `dashboard.json` / `data.json` 的 `offsite` 块 / `alexa_compare.json` 注入页面。要一个能双击打开的离线版：`python3 workbench/build_export.py`。
 
 ## 怎么用
 
-只看：直接用浏览器打开 `index.html`。
+只看：`python3 workbench/build_export.py` 生成离线版再打开（或跑 serve.py 后在浏览器看）。
 
 要问 Agent、现场加产品、发飞书群：启动本机服务。
 
@@ -34,22 +34,26 @@ python3 workbench/serve.py
 
 | 变量 | 作用 | 默认 |
 |---|---|---|
+| `VOC_CONFIG` | `voc.config.json` 的路径 | 从 workbench/ 往上找 |
 | `VOC_DATA_DIR` | 每个 ASIN 的分析目录（`<ASIN>/data.json`、`报告.html`） | 仓库根目录下的 `现场分析/` |
-| `VOC_HERMES_PROFILE` | Hermes profile 名 | `voc` |
-| `VOC_GROUP_CHAT_ID` | 飞书群 chat_id；不填就不能发群 | 空 |
-| `VOC_GROUP_NAME` | 群名 | `VOC专项群` |
+| `VOC_OWN_ASIN` | 自家产品 ASIN（临时覆盖） | `voc.config.json` 的 `own.asin` |
+| `VOC_HERMES_PROFILE` | Hermes profile 名 | `voc.config.json` 的 `hermes.profile` |
+| `VOC_GROUP_CHAT_ID` | 飞书群 chat_id（临时覆盖） | `voc.config.json` 的 `feishu.group_chat_id`；都没有就不能发群 |
 | `LARK_CLI` | lark-cli 路径 | 在 PATH 里找 |
 
-飞书多维表格的链接写在 `index.html` 的 `FS_URL`、`FS_T`，填上以后「打开飞书」按钮才能直达。
+飞书多维表格的链接和表 ID 写在 `voc.config.json` 的 `feishu` 段，填上以后「打开飞书」按钮才能直达。
 
 ## 文件
 
 ```
 workbench/
-├── index.html     # 工作台本体（单文件，自带深浅色）
-├── serve.py       # 本机服务：/api/agent 转给 Hermes，/api/product 和 /report/<ASIN> 给「添加产品」用，/api/post-to-group 人点按钮才发群
-├── dashboard.py   # 首页看板的数字（含按周快照），写 <ASIN>/dashboard.json
-└── ss_pull.py     # 卖家精灵直连拉评论（MCP 不可用时的兜底，自带重试）
+├── index.html      # 工作台本体（单文件，自带深浅色；数据由 serve.py 注入）
+├── serve.py        # 本机服务：注入数据；/api/agent 转给 Hermes，/api/product 和 /report/<ASIN> 给「添加产品」用，/api/post-to-group 人点按钮才发群
+├── build_export.py # 生成离线版（和本机版同一份数据）
+├── products.json   # 「我的产品」列表的展示行（真实分析过的 ASIN 会自动并进来）
+├── dashboard.py    # 首页看板的数字（含按周快照），写 <ASIN>/dashboard.json；不带参数 = voc.config.json 里的自家产品
+├── voccfg.py       # 读 voc.config.json（和 skill/voccfg.py 同一份）
+└── ss_pull.py      # 卖家精灵直连拉评论（MCP 不可用时的兜底，自带重试）
 ```
 
 ## 边界

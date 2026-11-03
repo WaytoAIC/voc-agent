@@ -1,11 +1,12 @@
 """站外 VOC · Reddit → 飞书多维表格，一行一个相关讨论串（可选步骤）。
 
-用法：python3 to_feishu.py voc-reports/<ASIN>/offsite [--dry-run] [--as bot|user]
-- 读 config.json 的 feishu.base / feishu.table；没填就不写
+用法：python3 <skill>/offsite/to_feishu.py voc-reports/<ASIN>/offsite [--dry-run] [--as bot|user]
+- 表的 base / table 读根目录 voc.config.json 的 feishu.base / feishu.tables.reddit；没填就不写
 - 表字段：讨论串、板块、发帖日期、原帖链接、评论数、抱怨、好评、人群、替代方案、品牌、一句话、原声、采集通道、采集批次、写入方
   （抱怨 / 好评 / 人群 / 替代方案 / 采集通道 是多选，选项要先在表里建好；写入方单选：VOC Agent / 人工 / 其他 Agent）
 - 已在表里的原帖链接跳过，重复跑不会重复写
-- lark-cli：环境变量 LARK_CLI，否则用 PATH 里的 lark-cli；用哪个身份由 --as 决定（默认 bot）
+- lark-cli：环境变量 LARK_CLI，否则 PATH 里的 lark-cli，否则 ~/.hermes/node/bin/lark-cli；
+  机器人身份用 voc.config.json hermes.profile 对应的 HERMES_HOME（没设环境变量时自动补）
 """
 import datetime as dt
 import json
@@ -15,19 +16,31 @@ import shutil
 import subprocess
 import sys
 
+HERE = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+import voccfg  # noqa: E402
+
 OFF = pathlib.Path(sys.argv[1]).resolve()
-cfg = json.loads((OFF / "config.json").read_text(encoding="utf-8"))
-fs = cfg.get("feishu") or {}
-if not fs.get("base") or not fs.get("table"):
-    sys.exit("config.json 的 feishu.base / feishu.table 没填，不写飞书")
-LARK = os.environ.get("LARK_CLI") or shutil.which("lark-cli") or sys.exit("找不到 lark-cli")
+CFG = voccfg.load(OFF)
+fs = CFG.get("feishu") or {}
+BASE, TABLE = fs.get("base"), (fs.get("tables") or {}).get("reddit")
+if not BASE or not TABLE:
+    sys.exit("voc.config.json 的 feishu.base / feishu.tables.reddit 没填，不写飞书")
+LARK = os.environ.get("LARK_CLI") or shutil.which("lark-cli") or str(pathlib.Path.home() / ".hermes/node/bin/lark-cli")
 AS = sys.argv[sys.argv.index("--as") + 1] if "--as" in sys.argv else "bot"
+ENV = dict(os.environ)
+hh = pathlib.Path.home() / ".hermes/profiles" / (CFG.get("hermes") or {}).get("profile", "voc")
+if "HERMES_HOME" not in ENV and hh.exists():
+    ENV["HERMES_HOME"] = str(hh)
 
 
 def lark(*a):
-    r = subprocess.run([LARK, "base", *a, "--as", AS, "--base-token", fs["base"], "--table-id", fs["table"]],
-                       capture_output=True, text=True, cwd=OFF)
-    return json.loads(r.stdout or "{}")
+    r = subprocess.run([LARK, "base", *a, "--as", AS, "--base-token", BASE, "--table-id", TABLE],
+                       capture_output=True, text=True, cwd=OFF, env=ENV)
+    try:
+        return json.loads(r.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"ok": False, "error": {"message": (r.stderr or r.stdout)[-300:]}}
 
 
 raw = json.loads((OFF / "raw.json").read_text(encoding="utf-8"))
