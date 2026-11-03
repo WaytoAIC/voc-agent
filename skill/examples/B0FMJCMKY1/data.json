@@ -953,6 +953,8 @@
      "ofComplaints": 44.4,
      "cum": 44.4,
      "avgStar": 4.17,
+     "lowStar": 16.7,
+     "priority": 5.9,
      "core": true
     },
     {
@@ -962,6 +964,8 @@
      "ofComplaints": 22.2,
      "cum": 66.7,
      "avgStar": 4.5,
+     "lowStar": 16.7,
+     "priority": 2.9,
      "core": true
     },
     {
@@ -971,6 +975,8 @@
      "ofComplaints": 11.1,
      "cum": 77.8,
      "avgStar": 3.67,
+     "lowStar": 33.3,
+     "priority": 2.9,
      "core": true
     },
     {
@@ -980,6 +986,8 @@
      "ofComplaints": 7.4,
      "cum": 85.2,
      "avgStar": 1.5,
+     "lowStar": 100.0,
+     "priority": 5.9,
      "core": true
     },
     {
@@ -989,6 +997,8 @@
      "ofComplaints": 3.7,
      "cum": 88.9,
      "avgStar": 3.0,
+     "lowStar": 100.0,
+     "priority": 2.9,
      "core": false
     },
     {
@@ -998,6 +1008,8 @@
      "ofComplaints": 3.7,
      "cum": 92.6,
      "avgStar": 1.0,
+     "lowStar": 100.0,
+     "priority": 2.9,
      "core": false
     },
     {
@@ -1007,6 +1019,8 @@
      "ofComplaints": 3.7,
      "cum": 96.3,
      "avgStar": 1.0,
+     "lowStar": 100.0,
+     "priority": 2.9,
      "core": false
     },
     {
@@ -1016,6 +1030,8 @@
      "ofComplaints": 3.7,
      "cum": 100.0,
      "avgStar": 1.0,
+     "lowStar": 100.0,
+     "priority": 2.9,
      "core": false
     }
    ],
@@ -1127,6 +1143,241 @@
    ],
    "hot": [],
    "unlabeled": 5
+  },
+  "priority": [
+   {
+    "rank": 1,
+    "name": "边角翘、粘不住",
+    "count": 12,
+    "ofReviews": 35.3,
+    "lowStar": 16.7,
+    "avgStar": 4.17,
+    "priority": 5.9
+   },
+   {
+    "rank": 2,
+    "name": "不耐用、偏薄",
+    "count": 2,
+    "ofReviews": 5.9,
+    "lowStar": 100.0,
+    "avgStar": 1.5,
+    "priority": 5.9
+   },
+   {
+    "rank": 3,
+    "name": "背膜难撕",
+    "count": 6,
+    "ofReviews": 17.6,
+    "lowStar": 16.7,
+    "avgStar": 4.5,
+    "priority": 2.9
+   },
+   {
+    "rank": 4,
+    "name": "运输折痕",
+    "count": 3,
+    "ofReviews": 8.8,
+    "lowStar": 33.3,
+    "avgStar": 3.67,
+    "priority": 2.9
+   },
+   {
+    "rank": 5,
+    "name": "尺寸偏小",
+    "count": 1,
+    "ofReviews": 2.9,
+    "lowStar": 100.0,
+    "avgStar": 3.0,
+    "priority": 2.9
+   },
+   {
+    "rank": 6,
+    "name": "不能洗",
+    "count": 1,
+    "ofReviews": 2.9,
+    "lowStar": 100.0,
+    "avgStar": 1.0,
+    "priority": 2.9
+   },
+   {
+    "rank": 7,
+    "name": "伤地板",
+    "count": 1,
+    "ofReviews": 2.9,
+    "lowStar": 100.0,
+    "avgStar": 1.0,
+    "priority": 2.9
+   },
+   {
+    "rank": 8,
+    "name": "收到二手货",
+    "count": 1,
+    "ofReviews": 2.9,
+    "lowStar": 100.0,
+    "avgStar": 1.0,
+    "priority": 2.9
+   }
+  ],
+  "monthly": {
+   "months": [
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09",
+    "2026-10"
+   ],
+   "n": [
+    3,
+    2,
+    1,
+    3,
+    5,
+    4,
+    3,
+    2,
+    0,
+    2,
+    1,
+    5
+   ],
+   "rows": [
+    {
+     "name": "边角翘、粘不住",
+     "total": 12,
+     "hit": [
+      1,
+      0,
+      1,
+      0,
+      2,
+      2,
+      0,
+      0,
+      0,
+      1,
+      0,
+      4
+     ],
+     "share": [
+      33.3,
+      0.0,
+      100.0,
+      0.0,
+      40.0,
+      50.0,
+      0.0,
+      0.0,
+      null,
+      50.0,
+      0.0,
+      80.0
+     ]
+    },
+    {
+     "name": "背膜难撕",
+     "total": 6,
+     "hit": [
+      0,
+      1,
+      0,
+      1,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+     ],
+     "share": [
+      0.0,
+      50.0,
+      0.0,
+      33.3,
+      0.0,
+      50.0,
+      0.0,
+      0.0,
+      null,
+      0.0,
+      0.0,
+      20.0
+     ]
+    },
+    {
+     "name": "运输折痕",
+     "total": 3,
+     "hit": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2
+     ],
+     "share": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      20.0,
+      0.0,
+      0.0,
+      0.0,
+      null,
+      0.0,
+      0.0,
+      40.0
+     ]
+    },
+    {
+     "name": "不耐用、偏薄",
+     "total": 2,
+     "hit": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "share": [
+      0.0,
+      0.0,
+      0.0,
+      33.3,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      null,
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "sparse": 10
   },
   "alexa": {
    "n": 24,

@@ -117,3 +117,43 @@ def canonicalize(d, cfg):
     known = neg | pos
     used = {t for r in d.get("reviews", []) for t in r.get("tags", [])} | set(d.get("tagsNeg", [])) | set(d.get("tagsPos", []))
     return {"aliased": used_alias, "stageAliased": used_stage, "notInVocab": sorted(used - known)}
+
+
+REQUIRED_REVIEW = {"star": (int, float), "t": (int, float), "en": str}
+
+
+def validate(d):
+    """data.json 的最小结构检查（不依赖第三方库；完整字段说明见 现场分析/data.schema.json）。返回错误列表，空 = 通过。"""
+    errs = []
+    if not isinstance(d, dict):
+        return ["data.json 顶层必须是对象"]
+    prod = d.get("product")
+    if not isinstance(prod, dict) or not prod.get("asin"):
+        errs.append("缺 product.asin")
+    rv = d.get("reviews")
+    if not isinstance(rv, list) or not rv:
+        errs.append("reviews 必须是非空数组")
+        return errs
+    for i, r in enumerate(rv[:5000]):
+        if not isinstance(r, dict):
+            errs.append(f"reviews[{i}] 不是对象")
+            continue
+        for k, typ in REQUIRED_REVIEW.items():
+            if not isinstance(r.get(k), typ):
+                errs.append(f"reviews[{i}] 缺 {k} 或类型不对")
+        s = r.get("star")
+        if isinstance(s, (int, float)) and not 1 <= s <= 5:
+            errs.append(f"reviews[{i}].star 要在 1–5")
+        if "tags" in r and not isinstance(r["tags"], list):
+            errs.append(f"reviews[{i}].tags 要是数组")
+        if len(errs) > 20:
+            errs.append("…（错误太多，先修前面的）")
+            break
+    for k in ("tagsNeg", "tagsPos"):
+        if k in d and not isinstance(d[k], list):
+            errs.append(f"{k} 要是数组")
+    for k in ("problems", "praises"):
+        for j, item in enumerate(d.get(k) or []):
+            if not isinstance(item, dict) or not item.get("name"):
+                errs.append(f"{k}[{j}] 缺 name")
+    return errs

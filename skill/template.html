@@ -152,18 +152,24 @@ td .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
   <div class="panel">
     <div class="hero"><img src="${D.imageData||P.image}" alt="${P.name}商品图" onerror="this.remove()">
       <div><h1>${P.name}</h1><p class="en">${P.title}</p>
-      <div class="stats"><span>品牌 <b>${P.brand}</b></span><span>ASIN <b>${P.asin}</b></span><span>父 ASIN <b>${P.parent}</b></span><span>价格 <b>$${P.price}</b></span><span>评分 <b>${P.rating}</b>（${P.ratings} 个）</span><span>${P.bsr}</span><span>上架 <b>${P.launched}</b></span><span>${P.variants.length} 个款式：${P.variants.join(' / ')}</span></div></div></div>
+      <div class="stats"><span>品牌 <b>${P.brand}</b></span><span>ASIN <b>${P.asin}</b></span><span>父 ASIN <b>${P.parent}</b></span><span>价格 <b>$${P.price}</b></span><span>评分 <b>${P.rating}</b>（${P.ratings} 个）</span>${P.bsr?`<span>${P.bsr}</span>`:''}${P.launched?`<span>上架 <b>${P.launched}</b></span>`:''}${(P.variants||[]).length?`<span>${P.variants.length} 个款式：${P.variants.join(' / ')}</span>`:''}</div></div></div>
     <div class="summary">${D.summary}</div>
     ${D.insight?`<div class="insight">${D.insight}</div>`:''}
   </div>
   <div class="kpis">
-    <div class="kpi"><span>拿到的评论</span><b>${D.pulled.total}</b><small>去掉送测 ${D.pulled.vine} 条，分析 ${N} 条</small></div>
+    <div class="kpi"><span>拿到的评论</span><b>${(D.pulled||{}).total??D.reviews.length}</b><small>去掉送测 ${(D.pulled||{}).vine??D.reviews.filter(r=>r.vine).length} 条，分析 ${N} 条</small></div>
     <div class="kpi"><span>差评占比（1–3 星）</span><b>${pct(neg)}</b><small>${neg} / ${N} 条</small></div>
     <div class="kpi"><span>最大的问题</span><b style="font-size:18px;font-family:var(--font-body)">${probs[0].name}</b><small>${probs[0].count} 条 · ${pct(probs[0].count)}</small></div>
     <div class="kpi"><span>用户最喜欢</span><b style="font-size:18px;font-family:var(--font-body)">${praises[0].name}</b><small>${praises[0].count} 条 · ${pct(praises[0].count)}</small></div>
   </div>
-  ${C.pareto?`<div class="panel"><div><h2>先改哪几件：${C.pareto.coreCount} 个问题占了 ${C.pareto.coreShare}% 的抱怨</h2><p class="sub">把问题按提到的人数从多到少排，再算累计占比，前面这几件就是二八里的「二」。最后一列是提到这个问题的人平均给几星（全部评论平均 ${C.pareto.avgStarAll} 星）</p></div>
-    <div class="tablewrap"><table style="min-width:640px"><thead><tr><th>问题</th><th>提到的人</th><th style="width:30%">占全部抱怨</th><th>累计</th><th>平均星级</th></tr></thead><tbody>${C.pareto.rows.map(r=>`<tr${r.core?'':' style="color:var(--muted)"'}><td>${r.core?'<span class="chip bad">先改</span> ':''}${r.name}</td><td class="num">${r.count} 条 · ${r.ofReviews}%</td><td><span class="bar"><i style="width:${r.ofComplaints}%;background:${r.core?'var(--bad)':'var(--faint)'}"></i></span></td><td class="num">${r.cum}%</td><td class="num">${r.avgStar}★</td></tr>`).join('')}</tbody></table></div></div>`:''}
+  ${C.pareto?`<div class="panel"><div><h2>先改哪几件：${C.pareto.coreCount} 个问题占了 ${C.pareto.coreShare}% 的抱怨</h2><p class="sub">把问题按提到的人数从多到少排，再算累计占比，前面这几件就是二八里的「二」。平均星级 = 提到这个问题的人平均给几星（全部评论平均 ${C.pareto.avgStarAll} 星）；优先级分 = 提到占比 × 这些人里 1–3 星的占比，分越高越伤评分</p></div>
+    <div class="tablewrap"><table style="min-width:720px"><thead><tr><th>问题</th><th>提到的人</th><th style="width:26%">占全部抱怨</th><th>累计</th><th>平均星级</th><th>低星占比</th><th>优先级分</th></tr></thead><tbody>${C.pareto.rows.map(r=>`<tr${r.core?'':' style="color:var(--muted)"'}><td>${r.core?'<span class="chip bad">先改</span> ':''}${r.name}</td><td class="num">${r.count} 条 · ${r.ofReviews}%</td><td><span class="bar"><i style="width:${r.ofComplaints}%;background:${r.core?'var(--bad)':'var(--faint)'}"></i></span></td><td class="num">${r.cum}%</td><td class="num">${r.avgStar}★</td><td class="num">${r.lowStar??'—'}%</td><td class="num">${(C.priority||[]).find(x=>x.name===r.name)?.rank===1?'<span class="chip warn">最伤评分</span> ':''}${r.priority??'—'}</td></tr>`).join('')}</tbody></table></div>
+    ${C.priority&&C.priority[0]&&C.priority[0].name!==C.pareto.rows[0].name?`<p class="insight" style="margin:10px 0 0">最多人说的是「${C.pareto.rows[0].name}」，但最伤评分的是「${C.priority[0].name}」：提到它的人 ${C.priority[0].lowStar}% 给了 1–3 星。先改哪个，看你要保评分还是要减抱怨。</p>`:''}</div>`:''}
+  ${C.monthly&&C.monthly.rows.length?`<div class="panel"><div><h2>按月看：问题在变多还是变少</h2><p class="sub">同一套标签按评论日期切成最近 12 个月，每格是当月提到这个问题的评论占比；月评论数少于 5 的格子只看方向${C.monthly.sparse?`（${C.monthly.sparse} 个月样本少）`:''}</p></div>
+    <div class="tablewrap"><table style="min-width:760px"><thead><tr><th>问题</th>${C.monthly.months.map(m=>`<th class="num">${m.slice(2)}</th>`).join('')}</tr></thead><tbody>
+      <tr style="color:var(--muted)"><td>当月评论数</td>${C.monthly.n.map(v=>`<td class="num">${v}</td>`).join('')}</tr>
+      ${C.monthly.rows.slice(0,8).map(r=>`<tr><td>${r.name}</td>${r.share.map((v,i)=>`<td class="num" style="${v==null?'color:var(--faint)':C.monthly.n[i]<5?'color:var(--muted)':v>=15?'color:var(--bad);font-weight:700':''}">${v==null?'—':v+'%'}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div></div>`:''}
   <div class="row2">
     <div class="panel"><div><h2>最该改的</h2><p class="sub">按提到的人数排。一条评论可能说了好几件事</p></div>
       ${main.map((p,i)=>`<div class="item"><div class="ih"><span class="rank">${i+1}</span><div><b>${p.name}</b><small>${p.stage} · 该谁改：${p.owner}${p.hidden?` · <span style="color:var(--warn);font-weight:700">${p.hidden} 条来自 4–5 星</span>`:''}</small></div><span class="bar"><i style="width:${p.count/probs[0].count*100}%;background:var(--bad)"></i></span><span class="num" style="text-align:right">${p.count} 条</span></div>

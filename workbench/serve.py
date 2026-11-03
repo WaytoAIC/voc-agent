@@ -18,6 +18,7 @@
   dashboard <自家>/dashboard.json（首页看板）
   offsite   <自家>/data.json 的 offsite 块（站外 VOC）
   alexa     <自家>/alexa_compare.json（Alexa 怎么说）
+  actions   现场分析/actions.json（飞书「行动项跟踪」的本地镜像，actions.py pull 生成）
 接口：
   /api/health        工作台和 Hermes 是否都在线
   /api/config        注入给页面的 config 部分
@@ -108,7 +109,8 @@ def page_data():
     own = LIVE_DIR / OWN
     d = _json(own / "data.json") or {}
     return {"config": page_config(), "products": (_json(PRODUCTS) or {}).get("products", []),
-            "dashboard": _json(own / "dashboard.json"), "offsite": d.get("offsite"), "alexa": _json(own / "alexa_compare.json")}
+            "dashboard": _json(own / "dashboard.json"), "offsite": d.get("offsite"), "alexa": _json(own / "alexa_compare.json"),
+            "actions": _json(LIVE_DIR / "actions.json")}
 
 
 def render_page(data=None):
@@ -168,6 +170,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._file(LIVE_DIR / OWN / "dashboard.json", "看板（先跑 现场分析/dashboard.py）")
         if path == "/api/alexa":
             return self._file(LIVE_DIR / OWN / "alexa_compare.json", "Alexa 对比数据")
+        if path == "/api/actions":
+            return self._file(LIVE_DIR / "actions.json", "行动项镜像（先跑 现场分析/actions.py pull）")
         if path == "/api/offsite":
             d = _json(LIVE_DIR / OWN / "data.json") or {}
             if d.get("offsite"):

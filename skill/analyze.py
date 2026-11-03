@@ -11,6 +11,9 @@
   4. 用户旅程：每个标签按 tagStage 归到阶段，算每段的满意度。
   5. 竞品对比（有 --vs 时）：同一套标签下，我和每个竞品、竞品平均各占多少。
   6. Alexa 对照（data.json 有 alexa 块时）：评论里的问题 Alexa 提没提，它多说了什么。不计入任何条数。
+  7. 优先级分：每个问题 = 提到它的评论占比 × 这些评论里 1–3 星的占比（= 全部评论里「提到它且给了低星」的比例）。
+     二八管「谁最多人说」，优先级分管「谁最伤评分」，两者一起看。
+  8. 按月看：最近 12 个月每个问题的占比和当月评论数，用同一套标签重跑，看问题在变多还是变少。
 
 口径：
   - 只算非送测（vine=false）评论；一条评论提到同一个标签只算一次。
@@ -112,11 +115,14 @@ def pareto(d, U, N):
     for r in rows:
         cum += r["count"]
         hit = [x for x in U if r["name"] in x.get("tags", [])]
+        low = pct(sum(1 for x in hit if x["star"] <= 3), len(hit))
         r.update(
             ofReviews=pct(r["count"], N),
             ofComplaints=pct(r["count"], total),
             cum=pct(cum, total),
             avgStar=avg_star(hit),
+            lowStar=low,
+            priority=round(pct(r["count"], N) * low / 100, 1),
             core=not core_done,
         )
         if r["cum"] >= TH("pareto_core_pct"):
@@ -129,6 +135,42 @@ def pareto(d, U, N):
         "coreShare": core[-1]["cum"] if core else 0,
         "avgStarAll": avg_star(U),
     }
+
+
+def priority(par):
+    rows = sorted(par["rows"], key=lambda r: (-r["priority"], -r["count"]))
+    return [{"rank": i + 1, "name": r["name"], "count": r["count"], "ofReviews": r["ofReviews"], "lowStar": r["lowStar"],
+             "avgStar": r["avgStar"], "priority": r["priority"]} for i, r in enumerate(rows)]
+
+
+def monthly(d, U, months=12):
+    import datetime as dt
+    if not U:
+        return None
+    last = max(dt.date.fromtimestamp(r["t"] / 1000) for r in U)
+    keys = []
+    y, m = last.year, last.month
+    for _ in range(months):
+        keys.append(f"{y}-{m:02d}")
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    keys.reverse()
+    bucket = {k: [] for k in keys}
+    for r in U:
+        k = dt.date.fromtimestamp(r["t"] / 1000).strftime("%Y-%m")
+        if k in bucket:
+            bucket[k].append(r)
+    n = [len(bucket[k]) for k in keys]
+    rows = []
+    for t in d.get("tagsNeg", []):
+        total = count(U, t)
+        if total < 2:
+            continue
+        hit = [sum(1 for r in bucket[k] if t in r.get("tags", [])) for k in keys]
+        rows.append({"name": t, "total": total, "hit": hit, "share": [pct(h, c) if c else None for h, c in zip(hit, n)]})
+    rows.sort(key=lambda r: -r["total"])
+    return {"months": keys, "n": n, "rows": rows, "sparse": sum(1 for c in n if c < 5)}
 
 
 def drill(d, U, N):
@@ -273,7 +315,12 @@ def main():
     U, N = base(d)
     if not N:
         sys.exit("没有可分析的评论（全部是送测或为空）")
+    errs = voccfg.validate(d)
+    if errs:
+        sys.exit("data.json 结构不对（字段说明见 现场分析/data.schema.json）：\n  " + "\n  ".join(errs))
     calc = {"check": check(d, U, N), "pareto": pareto(d, U, N), "drill": drill(d, U, N)}
+    calc["priority"] = priority(calc["pareto"])
+    calc["monthly"] = monthly(d, U)
     if d.get("tagStage"):
         d["journey"] = journey(d, U)
     if others:
@@ -293,6 +340,12 @@ def main():
         if c[k]:
             print(f"  ⚠ {label}：{'、'.join(c[k])}")
     print(f"二八：{p['coreCount']} 个问题占了 {p['coreShare']}% 的抱怨 → " + " / ".join(r["name"] for r in p["rows"] if r["core"]))
+    top = calc["priority"][:3]
+    print("优先级分（提到占比 × 低星占比）：" + "  ".join(f"{r['name']} {r['priority']}（{r['ofReviews']}% × {r['lowStar']}%）" for r in top))
+    mo = calc["monthly"]
+    if mo and mo["rows"]:
+        r0 = mo["rows"][0]
+        print(f"按月看：{mo['months'][0]}~{mo['months'][-1]}，「{r0['name']}」各月占比 " + " ".join("—" if v is None else f"{v:g}%" for v in r0["share"][-6:]) + f"（月评论数 {mo['n'][-6:]}）")
     for h in dr["hot"]:
         print(f"款式集中：「{h['name']}」在 {h['sku']} 占 {h['skuShare']}%（全部 {h['allShare']}%，{h['lift']} 倍）")
     if d.get("tagStage"):

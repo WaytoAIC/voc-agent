@@ -8,6 +8,12 @@
   Off-site taxonomy, stages, needs and Feishu IDs moved from `offsite/config.json` into `voc.config.json`; the per-product file keeps only queries, subreddits, persona/alt words and per-stage opportunities. The emotion score now uses the same formula as on-site.
 - 工作台页面不再内嵌任何数据：`serve.py` 启动时注入配置、产品列表（`products.json`）、看板、站外、Alexa；新增 `build_export.py` 生成同源离线版。页面 678KB → 328KB。
   The workbench page embeds no data any more: `serve.py` injects config, products, dashboard, off-site and Alexa at load; `build_export.py` writes an offline copy from the same sources.
+- 新增 **优先级分**（`calc.priority` = 提到占比 × 低星占比）和 **按月看**（`calc.monthly`），报告「先改哪几件」多两列、多一块「按月看」。
+  New priority score (share of reviews × low-star rate) and a monthly slice of every problem; the report shows both.
+- 新增 **零付费入口** `skill/import_reviews.py`（评论 CSV → data.json 骨架）和 `skill/data.schema.json`；`analyze.py` 先校验结构再算。
+  New zero-cost entry: `import_reviews.py` turns a review CSV into a data.json skeleton; `analyze.py` validates the structure first.
+- 新增 **行动闭环** `skill/actions.py`（接飞书「行动项跟踪」表）：镜像、到期读回（评论占比类指标自动算实际值和判断，只写两个 AI 字段）、巡检四种卡住、动作—结果曲线；工作台「行动」页改读真实卡片。
+  New action loop `actions.py` for the Feishu action table: mirror, due-date read-back (computes actual value and verdict for review-share metrics, writes only the two AI fields), stuck-card checks, action-vs-result curve; the workbench actions page now reads real cards.
 - 体检新增打标覆盖率（验收线 `acceptance.tag_coverage_pct`）、词表外标签、该谁改校验。
   Data check now reports tag coverage against the acceptance line, out-of-vocabulary tags and unknown owners.
 

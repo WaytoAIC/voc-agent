@@ -104,7 +104,7 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 
 **前提 Requirements**
 - Python 3（只用标准库，不用 pip 装任何东西）
-- 已接好[卖家精灵 MCP](https://www.sellersprite.com/)，用来拉商品详情和评论。没有的话，也可以把导出的评论表格交给 Agent，按样例的字段整理成 `data.json`。
+- 已接好[卖家精灵 MCP](https://www.sellersprite.com/)，用来拉商品详情和评论。没有的话，把导出的评论 CSV 交给 `skill/import_reviews.py`，零付费也能跑通第一份报告。
 
 ---
 
@@ -115,7 +115,8 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 | 区块 | 用的方法 | 回答的问题 |
 |---|---|---|
 | 一句话结论 + 反直觉发现 | 主题归类 + 夸还是骂 | 用户最在意什么；有没有藏在好评里的问题 |
-| 先改哪几件 | 帕累托（二八） | 几个问题占了八成抱怨；提到它的人平均几星 |
+| 先改哪几件 | 帕累托（二八）+ 优先级分 | 几个问题占了八成抱怨；谁最伤评分（提到占比 × 低星占比） |
+| 按月看 | 同一套标签按月重跑 | 问题在变多还是变少 |
 | 最该改的 / 用户最喜欢的 | 主题归类 | 每个问题该谁改、怎么改；好评怎么用到主图和五点 |
 | 按款式看 | 下钻（父体 → 款式） | 问题是全线的，还是集中在某个颜色、规格 |
 | 用户旅程 | 旅程地图 + 满意度 | 从为什么买到用了几个月，哪一段最差 |
@@ -155,7 +156,9 @@ voc.config.json        # 唯一口径文件（从 skill/voc.config.example.json 
 skill/
 ├── SKILL.md          # Agent 的工作说明
 ├── voc.config.example.json / voccfg.py   # 口径样例 + 加载器（analyze / dashboard / offsite / serve 都读它）
-├── analyze.py        # 算数：体检、二八、款式下钻、旅程满意度、竞品对比、Alexa 对照
+├── analyze.py        # 算数：体检、二八、优先级分、按月看、款式下钻、旅程满意度、竞品对比、Alexa 对照
+├── import_reviews.py # 零付费入口：评论 CSV → data.json 骨架（不用任何 key）；data.schema.json 是字段说明
+├── actions.py        # 行动闭环（可选，接飞书「行动项跟踪」）：镜像 / 到期读回 / 巡检 / 动作—结果曲线
 ├── render.py         # 把 data.json 填进模板，生成「报告.html」
 ├── alexa_import.py   # 把 apinsight 采集的 Alexa 问答读进 data.json
 ├── offsite/          # 站外 VOC · Reddit：collect_reddit.py 采集、TAGGING.md 打标规则、
