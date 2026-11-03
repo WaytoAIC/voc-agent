@@ -19,6 +19,7 @@
   offsite   <自家>/data.json 的 offsite 块（站外 VOC）
   alexa     <自家>/alexa_compare.json（Alexa 怎么说）
   actions   现场分析/actions.json（飞书「行动项跟踪」的本地镜像，actions.py pull 生成）
+  jobcard   导出/VOC Agent 岗位卡.html（「VOC Agent」页内嵌的岗位卡；公开版放 workbench/jobcard.html）
 接口：
   /api/health        工作台和 Hermes 是否都在线
   /api/config        注入给页面的 config 部分
@@ -53,6 +54,7 @@ PAGE = next((p for p in (HERE / "index.html", ROOT / "模拟稿" / "VOC工作台
 LIVE_DIR = pathlib.Path(os.environ.get("VOC_DATA_DIR", ROOT / "现场分析")).expanduser()
 SS_PULL = next((p for p in (HERE / "ss_pull.py", LIVE_DIR / "_tools" / "ss_pull.py") if p.exists()), LIVE_DIR / "_tools" / "ss_pull.py")
 PRODUCTS = HERE / "products.json"
+JOBCARD = next((p for p in (HERE / "jobcard.html", ROOT / "导出" / "VOC Agent 岗位卡.html") if p.exists()), HERE / "jobcard.html")
 HERMES = "http://127.0.0.1:8642"
 PROFILE = os.environ.get("VOC_HERMES_PROFILE") or (CFG.get("hermes") or {}).get("profile", "voc")
 ENV = pathlib.Path.home() / ".hermes" / "profiles" / PROFILE / ".env"
@@ -97,6 +99,13 @@ def _json(path):
         return None
 
 
+def _text(path):
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+
 def page_config():
     """注入给页面的配置：只给页面要用的，不给密钥。"""
     return {"version": CFG.get("version"), "own": CFG.get("own"), "competitors": CFG.get("competitors", []),
@@ -110,7 +119,7 @@ def page_data():
     d = _json(own / "data.json") or {}
     return {"config": page_config(), "products": (_json(PRODUCTS) or {}).get("products", []),
             "dashboard": _json(own / "dashboard.json"), "offsite": d.get("offsite"), "alexa": _json(own / "alexa_compare.json"),
-            "actions": _json(LIVE_DIR / "actions.json")}
+            "actions": _json(LIVE_DIR / "actions.json"), "jobcard": _text(JOBCARD)}
 
 
 def render_page(data=None):

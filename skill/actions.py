@@ -113,13 +113,15 @@ def load_local():
 
 
 def pull():
-    tmp = HERE / "_actions_pull.ndjson"
+    tmp = DATA_DIR / "_actions_pull.ndjson"
     r = subprocess.run([LARK, "base", "+record-list", "--as", "bot", "--base-token", BASE, "--table-id", TABLE,
-                        "--format", "ndjson", "--output", str(tmp)], capture_output=True, text=True, env=ENV, cwd=HERE)
+                        "--format", "ndjson", "--output", str(tmp), "--overwrite"], capture_output=True, text=True, env=ENV, cwd=HERE)
     if not tmp.exists():
         sys.exit("拉飞书失败：" + (r.stderr or r.stdout)[-400:])
     rows = [json.loads(l) for l in tmp.read_text(encoding="utf-8").splitlines() if l.strip()]
     tmp.unlink()
+    for m in DATA_DIR.glob("_actions_pull*.manifest.json"):      # lark-cli 顺手写的清单，不留
+        m.unlink()
     acts = sorted((normalize(x) for x in rows), key=lambda a: a["id"] or "")
     old = load_local()
     keep = {a["id"]: a.get("series") for a in old.get("actions", []) if a.get("series")}
