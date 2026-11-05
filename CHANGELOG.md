@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.5.0 · 2026-11-05
 
 - 新增 **唯一口径文件 `voc.config.json`**（样例 `skill/voc.config.example.json`，加载器 `voccfg.py`）：一级标签词表 + 别名合并表、旅程 6 段（为什么买 → 选购比较 → 收货安装 → 日常使用 → 用了很久 → 再买或拆掉）、该谁改、阈值、自家 / 竞品 ASIN、飞书表和群。`analyze.py`、`dashboard.py`、站外脚本、`serve.py` 全部读它；站内、竞品、站外 Reddit 用同一套标签。
   New single source of truth `voc.config.json` (example in `skill/voc.config.example.json`, loader `voccfg.py`): first-level tags with alias merging, the six journey stages, owners, thresholds, own/competitor ASINs, Feishu table IDs. Every script and the workbench read it; on-site, competitor and Reddit tagging share one vocabulary.
