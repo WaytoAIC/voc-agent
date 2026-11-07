@@ -47,6 +47,10 @@
     },
     "image": {
      "type": "string"
+    },
+    "note": {
+     "type": "string",
+     "description": "数据口径说明（投影数据固定写「真实产品数据，经脱敏与等比扩增至类目中位规模」）"
     }
    }
   },
@@ -59,7 +63,7 @@
   },
   "pulled": {
    "type": "object",
-   "description": "采集信息：来源、页数 / 文件、条数、时间；ss_pull.py --merge 会加 lastPull（这次拉了几页、新增几条、为什么停）"
+   "description": "采集信息：来源、页数 / 文件、条数、时间；ss_pull.py --merge 会加 lastPull（这次拉了几页、新增几条、换了几条旧改写行、为什么停）；投影数据的 source = 「真实数据投影（脱敏 + 等比扩增）」"
   },
   "stars": {
    "type": "object",
@@ -290,6 +294,30 @@
   "calc": {
    "type": "object",
    "description": "analyze.py 写：check / pareto / priority / monthly / drill / compare / alexa"
+  },
+  "projection": {
+   "type": "object",
+   "description": "脱敏投影标记（project.py 写）：这份 data.json 是真实数据的投影——原话改写、等比扩增 k 倍、日期平移。k = 倍数；realReviews / realEvents = 真实条数；realByWeek = 平移后各周的真实条数（判断样本够不够看这个，不看扩增后的条数）",
+   "properties": {
+    "k": {
+     "type": "number"
+    },
+    "realReviews": {
+     "type": "integer"
+    },
+    "realEvents": {
+     "type": "integer"
+    },
+    "realByWeek": {
+     "type": "object"
+    },
+    "at": {
+     "type": "string"
+    },
+    "note": {
+     "type": "string"
+    }
+   }
   }
  }
 }

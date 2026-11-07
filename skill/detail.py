@@ -196,6 +196,7 @@ def build(asin, actions=None, own_asin=None):
     rows = cmp.get("rows", [])
     return {
         "asin": asin, "exists": True, "own": own, "name": pr.get("name") or pr.get("title") or asin, "brand": pr.get("brand", ""), "parent": pr.get("parent", ""),
+        "note": pr.get("note", ""), "projection": d.get("projection"),
         "rating": pr.get("rating"), "ratings": pr.get("ratings"), "price": pr.get("price"), "variants": len(pr.get("variants") or []) or len(kid_list),
         "pulled": d.get("pulled") or {}, "n": N, "negShare": round(sum(1 for r in U if r.get("star", 5) <= 3) / N * 100, 1) if N else None,
         "summary": d.get("summary", ""), "insight": d.get("insight", ""), "check": calc.get("check"),

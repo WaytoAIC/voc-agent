@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.9.0 · 2026-11-07
+
+- 新增 **脱敏投影 `skill/project.py`**（配 `skill/llm.py` 共用模型通道）：把真实自家数据投成可对外演示的数据——原话由模型改写（意思、星级、标签、款式不变）、每条按固定倍数 k 扩成多条变体、日期整体平移、产品换别名；改写结果缓存，每周只改写新评论；`--check` 核对星级 / 标签 / 款式 / 送测分布与真实一致、每周条数 = 真实 × k、无敏感词、变体与真原话无连续 8 词重合。`weekly.py` 多一步「投影」；`voc.config.json` 加 `own.projection`（默认关）；别名 data.json 带 `projection.realByWeek`，看板 `kpi.voices.realNow` 给真实样本量，群草稿真实不足 5 条会提示别下结论。示例自家从此是真实产品的投影，口径「真实产品数据，经脱敏与等比扩增至类目中位规模」。DEPLOY 第 8.6 步、README「数据口径」说明。
+  New `skill/project.py` (with the shared model client `skill/llm.py`) projects a seller's real own-product data into a demo-safe dataset: review texts are paraphrased by the model (meaning, star, tags and variant unchanged), every row is expanded into k variants, dates are shifted and the product gets an alias; paraphrases are cached so weekly runs only rewrite new reviews. `--check` verifies that star / tag / variant / Vine distributions match the real data, weekly counts equal real × k, and no banned term or 8-word run from the real text leaks. `weekly.py` gained a projection step, `voc.config.json` an `own.projection` section (off by default), the alias data.json carries `projection.realByWeek`, the dashboard `kpi.voices.realNow`, and the weekly draft warns when the real sample is under 5. The bundled own product is now such a projection of a real listing.
+- 产品详情页顶部显示 `product.note`（数据口径）；`detail.py` 把 `note` / `projection` 带给工作台。
+  The product page shows `product.note` (data provenance); `detail.py` passes `note` / `projection` to the workbench.
+
 ## v1.8.1 · 2026-11-07
 
 - **增量拉评论去重修正**（`workbench/ss_pull.py --merge --new-only`）。首次真跑暴露两处漏洞：① 早期手工整理的 data.json 里原话被压缩 / 截断过，精确文本键对不上，旧评论被当新评论重复并入；② 个别旧行时间戳和卖家精灵原始值差 1 小时跨了天。现在去重键 = 星级 + 原话前 160 字，日期按 26 小时容差比；没有 `title` 字段的旧行再按「同星级 + 日期容差 + 旧文本实词 ≥ 50% 出现在原话里」认作同一条，并顺手把原话换成真原文、补 `title`（zh / tags / id 不动），`pulled.lastPull.upgraded` 记条数。

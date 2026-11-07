@@ -3,8 +3,9 @@
 用法：python3 <skill>/weekly.py [--dry-run] [--no-pull] [--no-tag] [--no-actions] [--no-feishu] [--export] [--asin B0XXXXXXXX] [--pages 3]
 六步，任何一步失败都不拦后面的，结尾一起报：
   1 拉评论   自家 + 竞品（voc.config.json 的 own / competitors），卖家精灵按日期倒序只拉到已有评论为止（每个 ASIN 最多 --pages 页）；
-             演示数据、还没分析过的 ASIN 不拉
-  2 打标签   tag.py 只补新评论；自家 events 里还没读过的备注跑 tag.py --events（模型通道见 tag.py）
+             演示数据、还没分析过的 ASIN 不拉；自家开了脱敏投影（own.projection.enabled）时拉的是真实 ASIN，落 voc-reports/_real/（不进仓）
+  2 打标签   tag.py 只补新评论；自家 events 里还没读过的备注跑 tag.py --events（模型通道见 tag.py）；投影模式下打的是真实数据
+  2.5 投影   own.projection.enabled 时跑 _tools/project.py --check：真实数据 → 别名 data.json（原话改写、等比扩增、日期平移），核对分布与出口扫描
   3 算数     有新东西的竞品各跑 analyze.py；自家 analyze.py --vs 全部竞品；render.py 报告；dashboard.py 看板；--export 顺手重建离线版
   4 行动卡   actions.py pull → readback（只打印；weekly.readback_write=true 才写回飞书的两个 AI 字段）→ check --draft
   5 入飞书   新评论 / 新事件写进「VOC 事件明细」（_tools/events_to_feishu.py）
@@ -34,6 +35,8 @@ DRY = "--dry-run" in ARGS
 ONLY = ARGS[ARGS.index("--asin") + 1].upper() if "--asin" in ARGS else None
 OWN = CFG["own"]["asin"].upper()
 COMPS = [a.upper() for a in CFG.get("competitors", [])] if W["competitors"] else []
+PJ = (CFG.get("own") or {}).get("projection") or {}
+PROJ = bool(PJ.get("enabled"))                                                # 自家 = 真实数据的脱敏投影
 PY = sys.executable
 TOOLS = HERE / "_tools" if (HERE / "_tools").exists() else HERE            # 本地在 现场分析/_tools，公开仓在 skill/ 平铺
 ROOT = HERE.parent
@@ -41,6 +44,12 @@ DATA = pathlib.Path(os.environ.get("VOC_DATA_DIR") or (HERE if (HERE / OWN).exis
 os.environ["VOC_DATA_DIR"] = str(DATA)                                        # 子脚本（ss_pull / actions / events_to_feishu / serve）用同一个数据目录
 WB = next((p for p in (ROOT / "工作台", ROOT / "workbench") if p.exists()), ROOT / "工作台")
 SS_PULL = next((p for p in (TOOLS / "ss_pull.py", WB / "ss_pull.py") if p.exists()), TOOLS / "ss_pull.py")
+REAL_DATA = DATA / "_real"                                                    # 投影模式：真实自家数据目录
+REAL = None
+if PROJ:
+    _pp = pathlib.Path(os.environ.get("VOC_PROJECTION") or PJ.get("private") or "voc-reports/_real/projection.json")
+    _pp = _pp if _pp.is_absolute() else next((q for q in (ROOT / _pp, REAL_DATA / "projection.json") if q.exists()), ROOT / _pp)
+    REAL = json.loads(_pp.read_text(encoding="utf-8"))["real"].upper() if _pp.exists() else None
 STAMP = dt.datetime.now()
 RUNS = DATA / "_runs"
 DATA.mkdir(parents=True, exist_ok=True)
@@ -128,22 +137,26 @@ def s_pull():
     for asin in [OWN, *COMPS]:
         if ONLY and asin != ONLY:
             continue
-        d = data(asin)
+        real = PROJ and asin == OWN                                           # 自家投影：拉真实 ASIN，落 _real/
+        if real and not REAL:
+            res["skipped"].append(f"{asin} 开了投影但找不到私有参数（projection.private）")
+            continue
+        d = data(asin) if not real else data_json(REAL_DATA / REAL / "data.json")
         if d is None:
-            res["skipped"].append(f"{asin} 还没分析过（先用工作台添加产品）")
+            res["skipped"].append(f"{asin} 还没分析过（先用工作台添加产品）" if not real else f"{asin} 投影种子还没拉（先 ss_pull 真实 ASIN 到 _real/）")
             continue
         if is_demo(d):
             res["skipped"].append(f"{asin} 演示数据")
             continue
         if DRY:
-            res["byAsin"][asin] = {"new": 0, "calls": 0, "dry": True}
+            res["byAsin"][asin] = {"new": 0, "calls": 0, "dry": True, **({"real": True} if real else {})}
             continue
-        cmd = [PY, SS_PULL, asin, "--pages", PAGES, "--merge", "--new-only", "--json"]
+        cmd = [PY, SS_PULL, REAL if real else asin, "--pages", PAGES, "--merge", "--new-only", "--json"]
         if not W["detail"]:
             cmd.append("--no-detail")
-        rc, out = run(cmd, timeout=1500)
+        rc, out = run(cmd, timeout=1500, env={**os.environ, "VOC_DATA_DIR": str(REAL_DATA)} if real else None)
         j = last_json(out)
-        res["byAsin"][asin] = {"new": j.get("new"), "calls": j.get("calls"), "pages": j.get("pages"), "errors": j.get("errors") or []}
+        res["byAsin"][asin] = {"new": j.get("new"), "calls": j.get("calls"), "pages": j.get("pages"), "errors": j.get("errors") or [], **({"real": True, "upgraded": j.get("upgraded")} if real else {})}
         REPORT["calls"] += int(j.get("calls") or 0)
         REPORT["newReviews"] += int(j.get("new") or 0)
         if rc or j.get("errors"):
@@ -163,7 +176,9 @@ def s_tag():
     for asin in [OWN, *COMPS]:
         if ONLY and asin != ONLY:
             continue
-        d = data(asin)
+        real = PROJ and asin == OWN and REAL
+        path = (REAL_DATA / REAL / "data.json") if real else (DATA / asin / "data.json")
+        d = data_json(path)
         if d is None or is_demo(d):
             continue
         todo, ev = untagged(d), (unread_events(d) if asin == OWN else 0)
@@ -174,17 +189,33 @@ def s_tag():
             log(f"  {asin}：{todo} 条没打标、{ev} 条备注没读（--dry-run 不调模型）")
             continue
         if todo:
-            rc, _ = run([PY, HERE / "tag.py", DATA / asin / "data.json", "--workers", "2"], timeout=2400)
-            after = untagged(data(asin))
+            rc, _ = run([PY, HERE / "tag.py", path, "--workers", "2"], timeout=2400)
+            after = untagged(data_json(path) or {})
             res["byAsin"][asin] = {"tagged": todo - after, "left": after}
             REPORT["tagged"] += todo - after
             if rc:
                 res["ok"], res["error"] = False, f"{asin} tag.py 退出码 {rc}"
         if ev:
-            rc, _ = run([PY, HERE / "tag.py", DATA / asin / "data.json", "--events", "--workers", "2"], timeout=1200)
-            res["byAsin"].setdefault(asin, {})["eventsRead"] = ev - unread_events(data(asin))
+            rc, _ = run([PY, HERE / "tag.py", path, "--events", "--workers", "2"], timeout=1200)
+            res["byAsin"].setdefault(asin, {})["eventsRead"] = ev - unread_events(data_json(path) or {})
             if rc:
                 res["ok"], res["error"] = False, f"{asin} tag.py --events 退出码 {rc}"
+    return res
+
+
+# ---------- 2.5 投影 ----------
+def s_project():
+    res = {}
+    if not PROJ:
+        res["note"] = "自家没开脱敏投影"
+        return res
+    tool = next((p for p in (TOOLS / "project.py", HERE / "project.py") if p.exists()), TOOLS / "project.py")
+    cmd = [PY, tool, "--check", "--json"] + (["--dry-run"] if DRY else [])
+    rc, out = run(cmd, timeout=3600)
+    j = last_json(out)
+    res.update({k: j.get(k) for k in ("k", "realReviews", "variants", "paraphrased", "cached", "events", "leaks", "drift", "errors") if k in j})
+    if rc or j.get("leaks") or j.get("drift") or j.get("errors"):
+        res["ok"], res["error"] = False, "投影核对不过：" + "；".join((j.get("leaks") or []) + (j.get("drift") or []) + (j.get("errors") or []))[:200] if j else f"project.py 退出码 {rc}"
     return res
 
 
@@ -286,14 +317,24 @@ def s_draft():
     n_own = int((pulled.get(OWN) or {}).get("new") or 0)
     n_comp = sum(int((pulled.get(a) or {}).get("new") or 0) for a in COMPS)
     L = [f"**VOC 周报草稿 · {STAMP:%Y-%m-%d}**"]
+    pj = (data(OWN) or {}).get("projection") or {}
     if is_demo(data(OWN)):
         L.append(f"- 自家 {OWN} 目前是演示数据，没有拉；换成真实 ASIN（voc.config.json own.asin）后这一行会变成本周新评论数")
     else:
-        L.append(f"- 本周新声音：自家评论 +{n_own}" + (f"，竞品 +{n_comp}" if COMPS else "") + (f"；打标 {REPORT['tagged']} 条" if REPORT["tagged"] else ""))
+        L.append(f"- 本周新声音：自家评论 +{n_own}" + ("（真实条数；看板按投影倍数展示）" if pj else "") + (f"，竞品 +{n_comp}" if COMPS else "") + (f"；打标 {REPORT['tagged']} 条" if REPORT["tagged"] else ""))
     if kpi:
         v, ns, tp = kpi.get("voices") or {}, kpi.get("negShare") or {}, kpi.get("top") or {}
-        L.append(f"- 最新一周（{snap.get('week', '')}）：声音 {v.get('now', '—')} 条（上周 {v.get('prev', '—')}），差评占比 {ns.get('now', '—')}%（上周 {ns.get('prev', '—')}%）"
-                 + (f"；最大问题「{tp.get('tag')}」{tp.get('now')}%（上周 {tp.get('prev')}%）" if tp.get("tag") else ""))
+        real_n = v.get("realNow")
+        src = snap.get("sources") or {}
+        win_n = sum(int(x or 0) for x in src.values())
+        k = float(pj.get("k") or 0)
+        if not v.get("now"):                                                 # 这周没声音：报窗口累计，别拿 0 说事
+            L.append(f"- 最新一周（{snap.get('week', '')}）没有新声音；近 4 周（{snap.get('window', '')}）声音 {win_n} 条"
+                     + (f"（真实 {round(win_n / k)} 条）" if k else "") + "，评论少的品看月度和累计，别看周环比")
+        else:
+            L.append(f"- 最新一周（{snap.get('week', '')}）：声音 {v.get('now', '—')} 条（上周 {v.get('prev', '—')}），差评占比 {ns.get('now', '—')}%（上周 {ns.get('prev', '—')}%）"
+                     + (f"；最大问题「{tp.get('tag')}」{tp.get('now')}%（上周 {tp.get('prev')}%）" if tp.get("tag") and tp.get("tag") != "—" else "")
+                     + (f"；真实样本 {real_n} 条" + ("，不足 5 条，这周的占比先别下结论" if real_n < 5 else "") if real_n is not None else ""))
     elif own.get("exists"):
         L.append(f"- 自家 {own.get('n', 0)} 条评论，差评占比 {own.get('negShare', '—')}%" + (f"；最大问题「{own['topIssues'][0]['name']}」{own['topIssues'][0]['share']}%" if own.get("topIssues") else ""))
     rt = own.get("returns") or {}
@@ -324,6 +365,7 @@ def main():
     log(f"VOC 每周运转 {REPORT['at']}" + ("（--dry-run）" if DRY else "") + f"：自家 {OWN}，竞品 {len(COMPS)} 个，每个最多 {PAGES} 页")
     step("拉评论", s_pull)
     step("打标签", s_tag)
+    step("投影", s_project)
     step("算数", s_calc)
     step("行动卡", s_actions)
     step("入飞书", s_feishu)

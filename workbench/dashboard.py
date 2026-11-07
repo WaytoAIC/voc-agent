@@ -30,6 +30,7 @@ if not args:
 own_path = pathlib.Path(args[0])
 CFG = voccfg.load(own_path)
 d = json.loads(own_path.read_text(encoding="utf-8"))
+K_PJ = float((d.get("projection") or {}).get("k") or 0)                       # 脱敏投影倍数：有就把本周声音折回真实样本量（realNow），判断看它
 voccfg.canonicalize(d, CFG)
 DB = CFG["thresholds"]["dashboard"]
 HOT = CFG["thresholds"]["sku_hot"]
@@ -143,7 +144,7 @@ def snap(i):
     msgs = Counter(e.get("real") for e in evs(lo, i, "买家消息"))
     return {
         "idx": i, "week": f"{md(starts[i])}–{md(end(i))}", "end": end(i).isoformat(), "window": f"{md(starts[lo])}–{md(end(i))}",
-        "kpi": {"voices": {"now": sum(now.values()), "prev": sum(prev.values()), "split": now},
+        "kpi": {"voices": {"now": sum(now.values()), "prev": sum(prev.values()), "split": now, **({"realNow": round(sum(now.values()) / K_PJ), "realPrev": round(sum(prev.values()) / K_PJ)} if K_PJ else {})},
                 "negShare": {"now": trend[i]["negShare"], "prev": trend[i - 1]["negShare"]},
                 "returns": {"now": now["退货"], "prev": prev["退货"], "d4": src["退货"]},
                 "top": {"tag": top_tag or "—", "now": top_share(i), "prev": top_share(i - 1)}},

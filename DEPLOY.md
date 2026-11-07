@@ -203,6 +203,22 @@ cd <仓库目录> && python3 workbench/dashboard.py 现场分析/<自家ASIN>/da
 
 **检查**：工作台「我的产品」里没有「亚麻楼梯踏板 / 转角落地垫 / 夜光楼梯踏板」这几行演示产品；自家产品的「退货与换货」页有数字，或写着「还没有退货 / 换货 / 买家消息：…」。
 
+## 第 8.6 步（可选）：对外演示但不暴露店铺——脱敏投影
+
+只在「要拿真实数据对外讲课 / 演示，又不能让人认出是哪家店」时做；自己内部用跳过。
+
+1. 真实 ASIN 单独拉到私有目录（不进 git）：`VOC_DATA_DIR=voc-reports/_real python3 workbench/ss_pull.py <真实ASIN> --pages 10 --merge`，再 `python3 <skill>/tag.py voc-reports/_real/<真实ASIN>/data.json`
+2. 写私有参数 `voc-reports/_real/projection.json`：
+   ```json
+   {"real": "<真实ASIN>", "alias": "<对外用的假ASIN>", "k": 8, "dateShiftDays": -16, "seed": "任意字符串",
+    "product": {"brand": "自家品牌", "name": "产品中文名", "title": "通用英文标题", "parent": "<假ASIN>"},
+    "banned": ["品牌名", "店铺名", "子ASIN…", "MSKU…"]}
+   ```
+   k = 类目中位产品的月评论增速 ÷ 自家真实月评论增速，定一次就别改。
+3. `voc.config.json`：`own.asin` 填假 ASIN，`own.projection = {"enabled": true, "private": "voc-reports/_real/projection.json"}`
+4. `python3 <skill>/project.py --check`：生成别名 data.json 并核对（分布一致、每周条数 = 真实 × k、无敏感词、无原话重合）。以后 `weekly.py` 每周自动重投。
+5. 对外口径固定一句：**真实产品数据，经脱敏与等比扩增至类目中位规模**（产品页顶部会显示），倍数不说。判断看 `projection.realByWeek`，真实样本不到 5 条的周别下结论。
+
 ## 第 9 步（可选）：接飞书
 
 1. **建机器人**：飞书开放平台建「企业自建应用」→ 开启机器人能力 → 事件订阅选「长连接」，订阅接收消息事件 → 开权限（以后台实际名称为准）：收发消息、读群消息里 @ 它的消息、读群信息、多维表格读写、云文档读写 → 发布版本。

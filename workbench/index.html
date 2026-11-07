@@ -1393,7 +1393,8 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
       d.variants?`<span>${d.variants} 个款式</span>`:'', d.rating!=null?`<span>评分 <b>${d.rating}</b>${d.ratings?` · ${fmtN(d.ratings)} 个评分`:''}</span>`:'',
       `<span>分析了 <b>${fmtN(d.n)}</b> 条评论${d.negShare!=null?` · 差评 <b>${d.negShare}%</b>`:''}</span>`,
       r.has?`<span>近 ${r.window} 天退货 <b>${r.n}</b> 件 · 换货 <b>${r.exchanges}</b> 件</span>`:'',
-      d.pulled&&d.pulled.at?`<span class="hint">数据 ${esc(d.pulled.at)}${d.pulled.source?` · ${esc(d.pulled.source)}`:''}</span>`:''].filter(Boolean).join('');
+      d.pulled&&d.pulled.at?`<span class="hint">数据 ${esc(d.pulled.at)}${d.pulled.source?` · ${esc(d.pulled.source)}`:''}</span>`:'',
+      d.note?`<span class="hint">${esc(d.note)}</span>`:''].filter(Boolean).join('');
   }
   function drawOverview(d){
     $('#pSummary').innerHTML=d.summary?`${esc(d.summary)}${d.insight?`<p class="sub" style="margin-top:6px">${esc(d.insight)}</p>`:''}`:EMPTY('一句话结论','跑完 analyze.py 后让 Agent 写 summary 和 insight');
