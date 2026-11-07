@@ -5,11 +5,11 @@
   "brand": "MontVoo",
   "seller": "seven six home",
   "name": "黄麻楼梯踏板 15 片",
-  "title": "15PC Jute Stair Treads for Wooden Steps - Non Slip Peel and Stick Stair Treads Indoor, 8\"x30\" Beige",
-  "price": 59.99,
+  "title": "15PC Jute Stair Treads for Wooden Steps-Non Slip Peel and Stick Stair Treads Indoor, Adhesive Staircase Step Treads Residue Free, Cat-Friendly & Scratch-Resistant Durable Stair Runner,8\"x30\" Beige",
+  "price": 69.98,
   "rating": 4.2,
-  "ratings": 129,
-  "bsr": "Staircase Step Treads 第 34 名",
+  "ratings": 137,
+  "bsr": "Staircase Step Treads 第 61 名",
   "launched": "2025-08-14",
   "image": "https://m.media-amazon.com/images/I/512F3AAMzSL._SX600_SY600_CR,0,0,600,600_.jpg",
   "variants": [
@@ -21,26 +21,34 @@
   ]
  },
  "pulled": {
-  "at": "2026-10-20 15:48",
+  "at": "2026-11-07 18:57",
   "source": "卖家精灵",
-  "calls": 4,
-  "total": 42,
+  "calls": 7,
+  "total": 43,
   "vine": 8,
-  "analyzed": 34
+  "analyzed": 35,
+  "lastPull": {
+   "at": "2026-11-07 18:57",
+   "new": 1,
+   "upgraded": 22,
+   "calls": 3,
+   "pages": 2,
+   "stopped": "这一页全是已有评论"
+  }
  },
  "stars": {
-  "5": 23,
-  "4": 4,
-  "3": 1,
-  "2": 1,
-  "1": 5
+  "3": 3,
+  "5": 27,
+  "4": 6,
+  "1": 6,
+  "2": 1
  },
  "summary": "最大的问题是边角翘、粘不住：34 条里有 12 条在说，而且其中 10 条来自 4–5 星好评，用户自己另买胶带补救。买的人主要是家里有狗、怕狗在木楼梯上打滑。",
  "insight": "只看差评会漏掉它：1–2 星的差评原因很分散（伤地板、不能洗、收到二手货各 1 条），真正最多的「粘不住」，10 条藏在 4–5 星里。",
  "problems": [
   {
    "name": "边角翘、粘不住",
-   "count": 12,
+   "count": 13,
    "hidden": 10,
    "stage": "日常使用",
    "owner": "产品 · 供应链",
@@ -65,7 +73,7 @@
   },
   {
    "name": "背膜难撕",
-   "count": 6,
+   "count": 7,
    "stage": "安装",
    "owner": "产品 · 包装",
    "fix": "背膜改成两段预切口；安装卡写上用户自己摸索出的方法：从中缝往两边撕，或先用美工刀沿边划一圈",
@@ -272,7 +280,7 @@
    "neg": [
     [
      "背膜难撕",
-     6
+     7
     ],
     [
      "运输折痕",
@@ -288,9 +296,9 @@
     ]
    ],
    "good": 13,
-   "bad": 10,
-   "talked": 20,
-   "score": 15
+   "bad": 11,
+   "talked": 21,
+   "score": 10
   },
   {
    "n": "日常使用",
@@ -315,17 +323,21 @@
    "neg": [
     [
      "边角翘、粘不住",
-     12
+     13
     ],
     [
      "不能洗",
      1
+    ],
+    [
+     "难清洁",
+     1
     ]
    ],
    "good": 21,
-   "bad": 13,
-   "talked": 26,
-   "score": 31
+   "bad": 14,
+   "talked": 27,
+   "score": 26
   },
   {
    "n": "用了很久",
@@ -363,6 +375,23 @@
  ],
  "reviews": [
   {
+   "star": 3,
+   "t": 1789574400000,
+   "sku": "8\"x30\" · 15",
+   "vine": false,
+   "verified": true,
+   "title": "Could Be Better",
+   "en": "These treads did not work for us. Upon first look, I thought they were nice. I ended up swapping them out for a more traditional carpet material and ones that curve over the edge of the step, and I like the look of them so much better. I have several pets and loose fur appeared a lot more noticeable with these. A few of the treads curled up on the corners days after first installing them, so they were not sticking down the best. It could have partially been that I didn’t wipe the steps with a damp cloth and only vacuumed them beforehand, so maybe others have had better luck with these. They didn’t move out of place, but over time I think vacuuming them would’ve further peeled them up. Oh, and removing the plastic backing SUCKED. I’m glad I got different ones.",
+   "zh": "买家觉得不好用换了传统地毯踏板：狗毛在这种面料上更显眼，装后几天有边角翘起，撕背膜很难受，但踏板本身没移位。",
+   "tags": [
+    "难清洁",
+    "边角翘、粘不住",
+    "背膜难撕"
+   ],
+   "tagger": "tag.py/glm-5.2@2026-11-07",
+   "id": "R-B0FMJCMKY1-043"
+  },
+  {
    "star": 5,
    "t": 1791993600000,
    "sku": "15 片",
@@ -385,13 +414,14 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "These are nice, feel good too, just wish the adhesive went all the way to corners. Corners lift up, little stronger adhesive would of done the trick.",
+   "en": "These are nice, feel good too, just wish the adhesive went all the way to corners. Corners lift up, little stronger adhesive would of done the trick. But they are nice",
    "zh": "不错，脚感也好，希望背胶贴到四角。四角会翘，胶再强一点就好了。",
    "tags": [
     "好看",
     "边角翘、粘不住"
    ],
-   "id": "R-B0FMJCMKY1-002"
+   "id": "R-B0FMJCMKY1-002",
+   "title": "Nice product"
   },
   {
    "star": 5,
@@ -415,13 +445,14 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Don't buy, waste of money. They do not stick. I have cleaned wiped everything correctly as I've done before but they have literally peel up on the corners. Also having a very hard time getting the creases out.",
+   "en": "I’ve had other ones besides these, but I wanted to change it up a little bit totally regretting it waste of my money they do not stick. I have cleaned wiped everything correctly as I’ve done before but they have literally peel up on the corners. Also having a very hard time getting the creases out and the creases to stick where the 31 x 31 has been folded again just decided to use a different type of brand and totally regretful because I wasted all my money and now I have to get new ones and ripped them up.",
    "zh": "别买，浪费钱。按以前的方法清洁过，四角还是一直翘起来；折痕也很难弄平。",
    "tags": [
     "边角翘、粘不住",
     "运输折痕"
    ],
-   "id": "R-B0FMJCMKY1-004"
+   "id": "R-B0FMJCMKY1-004",
+   "title": "Don’t buy, waste of money. Don’t stick on corners & constantly peel up"
   },
   {
    "star": 5,
@@ -429,13 +460,14 @@
    "sku": "4 片",
    "vine": false,
    "verified": true,
-   "en": "Good solution for our air bnb that has wooden rustic steps. The sticky tape held ok, but because the wood underneath wasn't smooth I did use our staple gun to secure the edges down. Cleans up easy, looks classy!",
+   "en": "Good solution for our air bnb that has wooden rustic steps into the living area. The wood was a little too rough for bare feet, so we added these step treads and it’s helped a lot. The sticky tape held ok, but because the wood underneath wasn’t smooth I did use our staple gun to secure the edges down and it’s been holding up well. Cleans up easy, looks classy!",
    "zh": "民宿的粗木楼梯光脚扎脚，贴上好多了。背胶勉强，木面不平又用钉枪固定了边。好清理，显档次。",
    "tags": [
     "好看",
     "边角翘、粘不住"
    ],
-   "id": "R-B0FMJCMKY1-005"
+   "id": "R-B0FMJCMKY1-005",
+   "title": "Quick fix for rough wooden steps"
   },
   {
    "star": 5,
@@ -443,14 +475,15 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Guests commented on how this looks like a custom installation. We previously had quoted a custom runner which would have cost 10x the price. I used some tools to improve the installation method.",
+   "en": "If I could give this 6 stars I would. I already had guests over and they commented on how this Iike a custom installation. We previously had quoted a custom runner which would have cost 10x the price, and feel we got a much better value from this product.Will have to see how it stands up to use but I used some tools to improve the installation method - I filmed some videos showing the process here.",
    "zh": "客人以为是定制安装的，之前定制楼梯地毯的报价是它的 10 倍。我用了些工具让安装更顺。",
    "tags": [
     "好看",
     "比定制便宜",
     "好装"
    ],
-   "id": "R-B0FMJCMKY1-006"
+   "id": "R-B0FMJCMKY1-006",
+   "title": "Easy install with the right tools"
   },
   {
    "star": 5,
@@ -458,13 +491,14 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Only took me about 30 minutes. I vacuumed the stairs and then used a measuring tape to center each carpet piece before peeling off the paper. Installed for over 6 months with heavy traffic and several large animals.",
+   "en": "These stair runners were so easy to install and only took me about 30 minutes. I vacuumed the stairs and then used a measuring tape to center each carpet piece before peeling off the paper to stick the carpet to the stairs. No issues what so ever and we’ve had them installed for over 6 months with heavy traffic and several large animals. Excellent purchase.",
    "zh": "30 分钟装完：先吸尘，再用卷尺居中，撕纸贴上。装了 6 个多月，人来人往还有几只大狗，没问题。",
    "tags": [
     "好装",
     "用得住"
    ],
-   "id": "R-B0FMJCMKY1-007"
+   "id": "R-B0FMJCMKY1-007",
+   "title": "Easy & quick install"
   },
   {
    "star": 5,
@@ -485,12 +519,13 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "I was really hopeful for these as a temporary fix to installing a professional runner. They are much too small for our builder grade stairs. Will be returning.",
+   "en": "I was really hopeful for these as a temporary fix to installing a professional runner. They seem as though they would be functional however they are much too small for our builder grade stairs. Will be returning",
    "zh": "本想用来临时替代定制地毯，但对我家标准楼梯来说太小了，准备退货。",
    "tags": [
     "尺寸偏小"
    ],
-   "id": "R-B0FMJCMKY1-009"
+   "id": "R-B0FMJCMKY1-009",
+   "title": "Nice but small"
   },
   {
    "star": 1,
@@ -498,13 +533,14 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Works well and easy to install, not cheap but I wanted natural materials. Just hoping the self adhesive doesn't damage the floor. Follow up: unfortunately, a week later it already hurt the floor.",
+   "en": "Works well and easy to install, not cheap but I wanted natural materials. Just hoping the self adhesive doesn't damage the floor.Follow up: unfortunately, a week later it already hurt the floor",
    "zh": "好装，想要天然材质才买的，就怕背胶伤地板。追评：一周后地板已经被伤了。",
    "tags": [
     "伤地板",
     "好装"
    ],
-   "id": "R-B0FMJCMKY1-010"
+   "id": "R-B0FMJCMKY1-010",
+   "title": "Damaged the floor in a week"
   },
   {
    "star": 5,
@@ -512,13 +548,14 @@
    "sku": "1 片",
    "vine": false,
    "verified": true,
-   "en": "I bought one piece for the bottom step. I have an older dog and I didn't want him slipping on the last step. The adhesive has held up well, it's been there for months.",
+   "en": "I bought one piece for the bottom step of my staircase... I have an older dog and I didn't want him slipping on the last step. The adhesive has held up well -its been there for months now and no issues",
    "zh": "买了一片放在最下面一级，怕老狗在最后一级打滑。贴了几个月，背胶一直没问题。",
    "tags": [
     "宠物不再打滑",
     "用得住"
    ],
-   "id": "R-B0FMJCMKY1-011"
+   "id": "R-B0FMJCMKY1-011",
+   "title": "Works well!"
   },
   {
    "star": 5,
@@ -526,13 +563,14 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Very nice and clean looking. Went down easily. Recommend.",
+   "en": "Very nice and clean looking. Went down easily. Recommend",
    "zh": "干净好看，好贴，推荐。",
    "tags": [
     "好看",
     "好装"
    ],
-   "id": "R-B0FMJCMKY1-012"
+   "id": "R-B0FMJCMKY1-012",
+   "title": "Very nice easy to install"
   },
   {
    "star": 5,
@@ -540,14 +578,15 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "We purchased these after our dog slipped and fell down our wooden stairs, and they've made a huge difference. The jute material looks much nicer than I expected. Our dog seems much more confident going up and down the stairs now.",
+   "en": "We purchased these after our dog slipped and fell down our wooden stairs, and they’ve made a huge difference. We were looking for something that would provide better traction without permanently altering the stairs, and these worked perfectly.The peel-and-stick application was simple, and they stayed in place well once applied. The jute material looks much nicer than I expected and blends well with our wood steps without looking bulky or cheap. Most importantly, our dog seems much more confident going up and down the stairs now, and we feel much better knowing there’s added grip for both pets and people.The 15-pack covered our staircase well, and installation was quick. If you have slippery wooden stairs and pets (or even kids or older adults in the home), these are absolutely worth considering.",
    "zh": "狗在木楼梯上摔过之后买的，效果很明显。黄麻比预期好看，狗上下楼自信多了。",
    "tags": [
     "宠物不再打滑",
     "好看",
     "好装"
    ],
-   "id": "R-B0FMJCMKY1-013"
+   "id": "R-B0FMJCMKY1-013",
+   "title": "Helped Our Dog Feel Safe on the Stairs Again"
   },
   {
    "star": 5,
@@ -568,7 +607,7 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Film is easy to peel, however there's a certain way to pull or it is easy to rip and then it's miserable trying to take off the film. Corners loft up slightly but they do give you a roll of tape. They feel great, they look great.",
+   "en": "Process was pretty simple. Film is easy to peel, however there’s a certain way to pull or it is easy to rip and then it’s miserable trying to take off the film. Price worth to pay, they come off mostly whole and when theres film left over, I needed to pick at. corners loft up slightly but they do give you a roll of tape, which I will use if they seem to lift more. Will update after some time!Otherwise they feel great, they look great and they are easy to install 😁",
    "zh": "膜要按对方向撕，不然容易撕破，残膜很难抠。四角有点翘，盒里给了一卷胶带。脚感和样子都好。",
    "tags": [
     "背膜难撕",
@@ -576,7 +615,8 @@
     "好看",
     "好装"
    ],
-   "id": "R-B0FMJCMKY1-015"
+   "id": "R-B0FMJCMKY1-015",
+   "title": "No slips or falls over here"
   },
   {
    "star": 5,
@@ -584,7 +624,7 @@
    "sku": "7 片",
    "vine": false,
    "verified": true,
-   "en": "The plastic backing absolutely sucks to take off. The best way is to tear it down the middle and pull from the middle to the sides. These stair treads are not sticky enough on their own to effectively stay down. In the box was a small roll of adhesive tape. You will need it. There is not enough extra tape to do a strip along each edge.",
+   "en": "I wish I could give these 4.5 stars. These stair treads are nice looking and feeling. I agree with the other views that the plastic backing absolutely sucks to take off. I figured out that the best way to do it was to tear it down the middle and pull from the middle to the sides. It takes some trial and error, and even when you do it right, it can still tear. These stair treads are not sticky enough on their own to effectively stay down. Thankfully, in the box was a small role of adhesive tape. You will need it. I put a small piece in each corner to keep them down. There is not enough extra adhesive tape to do a strip along each edge. Another role would have been nice. Now they seem to be firmly attached. They are nice looking and decent for the price. I have only had a couple of days so I can’t speak to wear.",
    "zh": "背膜真的难撕，要从中间撕开往两边拉。自己粘不牢，盒里那一小卷胶带一定要用，每个角贴一点；不够每条边都贴，多给一卷就好了。",
    "tags": [
     "背膜难撕",
@@ -592,7 +632,8 @@
     "好看",
     "比定制便宜"
    ],
-   "id": "R-B0FMJCMKY1-016"
+   "id": "R-B0FMJCMKY1-016",
+   "title": "Good but need extra adhesive"
   },
   {
    "star": 1,
@@ -613,13 +654,14 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Our dog was scared to death and slipped and fell a lot. These worked out great. Took a couple of weeks to get the crease out of them because they were shipped folded in half. Might want to consider shipping flat.",
+   "en": "Had to have something so our dog could go up and down stairs these worked out great for our little buddy. Before we bought these he was scared to death and slipped and feel a lot. Took a couple of weeks to get the crease out of them because they were shipped folded in half. Might want to consider shipping flat.",
    "zh": "狗之前怕得要命、老摔，现在没问题了。折着发货，折痕两周才平，建议平着寄。",
    "tags": [
     "宠物不再打滑",
     "运输折痕"
    ],
-   "id": "R-B0FMJCMKY1-018"
+   "id": "R-B0FMJCMKY1-018",
+   "title": "Great for pets once you get the crease out"
   },
   {
    "star": 1,
@@ -627,12 +669,13 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "The mats themselves are pretty nice, but half of the mats in my order came with the backing already peeled off and dirty. You'll be getting someone's half-used return.",
+   "en": "The mats themselves are pretty nice, but half of the mats in my order came with the backing already peeled off and dirty. Is that a dead bugs? Gross. So I guess watch out if you expect a new item because you’ll be getting someone’s half-used return.",
    "zh": "垫子本身不错，但一半背膜已经撕开还脏了。收到的是别人用过退回的货。",
    "tags": [
     "收到二手货"
    ],
-   "id": "R-B0FMJCMKY1-019"
+   "id": "R-B0FMJCMKY1-019",
+   "title": "Used and yucky"
   },
   {
    "star": 5,
@@ -640,14 +683,15 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "It took about 15 minutes to take the backing off. I was fearful that the stickiness wouldn't keep the tread in place. However it's stuck on firmly. I installed these to prevent my 90lb Labrador from slipping down the staircase.",
+   "en": "Easy installation and very simple. It took about 15 minutes to take the backing off the threads. The tread is sticky and you simply place it on stair. I was fearful that the stickiness wouldn’t keep the thread in place. However it’s stuck on firmly with no issues. I installed these to prevent my 90lb Labrador from slipping down the staircase. I feel that concern is now resolved. These also look pretty as well.",
    "zh": "撕背膜花了 15 分钟。本来担心粘不住，结果很牢。为了 90 磅的拉布拉多不再滑下楼梯买的。",
    "tags": [
     "宠物不再打滑",
     "好装",
     "好看"
    ],
-   "id": "R-B0FMJCMKY1-020"
+   "id": "R-B0FMJCMKY1-020",
+   "title": "Prevents slips on staircase & pretty"
   },
   {
    "star": 5,
@@ -669,13 +713,14 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "These are great! I did buy extra adhesive tape to install but they stay in place and look great!",
+   "en": "These are great! I did buy extra adhesive tape to install but they stay in place and look great! They cut well at the bottom of the stairs no fraying yet but we’ll see with time",
    "zh": "很棒！另买了胶带来装，贴住了，很好看。",
    "tags": [
     "边角翘、粘不住",
     "好看"
    ],
-   "id": "R-B0FMJCMKY1-022"
+   "id": "R-B0FMJCMKY1-022",
+   "title": "Love these"
   },
   {
    "star": 5,
@@ -697,14 +742,15 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "Perfect color for my stairwell. Easy to place on the stairs. Run an exacto knife lightly around the edge so the clear film on the back comes cleanly.",
+   "en": "Perfect color for my stairwell. Easy to place on the stairs. The only suggestion I have for others is to run an exacto knife lightly around the edge so the clear film on the back comes cleanly.",
    "zh": "颜色正合适，好放。建议先用美工刀沿边轻划一圈，背面透明膜就能撕干净。",
    "tags": [
     "好看",
     "好装",
     "背膜难撕"
    ],
-   "id": "R-B0FMJCMKY1-024"
+   "id": "R-B0FMJCMKY1-024",
+   "title": "Nice product."
   },
   {
    "star": 1,
@@ -726,14 +772,15 @@
    "sku": "7 片",
    "vine": false,
    "verified": true,
-   "en": "They look even better than expected! Took off one star because it's been hard to get the corners to really stick down well, but they make our wood steps feel much safer.",
+   "en": "They look even better than expected! Took off one star because it's been hard to get the corners to really stick down well, but otherwise they look great in our home for the price and make our wood steps feel much safer",
    "zh": "比预期还好看。扣一星是四角很难贴牢。木楼梯走着安全多了。",
    "tags": [
     "好看",
     "边角翘、粘不住",
     "防滑安心"
    ],
-   "id": "R-B0FMJCMKY1-026"
+   "id": "R-B0FMJCMKY1-026",
+   "title": "Look great!"
   },
   {
    "star": 5,
@@ -741,14 +788,15 @@
    "sku": "15 片",
    "vine": false,
    "verified": true,
-   "en": "They have been on for just over a week and we have had no issues with movement. Our 8 lb dog is feeling confident. Taking the plastic off the backing was a little challenging & frustrating.",
+   "en": "I was skeptical that these would look good and work but they do. They have been on for just over a week and we have had no issues with movement. Our 8 lb dog is feeling confident and secure she won’t tumble down them anymore. And we like not having to carry her up & down the stairs.Taking the plastic off the backing was a little challenging & frustrating. You have to peel it in a specific way to get it all off. The repetition helped.I recommend them to those who are looking for quality, comfort, & looks.",
    "zh": "贴了一周多没移位，8 磅的小狗不怕摔了。撕背膜有点费劲、有点烦。",
    "tags": [
     "宠物不再打滑",
     "好看",
     "背膜难撕"
    ],
-   "id": "R-B0FMJCMKY1-027"
+   "id": "R-B0FMJCMKY1-027",
+   "title": "Happy skeptic"
   },
   {
    "star": 5,
@@ -769,13 +817,14 @@
    "sku": "31×31 落地垫",
    "vine": false,
    "verified": true,
-   "en": "Beautiful non slip mat for the wood landing. Keeps my senior Great Pyrenees from slipping.",
+   "en": "Beautiful non slip mat for the wood landing. Keeps my senior Great Pyrenees from slipping. Functional and attractive.",
    "zh": "木平台用的防滑垫，很漂亮，老年大白熊不打滑了。",
    "tags": [
     "宠物不再打滑",
     "好看"
    ],
-   "id": "R-B0FMJCMKY1-029"
+   "id": "R-B0FMJCMKY1-029",
+   "title": "Great size"
   },
   {
    "star": 5,
@@ -797,13 +846,14 @@
    "sku": "",
    "vine": false,
    "verified": false,
-   "en": "Great product easy to install, 4 stars due to the corners not sticking down on some of them.",
+   "en": "Great product easy to install gave it 4 stars due to the corners not sticking down on some of them but definitely recommend",
    "zh": "好装，扣一星是有几片四角贴不住。",
    "tags": [
     "好装",
     "边角翘、粘不住"
    ],
-   "id": "R-B0FMJCMKY1-031"
+   "id": "R-B0FMJCMKY1-031",
+   "title": "Easy install"
   },
   {
    "star": 1,
@@ -896,13 +946,14 @@
    "sku": "",
    "vine": false,
    "verified": true,
-   "en": "Serves its purpose. Non slipped sticks. Goes well with the color of our stairs. Easy to clean. Looks sturdy.",
+   "en": "Yes goes well either way the color of our stairs. Easy to clean. Looks sturdy.",
    "zh": "管用，防滑也贴得住。和楼梯颜色搭，好清理，看着结实。",
    "tags": [
     "防滑安心",
     "好看"
    ],
-   "id": "R-B0FMJCMKY1-039"
+   "id": "R-B0FMJCMKY1-039",
+   "title": "Serves its purpose. Non slipped sticks ."
   },
   {
    "star": 5,
@@ -953,7 +1004,8 @@
   "尺寸偏小",
   "不能洗",
   "伤地板",
-  "收到二手货"
+  "收到二手货",
+  "难清洁"
  ],
  "tagsPos": [
   "好看",
@@ -991,52 +1043,56 @@
   "不耐用、偏薄": "用了很久",
   "伤地板": "再买或拆掉",
   "尺寸合适": "收货安装",
-  "总体满意": "日常使用"
+  "总体满意": "日常使用",
+  "难清洁": "日常使用"
  },
  "calc": {
   "check": {
-   "read": 42,
+   "read": 43,
    "vine": 8,
-   "analyzed": 34,
+   "analyzed": 35,
    "untagged": 0,
    "unknownTags": [],
    "notInVocab": [],
    "noStage": [],
    "badOwner": [],
-   "countFixed": [],
+   "countFixed": [
+    "边角翘、粘不住：12 → 13",
+    "背膜难撕：6 → 7"
+   ],
    "taggedPct": 100.0
   },
   "pareto": {
-   "mentions": 27,
+   "mentions": 30,
    "rows": [
     {
      "name": "边角翘、粘不住",
-     "count": 12,
-     "ofReviews": 35.3,
-     "ofComplaints": 44.4,
-     "cum": 44.4,
-     "avgStar": 4.17,
-     "lowStar": 16.7,
-     "priority": 5.9,
+     "count": 13,
+     "ofReviews": 37.1,
+     "ofComplaints": 43.3,
+     "cum": 43.3,
+     "avgStar": 4.08,
+     "lowStar": 23.1,
+     "priority": 8.6,
      "core": true
     },
     {
      "name": "背膜难撕",
-     "count": 6,
-     "ofReviews": 17.6,
-     "ofComplaints": 22.2,
+     "count": 7,
+     "ofReviews": 20.0,
+     "ofComplaints": 23.3,
      "cum": 66.7,
-     "avgStar": 4.5,
-     "lowStar": 16.7,
-     "priority": 2.9,
+     "avgStar": 4.29,
+     "lowStar": 28.6,
+     "priority": 5.7,
      "core": true
     },
     {
      "name": "运输折痕",
      "count": 3,
-     "ofReviews": 8.8,
-     "ofComplaints": 11.1,
-     "cum": 77.8,
+     "ofReviews": 8.6,
+     "ofComplaints": 10.0,
+     "cum": 76.7,
      "avgStar": 3.67,
      "lowStar": 33.3,
      "priority": 2.9,
@@ -1045,20 +1101,20 @@
     {
      "name": "不耐用、偏薄",
      "count": 2,
-     "ofReviews": 5.9,
-     "ofComplaints": 7.4,
-     "cum": 85.2,
+     "ofReviews": 5.7,
+     "ofComplaints": 6.7,
+     "cum": 83.3,
      "avgStar": 1.5,
      "lowStar": 100.0,
-     "priority": 5.9,
+     "priority": 5.7,
      "core": true
     },
     {
      "name": "尺寸偏小",
      "count": 1,
      "ofReviews": 2.9,
-     "ofComplaints": 3.7,
-     "cum": 88.9,
+     "ofComplaints": 3.3,
+     "cum": 86.7,
      "avgStar": 3.0,
      "lowStar": 100.0,
      "priority": 2.9,
@@ -1068,8 +1124,8 @@
      "name": "不能洗",
      "count": 1,
      "ofReviews": 2.9,
-     "ofComplaints": 3.7,
-     "cum": 92.6,
+     "ofComplaints": 3.3,
+     "cum": 90.0,
      "avgStar": 1.0,
      "lowStar": 100.0,
      "priority": 2.9,
@@ -1079,8 +1135,8 @@
      "name": "伤地板",
      "count": 1,
      "ofReviews": 2.9,
-     "ofComplaints": 3.7,
-     "cum": 96.3,
+     "ofComplaints": 3.3,
+     "cum": 93.3,
      "avgStar": 1.0,
      "lowStar": 100.0,
      "priority": 2.9,
@@ -1090,24 +1146,35 @@
      "name": "收到二手货",
      "count": 1,
      "ofReviews": 2.9,
-     "ofComplaints": 3.7,
-     "cum": 100.0,
+     "ofComplaints": 3.3,
+     "cum": 96.7,
      "avgStar": 1.0,
+     "lowStar": 100.0,
+     "priority": 2.9,
+     "core": false
+    },
+    {
+     "name": "难清洁",
+     "count": 1,
+     "ofReviews": 2.9,
+     "ofComplaints": 3.3,
+     "cum": 100.0,
+     "avgStar": 3.0,
      "lowStar": 100.0,
      "priority": 2.9,
      "core": false
     }
    ],
    "coreCount": 4,
-   "coreShare": 85.2,
-   "avgStarAll": 4.15
+   "coreShare": 83.3,
+   "avgStarAll": 4.11
   },
   "drill": {
    "skus": [
     {
      "sku": "15 片",
      "n": 22,
-     "share": 64.7,
+     "share": 62.9,
      "avgStar": 4.14,
      "negShare": 22.7,
      "top": [
@@ -1127,7 +1194,7 @@
     {
      "sku": "4 片",
      "n": 2,
-     "share": 5.9,
+     "share": 5.7,
      "avgStar": 5.0,
      "negShare": 0.0,
      "top": [
@@ -1142,7 +1209,7 @@
     {
      "sku": "7 片",
      "n": 2,
-     "share": 5.9,
+     "share": 5.7,
      "avgStar": 4.5,
      "negShare": 0.0,
      "top": [
@@ -1162,7 +1229,7 @@
     {
      "sku": "31×31 落地垫",
      "n": 2,
-     "share": 5.9,
+     "share": 5.7,
      "avgStar": 2.5,
      "negShare": 50.0,
      "top": [
@@ -1170,6 +1237,26 @@
        "name": "不能洗",
        "count": 1,
        "share": 50.0
+      }
+     ],
+     "small": true
+    },
+    {
+     "sku": "8\"x30\" · 15",
+     "n": 1,
+     "share": 2.9,
+     "avgStar": 3.0,
+     "negShare": 100.0,
+     "top": [
+      {
+       "name": "边角翘、粘不住",
+       "count": 1,
+       "share": 100.0
+      },
+      {
+       "name": "背膜难撕",
+       "count": 1,
+       "share": 100.0
       }
      ],
      "small": true
@@ -1186,7 +1273,7 @@
     {
      "sku": "款式未标",
      "n": 5,
-     "share": 14.7,
+     "share": 14.3,
      "avgStar": 4.2,
      "negShare": 20.0,
      "top": [
@@ -1204,42 +1291,52 @@
      "small": false
     }
    ],
-   "hot": [],
+   "hot": [
+    {
+     "name": "运输折痕",
+     "sku": "15 片",
+     "count": 3,
+     "total": 3,
+     "skuShare": 13.6,
+     "allShare": 8.6,
+     "lift": 1.6
+    }
+   ],
    "unlabeled": 5
   },
   "priority": [
    {
     "rank": 1,
     "name": "边角翘、粘不住",
-    "count": 12,
-    "ofReviews": 35.3,
-    "lowStar": 16.7,
-    "avgStar": 4.17,
-    "priority": 5.9
+    "count": 13,
+    "ofReviews": 37.1,
+    "lowStar": 23.1,
+    "avgStar": 4.08,
+    "priority": 8.6
    },
    {
     "rank": 2,
-    "name": "不耐用、偏薄",
-    "count": 2,
-    "ofReviews": 5.9,
-    "lowStar": 100.0,
-    "avgStar": 1.5,
-    "priority": 5.9
+    "name": "背膜难撕",
+    "count": 7,
+    "ofReviews": 20.0,
+    "lowStar": 28.6,
+    "avgStar": 4.29,
+    "priority": 5.7
    },
    {
     "rank": 3,
-    "name": "背膜难撕",
-    "count": 6,
-    "ofReviews": 17.6,
-    "lowStar": 16.7,
-    "avgStar": 4.5,
-    "priority": 2.9
+    "name": "不耐用、偏薄",
+    "count": 2,
+    "ofReviews": 5.7,
+    "lowStar": 100.0,
+    "avgStar": 1.5,
+    "priority": 5.7
    },
    {
     "rank": 4,
     "name": "运输折痕",
     "count": 3,
-    "ofReviews": 8.8,
+    "ofReviews": 8.6,
     "lowStar": 33.3,
     "avgStar": 3.67,
     "priority": 2.9
@@ -1279,6 +1376,15 @@
     "lowStar": 100.0,
     "avgStar": 1.0,
     "priority": 2.9
+   },
+   {
+    "rank": 9,
+    "name": "难清洁",
+    "count": 1,
+    "ofReviews": 2.9,
+    "lowStar": 100.0,
+    "avgStar": 3.0,
+    "priority": 2.9
    }
   ],
   "monthly": {
@@ -1307,13 +1413,13 @@
     2,
     0,
     2,
-    1,
+    2,
     5
    ],
    "rows": [
     {
      "name": "边角翘、粘不住",
-     "total": 12,
+     "total": 13,
      "hit": [
       1,
       0,
@@ -1325,7 +1431,7 @@
       0,
       0,
       1,
-      0,
+      1,
       4
      ],
      "share": [
@@ -1339,13 +1445,13 @@
       0.0,
       null,
       50.0,
-      0.0,
+      50.0,
       80.0
      ]
     },
     {
      "name": "背膜难撕",
-     "total": 6,
+     "total": 7,
      "hit": [
       0,
       1,
@@ -1357,7 +1463,7 @@
       0,
       0,
       0,
-      0,
+      1,
       1
      ],
      "share": [
@@ -1371,7 +1477,7 @@
       0.0,
       null,
       0.0,
-      0.0,
+      50.0,
       20.0
      ]
     },
@@ -1453,26 +1559,26 @@
    "rows": [
     {
      "tag": "边角翘、粘不住",
-     "reviews": 12,
-     "ofReviews": 35.3,
+     "reviews": 13,
+     "ofReviews": 37.1,
      "alexa": 18
     },
     {
      "tag": "背膜难撕",
-     "reviews": 6,
-     "ofReviews": 17.6,
+     "reviews": 7,
+     "ofReviews": 20.0,
      "alexa": 8
     },
     {
      "tag": "运输折痕",
      "reviews": 3,
-     "ofReviews": 8.8,
+     "ofReviews": 8.6,
      "alexa": 11
     },
     {
      "tag": "不耐用、偏薄",
      "reviews": 2,
-     "ofReviews": 5.9,
+     "ofReviews": 5.7,
      "alexa": 2
     },
     {
@@ -1498,6 +1604,12 @@
      "reviews": 1,
      "ofReviews": 2.9,
      "alexa": 4
+    },
+    {
+     "tag": "难清洁",
+     "reviews": 1,
+     "ofReviews": 2.9,
+     "alexa": 0
     }
    ],
    "topCovered": 3,

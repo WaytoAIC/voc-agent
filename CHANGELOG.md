@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.8.1 · 2026-11-07
+
+- **增量拉评论去重修正**（`workbench/ss_pull.py --merge --new-only`）。首次真跑暴露两处漏洞：① 早期手工整理的 data.json 里原话被压缩 / 截断过，精确文本键对不上，旧评论被当新评论重复并入；② 个别旧行时间戳和卖家精灵原始值差 1 小时跨了天。现在去重键 = 星级 + 原话前 160 字，日期按 26 小时容差比；没有 `title` 字段的旧行再按「同星级 + 日期容差 + 旧文本实词 ≥ 50% 出现在原话里」认作同一条，并顺手把原话换成真原文、补 `title`（zh / tags / id 不动），`pulled.lastPull.upgraded` 记条数。
+  Dedup fix for the incremental pull: review texts in hand-built data.json files were condensed or truncated and some timestamps were off by an hour across midnight, so known reviews were re-added as new. The key is now star + first 160 chars with a 26-hour date tolerance, and legacy rows (no `title`) are matched by star, date tolerance and ≥ 50 % content-word overlap, then upgraded to the verbatim text (`pulled.lastPull.upgraded` counts them).
+- `skill/events_to_feishu.py` 回填事件 ID 前检查该 ID 是否已被同一 data.json 里别的评论占用，撞号记 `dupInData` 并报出来、不写。
+  The Feishu writer no longer back-fills an event id already used by another review in the same data.json; collisions are reported as `dupInData`.
+
 ## v1.8.0 · 2026-11-07
 
 - 新增 **每周运转 `skill/weekly.py`**：一条命令串起 增量拉评论（`workbench/ss_pull.py --merge --new-only`：按日期倒序只拉到已有评论为止，直接并进 data.json，新评论排最前、详情顺手刷新）→ `tag.py` 只给新评论打标 → analyze / render / dashboard → `actions.py pull / readback / check` → 入飞书 → 群消息草稿。每一步失败不拦后面，结果一行写进 `voc-reports/runs.jsonl`（工作台设置页「运行记录」），完整日志在 `voc-reports/_runs/`；`--dry-run` 不调任何接口。口径在 `voc.config.json` 新增的 `weekly` 段；DEPLOY 第 9.5 步给出挂 Hermes cron 的做法（纯脚本模式）。

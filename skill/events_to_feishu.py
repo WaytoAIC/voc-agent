@@ -9,7 +9,7 @@
 - 写的字段：事件ID 来源 日期 父ASIN 子ASIN 款式 星级 原话 送测 中文意思 问题分类 夸还是骂 该谁改 阶段 平台原因码 写入方。
   人写的字段（人工意见、关联行动、处置结果、履约方式）不碰。阶段用 voc.config.json 的 6 段名，表里的旧名（收货 / 安装 …）读的时候按 stages.alias 认。
 - 问题分类 / 阶段 / 该谁改 是选项字段，飞书不会自动建选项：写之前先把这次用到、表里还没有的选项补进字段（+field-update）。
-- --json：结尾多打一行 {"written","skipped","backfilled","errors"} 给 weekly.py 读。
+- --json：结尾多打一行 {"written","skipped","backfilled","errors"} 给 weekly.py 读；"dupInData" = data.json 里和已入表评论重复、没回填的条数（有就该查 ss_pull 去重）。
 """
 import datetime as dt
 import hashlib
@@ -190,6 +190,7 @@ def main():
         parent = (d.get("product") or {}).get("parent") or asin
         owners = {(pr.get("tag") or pr.get("name")): pr.get("owner") for pr in d.get("problems") or [] if pr.get("owner")}
         n_new, n_skip, changed = 0, 0, False
+        used = {r["id"] for r in d.get("reviews", []) if r.get("id")}   # 本文件已占用的事件ID：回填时不许撞号（撞了说明 data.json 里有重复评论，报出来不写）
         for r in d.get("reviews", []):
             k = (asin, norm(r.get("en")))
             if r.get("id") and r["id"] in ids:
@@ -197,7 +198,12 @@ def main():
                 continue
             if k in by_text:
                 if not r.get("id"):
+                    if by_text[k] in used:
+                        stat["dupInData"] = stat.get("dupInData", 0) + 1
+                        say(f"  {asin}：评论「{(r.get('en') or '')[:40]}」和 {by_text[k]} 是同一条，data.json 里重复了，没回填")
+                        continue
                     r["id"], changed = by_text[k], True
+                    used.add(r["id"])
                     stat["backfilled"] += 1
                 n_skip += 1
                 continue
