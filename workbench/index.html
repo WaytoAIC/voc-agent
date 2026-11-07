@@ -797,6 +797,11 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
               <h2>运行记录</h2>
               <div class="tablewrap"><table id="runs"></table></div>
             </div>
+            <div class="panel">
+              <h2>本周群消息草稿</h2>
+              <p class="hint">每周运转（weekly.py）起草：新声音、最大问题变化、退货、卡住的行动。改好再点「发到群」，点了才发。</p>
+              <div id="weeklyDraft" style="display:grid;gap:8px"></div>
+            </div>
           </div>
         </div>
         <div class="sp" data-sp="library" hidden>
@@ -1780,6 +1785,17 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   if(!(STT.runs||[]).length) rb.appendChild(el('tr',{},`<td colspan="4">${EMPTY('运行记录','每周跑一次 weekly.py（第 3 步）会写 现场分析/runs.jsonl')}</td>`));
   (STT.runs||[]).forEach(r=>rb.appendChild(el('tr',{},`<td class="num">${esc(r.at||'')}</td><td><span class="chip ${r.ok===false?'warn':'good'}">${r.ok===false?'有问题':'完成'}</span></td><td class="n num">${r.newReviews??'—'}</td><td>${esc(r.note||'')}</td>`)));
   rt.appendChild(rb);
+  /* 本周群消息草稿：weekly.py 写的 现场分析/weekly_draft.md；人改、人点，点了才发 */
+  { const box=$('#weeklyDraft'); const FSC=((VOC.config||{}).feishu)||{}; const GROUP=FSC.group_name||'VOC专项群';
+    if(box){ const t=STT.draft||'';
+      if(!t) box.innerHTML=EMPTY('群消息草稿','每周跑一次 python3 现场分析/weekly.py 会写 现场分析/weekly_draft.md');
+      else { const ta=el('textarea',{rows:'9','aria-label':'群消息草稿'}); ta.value=t; box.appendChild(ta);
+        const row=el('div',{class:'btns',style:'display:flex;gap:10px;align-items:center;flex-wrap:wrap'},`<button class="btn primary sm" type="button">发到 ${esc(GROUP)}</button><span class="hint">${esc(STT.draftAt?`起草于 ${STT.draftAt}`:'')}${FSC.can_post?'；用 VOC Agent 机器人身份，只能发到这个群':'；离线版不能发，到本机工作台 http://127.0.0.1:8790 发'}</span>`);
+        box.appendChild(row); const b=row.querySelector('button'); if(!FSC.can_post) b.disabled=true;
+        b.addEventListener('click',async()=>{ const text=ta.value.trim(); if(!text) return toast('草稿是空的'); if(!confirm(`发到 ${GROUP}？`)) return; b.disabled=true; b.textContent='发送中…';
+          try{ const r=await fetch('/api/post-to-group',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,confirm:true})}); const j=await r.json(); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+            row.innerHTML=`<span class="chip good">已发到 ${esc(j.group)} · ${esc(j.at)}</span>`; toast(`已发到 ${j.group}`); }
+          catch(e){ b.disabled=false; b.textContent='重试发送'; toast('没发出去：'+e.message); } }); } } }
   /* 资产库：数字从数据来 */
   { const own=DETAILS[OWN_ASIN]||{}; const voices=(own.n||0)+Object.values(EVN).reduce((a,b)=>a+(b||0),0);
     $('#libVoices').textContent=voices?voices.toLocaleString():'—';

@@ -59,7 +59,7 @@
   },
   "pulled": {
    "type": "object",
-   "description": "采集信息：来源、页数 / 文件、条数、时间"
+   "description": "采集信息：来源、页数 / 文件、条数、时间；ss_pull.py --merge 会加 lastPull（这次拉了几页、新增几条、为什么停）"
   },
   "stars": {
    "type": "object",
@@ -77,7 +77,8 @@
     ],
     "properties": {
      "id": {
-      "type": "string"
+      "type": "string",
+      "description": "飞书「VOC 事件明细」的事件ID（R-<ASIN>-NNN），events_to_feishu.py 写入或回填；没有就留空"
      },
      "star": {
       "type": "integer",
@@ -115,6 +116,10 @@
        "type": "string"
       },
       "description": "0–4 个一级标签（voc.config.json tags.neg / tags.pos）"
+     },
+     "tagger": {
+      "type": "string",
+      "description": "tag.py 写：tag.py/<模型>@<日期>"
      }
     }
    }

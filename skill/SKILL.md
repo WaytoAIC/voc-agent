@@ -136,6 +136,16 @@ Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它�
 `<skill>/examples/golden.json` 是 50 条金标评论（楼梯踏板样例，按星级分层抽自竞品，人工复核过的标签当标准答案）。换成自己的品类后，用 `python3 <skill>/tag.py golden-build` 从自己已复核的 `voc-reports/` 里抽一份放到 `<skill>/_eval/golden.json`，之后只改不重建。
 `python3 <skill>/tag.py eval` 用当前模型重新打这 50 条，和金标比：Jaccard、完全一致率、好坏方向一致率，验收线在 `voc.config.json` 的 `acceptance.eval_jaccard` / `eval_polarity_pct`；明细写在金标旁边的 `eval-<日期>.json`。不通过就先看「召回低的标签」和「多打的标签」，改词表说明或提示词，再跑。
 
+## 五·六、每周运转（用户说「跑一下本周」「周报」「这周有什么新评论」时）
+
+`python3 skill/weekly.py` 一条命令：增量拉评论（`workbench/ss_pull.py <ASIN> --merge --new-only`，自家 + 竞品，按日期倒序只拉到已有评论为止）→ `tag.py` 只给新评论打标 → analyze / render / dashboard → `actions.py pull / readback / check` → `skill/events_to_feishu.py` 把新评论和新事件写进飞书「VOC 事件明细」→ 起草群消息 `voc-reports/weekly_draft.md`。
+- 结果一行写进 `voc-reports/runs.jsonl`（工作台设置页「运行记录」）；完整日志在 `voc-reports/_runs/`。
+- 群消息草稿**不自动发**：人在工作台设置页「本周群消息草稿」改好点「发到群」才发。你不要替人发。
+- 演示数据（data.json `demo: true`）不拉、不写飞书；还没分析过的 ASIN 不拉（先按第一部分分析一遍）。
+- 口径在 `voc.config.json` 的 `weekly` 段；定时由 Hermes cron 跑同一条命令（`hermes cron list`，见 DEPLOY 第 9.5 步）。
+- 要花钱的只有拉评论（每个 ASIN 1 次详情 + 1–3 页评论）；用户问本周花了多少，读 `runs.jsonl` 最后一行的 `calls`。
+- 先看流程通不通：`--dry-run`（不调卖家精灵、不调模型、不写飞书）。
+
 ## 六、回答追问
 
 追问时先读对应的 `data.json`，再回答。

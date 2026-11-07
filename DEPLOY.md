@@ -218,6 +218,37 @@ HERMES_HOME=~/.hermes/profiles/voc lark-cli config bind --source hermes --identi
 
 **检查**：飞书私聊它「你能做什么」能回；群里 @ 它能回；它往「VOC 事件明细」写一行测试数据、写入方是「VOC Agent」，然后删掉。
 
+## 第 9.5 步（可选）：每周自动运转
+
+一条命令把一周的事跑完：增量拉评论（自家 + 竞品，按日期倒序只拉到已有评论为止）→ 只给新评论打标 → 算数 / 报告 / 看板 → 行动卡 pull / readback / check → 新评论和新退货写进飞书「VOC 事件明细」→ 起草群消息（不自动发，工作台设置页「本周群消息草稿」点了才发）。
+
+```bash
+python3 skill/weekly.py --dry-run     # 先看流程通不通：不调卖家精灵、不调模型、不写飞书
+python3 skill/weekly.py               # 真跑
+```
+
+- 结果写 `voc-reports/runs.jsonl`（工作台设置页「运行记录」读它），完整日志在 `voc-reports/_runs/`。
+- 口径在 `voc.config.json` 的 `weekly` 段：每个 ASIN 最多翻几页（默认 3，一页 20 条）、要不要刷新详情、竞品拉不拉、写不写飞书、到期判断写不写回（默认只打印）、要不要重建离线版。
+- 打标模型通道照第 7.5 步设环境变量；没设就走本机 Hermes 网关。
+- **定时**：把它挂到 Hermes 的 cron（纯脚本模式，不走模型；电脑合盖错过的会在下次唤醒时补跑）。先写一个包装脚本 `~/.hermes/profiles/voc/scripts/voc-weekly.sh`：
+
+```bash
+#!/bin/bash
+cd <仓库目录> || exit 1
+export VOC_LLM_API=... VOC_LLM_BASE=... VOC_LLM_KEY=... VOC_LLM_MODEL=...   # 第 7.5 步那套；不设就走 Hermes 网关
+python3 skill/weekly.py > /tmp/voc-weekly.out 2>&1; rc=$?
+grep -E "^(完成|记录|== |  跳过|  出错)" /tmp/voc-weekly.out | tail -12; exit $rc
+```
+
+```bash
+chmod +x ~/.hermes/profiles/voc/scripts/voc-weekly.sh
+HERMES_HOME=~/.hermes/profiles/voc hermes cron create "0 9 * * 1" --name "VOC 每周运转" --no-agent --script voc-weekly.sh --deliver local
+```
+
+`--deliver local` 是不往任何群发运行摘要；想让摘要进飞书群就改成 `--deliver feishu:<群 chat_id>`（群消息草稿本身仍然要人点）。`hermes cron list / run / pause` 管理。
+
+**检查**：`python3 skill/weekly.py --dry-run` 退出码 0；工作台设置页「运行记录」多了一行、「本周群消息草稿」有内容；`hermes cron list` 里有「VOC 每周运转」。
+
 ## 第 10 步：验收
 
 ```bash

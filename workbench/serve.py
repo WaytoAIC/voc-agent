@@ -28,7 +28,7 @@
   /api/products      现场分析/ 下所有分析过的 ASIN（页面打开时并进产品列表）
   /api/dashboard     自家产品的 dashboard.json；/api/offsite、/api/alexa 同理
   /api/detail?asin=  产品详情页的全部数据（现场分析/detail.py 从 data.json + 竞品 + actions.json 算；没数据的块返回空，页面显示去哪接）
-  /api/status        设置页：数据源接没接、本周体检数、运行记录（现场分析/runs.jsonl）
+  /api/status        设置页：数据源接没接、本周体检数、运行记录（现场分析/runs.jsonl）、本周群消息草稿（现场分析/weekly_draft.md）
 演示数据开关：voc.config.json 的 workbench.demo（默认 true）或环境变量 VOC_DEMO=0/1。关掉后 products.json 里标了 "demo": true 的展示行不再注入，
   列表里只剩 现场分析/ 下真实分析过的 ASIN；自家产品仍以 own.asin 为准。
   /report/<ASIN>     打开 现场分析/<ASIN>/报告.html
@@ -154,6 +154,8 @@ def status():
             "feishu": bool(FS.get("tables", {}).get("events")) and bool(FS.get("base")), "group": bool(GROUP_ID),
             "sellersprite": has_ss, "llm": bool(os.environ.get("VOC_LLM_KEY")), "hermesProfile": PROFILE,
             "actionsAsOf": (_json(LIVE_DIR / "actions.json") or {}).get("asOf"), "runs": list(reversed(runs)),
+            "draft": _text(LIVE_DIR / "weekly_draft.md") or "",
+            "draftAt": datetime.datetime.fromtimestamp((LIVE_DIR / "weekly_draft.md").stat().st_mtime).strftime("%Y-%m-%d %H:%M") if (LIVE_DIR / "weekly_draft.md").exists() else None,
             "tags": {"neg": len([t for t in CFG["tags"]["neg"] if not t.startswith("_")]), "pos": len([t for t in CFG["tags"]["pos"] if not t.startswith("_")])}}
 
 

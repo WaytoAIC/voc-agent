@@ -161,6 +161,8 @@ skill/
 ├── tag.py            # 打标签：分批调模型、只收词表词、校验、不达线补跑、增量；eval 用金标集（examples/golden.json）量一致率
 ├── import_events.py  # 退货 / 换货 / 买家消息：后台导出表 → data.json 的 events（原因码翻中文、去重、订单号不存）；tag.py --events 读备注
 ├── detail.py         # 工作台产品详情页的数据（概况 / 用户在说什么 / 退货 / 旅程 / 和竞品比），没数据的块返回空
+├── weekly.py         # 每周运转：增量拉评论 → 只给新评论打标 → 算数 / 报告 / 看板 → 行动卡 → 入飞书 → 群草稿；写 runs.jsonl（挂 Hermes cron 定时）
+├── events_to_feishu.py # 评论 / 退货 / 换货 / 买家消息 → 飞书「VOC 事件明细」一条一行，按事件 ID 和原话去重，缺的选项自动补进字段
 ├── actions.py        # 行动闭环（可选，接飞书「行动项跟踪」）：镜像 / 到期读回 / 巡检 / 动作—结果曲线
 ├── render.py         # 把 data.json 填进模板，生成「报告.html」
 ├── alexa_import.py   # 把 apinsight 采集的 Alexa 问答读进 data.json
@@ -169,7 +171,7 @@ skill/
 ├── template.html     # 报告模板（自带深浅色）
 └── examples/B0FMJCMKY1/   # 完整样例：data.json（含 24 条 Alexa 问答）+ 报告.html
 
-workbench/             # VOC 工作台：看板、问 Agent、现场加产品（见 workbench/README.md）
+workbench/             # VOC 工作台：看板、问 Agent、现场加产品（见 workbench/README.md）；ss_pull.py 直连卖家精灵拉评论（--merge --new-only 增量并进 data.json）
 agent/                 # VOC Agent 的 Hermes profile：SOUL.md 模板、distribution.yaml、数据源示例、飞书表结构
 scripts/doctor.sh      # 自检：环境、profile、技能、数据源、网关、工作台、飞书
 DEPLOY.md              # 部署指南（给 AI 照着做）

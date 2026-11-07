@@ -11,7 +11,7 @@
 | 产品详情 | 概况、用户在说什么、退货与换货、用户旅程、Alexa 怎么说、和竞品比、改动与效果 |
 | 站外 VOC | Reddit：站内外对照、⑥ 用户旅程地图（情绪曲线）、⑦ 需求四象限、原声、全部讨论串 |
 | VOC Agent | Agent 岗位卡：职责、入口、技能、数据权限、权限边界、工作架构 |
-| 行动 / 新机会 / 设置 | 行动手册、ABA 机会、数据接入与运行记录 |
+| 行动 / 新机会 / 设置 | 行动手册、ABA 机会、数据接入、运行记录（`voc-reports/runs.jsonl`）、本周群消息草稿（`skill/weekly.py` 起草，人改好点「发到群」才发） |
 
 页面本身不带数据：启动 `serve.py` 时，它把 `voc.config.json`（口径、ASIN、飞书表）、`products.json`（产品列表展示行）、自家产品的 `dashboard.json` / `data.json` 的 `offsite` 块 / `alexa_compare.json` 注入页面。要一个能双击打开的离线版：`python3 workbench/build_export.py`。
 

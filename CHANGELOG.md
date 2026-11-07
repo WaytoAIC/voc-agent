@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.8.0 · 2026-11-07
+
+- 新增 **每周运转 `skill/weekly.py`**：一条命令串起 增量拉评论（`workbench/ss_pull.py --merge --new-only`：按日期倒序只拉到已有评论为止，直接并进 data.json，新评论排最前、详情顺手刷新）→ `tag.py` 只给新评论打标 → analyze / render / dashboard → `actions.py pull / readback / check` → 入飞书 → 群消息草稿。每一步失败不拦后面，结果一行写进 `voc-reports/runs.jsonl`（工作台设置页「运行记录」），完整日志在 `voc-reports/_runs/`；`--dry-run` 不调任何接口。口径在 `voc.config.json` 新增的 `weekly` 段；DEPLOY 第 9.5 步给出挂 Hermes cron 的做法（纯脚本模式）。
+  New weekly runner `skill/weekly.py`: incremental review pull (`workbench/ss_pull.py --merge --new-only` stops at the first page of already-known reviews and merges straight into data.json), tagging of new reviews only, analyze / render / dashboard, action-card pull / readback / check, Feishu sync and a group-message draft. Steps are isolated, every run appends one line to `voc-reports/runs.jsonl` (shown on the workbench settings page), `--dry-run` touches no API; settings live in the new `weekly` section of `voc.config.json`, and DEPLOY step 9.5 shows how to schedule it with Hermes cron.
+- 新增 **评论入飞书 `skill/events_to_feishu.py`**：自家 + 竞品已打标的评论和导入过的退货 / 换货 / 买家消息，一条一行写进「VOC 事件明细」；事件 ID `R-<ASIN>-NNN` / `E-<ASIN>-<id>`，按事件 ID 和「子ASIN + 原话」去重并把表里已有行的 ID 回填进 data.json；问题分类 / 阶段 / 该谁改 用到的新选项先补进字段再写（飞书不会自动建选项）。
+  New `skill/events_to_feishu.py` writes tagged reviews and imported returns / exchanges / buyer messages into the Feishu events table one row each, deduplicated by event id and by child ASIN + verbatim text (back-filling ids into data.json), and adds missing select options to the fields before writing.
+- 工作台设置页新增 **本周群消息草稿**：`weekly.py` 起草，人改好点「发到群」才发（离线版只显示）。`serve.py` 的 `/api/status` 多了 `draft` / `draftAt`。
+  The settings page now shows the weekly group-message draft with a send button that only acts on a click; `/api/status` gained `draft` / `draftAt`.
+- `data.schema.json`：评论的 `id`（飞书事件 ID）和 `tagger` 字段说明；`pulled.lastPull` 记录每次增量拉了几页、新增几条、为什么停。
+  Schema notes for review `id` / `tagger` and `pulled.lastPull`.
+
+
 ## v1.7.0 · 2026-11-07
 
 - 工作台 **产品详情页和设置页不再写死任何数字**：新增 `skill/detail.py` 从 data.json（calc / journey）、竞品、行动卡算出概况、用户在说什么、退货与换货、用户旅程、和竞品比；`serve.py` 注入 `details` / `status`，并提供 `/api/detail?asin=`、`/api/status`。哪一块没数据就显示「还没有 … ：去哪接」，竞品也能进详情页。

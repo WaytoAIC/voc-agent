@@ -1,6 +1,6 @@
 {
  "_说明": "VOC 唯一真相源的样例（楼梯踏板）。复制到你项目根目录改名 voc.config.json，换成自己的标签、ASIN、飞书表；analyze.py / dashboard.py / offsite 脚本 / serve.py 都读它。没建时脚本会先用这份样例并提醒。",
- "version": "1.3.0",
+ "version": "1.4.0",
  "updated": "2026-11-07",
  "own": {
   "asin": "B0D2XK7Q1P",
@@ -374,5 +374,15 @@
  "workbench": {
   "_说明": "工作台开关。demo=true：products.json 的演示展示行注入列表（课堂 / 演示用）；false：只显示真实分析过的 ASIN。环境变量 VOC_DEMO=0/1 可临时覆盖。",
   "demo": true
+ },
+ "weekly": {
+  "_说明": "每周运转 weekly.py 的口径：pages = 每个 ASIN 最多翻几页（一页 20 条，按日期倒序，碰到已有评论就停）；detail = 顺手刷新详情（评分 / 评分数 / 价格，每个 ASIN 多 1 次调用）；competitors = 竞品也拉；feishu = 新评论 / 新事件写进「VOC 事件明细」；readback_write = 到期行动卡的 AI 判断写回飞书（false 只打印）；export = 重建离线导出版；schedule = Hermes 定时（cron 语法，本机时区，周一 09:00）。",
+  "schedule": "0 9 * * 1",
+  "pages": 3,
+  "detail": true,
+  "competitors": true,
+  "feishu": true,
+  "readback_write": false,
+  "export": false
  }
 }
