@@ -26,7 +26,7 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
 
 把评论表格（卖家精灵 / Helium 10 导出的 CSV，或自己整理的，列：星级、内容、日期、款式）交给脚本：
 `python3 <skill>/import_reviews.py <评论.csv> --asin B0XXXXXXXX --name 产品名 --brand 品牌 --out voc-reports/<ASIN>/data.json`
-它导出 data.json 的原料骨架（列名认不出用 `--map 列名=star`）。然后直接从第一部分第 3 步「读评论」开始：给每条写 `zh`、打 `tags`，再跑 `analyze.py`。字段说明在 `<skill>/data.schema.json`，`analyze.py` 跑之前会先校验结构。
+它导出 data.json 的原料骨架（列名认不出用 `--map 列名=star`）。然后直接从第一部分第 3 步开始：跑 `tag.py` 打标签，再跑 `analyze.py`。字段说明在 `<skill>/data.schema.json`，`analyze.py` 跑之前会先校验结构。
 
 ## 一、分析一个新产品（用户给了 ASIN）
 
@@ -34,12 +34,13 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
 2. **拉数据**（美国站，除非用户说别的站；需要已接好卖家精灵 MCP）：
    - `mcp__sellersprite-mcp__asin_detail` 拿品牌、标题、价格、评分、评分数、类目排名、父 ASIN、款式、上架日期、主图。
    - `mcp__sellersprite-mcp__review` 逐页拉（`size: 20`，`returnFields: title,content,date,star,skus,vine,verified,likes`），直到拉完。
-3. **读评论**：
-   - 送测（`vine: true`）的单独记，不进分析。
-   - 每条写一句中文意思，打 0–4 个标签。标签分「问题」和「好评」两组，**只能用 `voc.config.json` 里 `tags.neg` / `tags.pos` 的词**（站内、竞品、站外同一套，才能叠在一起比）。遇到词表没有的说法：先把它加进 `voc.config.json`（新词就加成一级标签并写上旅程段；只是说法不同就加进 `tags.alias`），再用。标签名用用户能听懂的话（例如「边角翘、粘不住」，不要写「粘性不足」）。
-   - 有正文用正文，没正文用标题。原话一字不改，不保留买家名字。
-   - 买的原因也打成好评标签（例如「为了狗不打滑」），它属于「为什么买」这一段。
-   - 款式照评论里的 `skus` 写进 `sku`，没有就留空。下钻要靠它，不要猜。
+3. **打标签：跑脚本，不手打**。先把原料写进 `voc-reports/<ASIN>/data.json`（`product`、`pulled`、`stars`、`reviews` 里每条的 `star / t / sku / vine / verified / title / en`；原话一字不改，不保留买家名字；款式照评论里的 `skus` 写进 `sku`，没有就留空，下钻要靠它，不要猜），然后：
+   `python3 <skill>/tag.py voc-reports/<ASIN>/data.json`
+   - 它分批把评论交给模型，写每条的 `zh` 和 `tags`，**只收 `voc.config.json` 里 `tags.neg` / `tags.pos` 的一级词**（别名自动换成一级词，词表外的词不写进 tags），逐条校验、坏的重打；覆盖率低于验收线会对空标签的评论自动补跑一轮；默认只处理还没打过标的评论（`--all` 全部重打）。
+   - 送测（`vine: true`）的它不碰，也不进分析。泛泛的夸 / 骂打「总体满意」/「总体不满」。
+   - 跑完看结尾的「词表外说法」：真是一件新事就把它加进 `voc.config.json`（新词加成一级标签并写上旅程段；只是说法不同就加进 `tags.alias`），再对那几条重打；标签名用用户能听懂的话（例如「边角翘、粘不住」，不要写「粘性不足」）。
+   - 模型通道：环境变量 `VOC_LLM_API`（anthropic / openai）、`VOC_LLM_BASE`、`VOC_LLM_KEY`、`VOC_LLM_MODEL`；没设 key 就自动走本机 Hermes 网关（用它自己的模型）。要花钱的通道先说清调用几次。
+   - 只有脚本连不上任何模型时，才退回手打：规则同上，每条 0–4 个一级词，买的原因也打成好评标签（属于「为什么买」）。
 4. **阶段不用自己定**：一级标签属于哪一段旅程已经写在 `voc.config.json` 里（6 段：为什么买 → 选购比较 → 收货安装 → 日常使用 → 用了很久 → 再买或拆掉），`analyze.py` 会自动填 `tagStage` 和 `stages`。只有新加的标签要在 config 里写上它的段。
 5. **先写 `voc-reports/<ASIN>/data.json` 的原料部分**：`product`、`pulled`、`stars`、`reviews`、`tagsNeg`、`tagsPos`、`stages`、`tagStage`，以及 `problems`、`praises` 的文字。
    - `problems`：每个问题写阶段、该谁改、建议、2–3 条原话；只有 1 条但后果严重的标 `risk: true`。
@@ -121,6 +122,11 @@ Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它�
 4. **巡检**：`python3 <skill>/actions.py check --draft`，四种卡住：采纳了没验证日期、到期没复盘、「看不出来」超两周、「无效」没下一步。草稿不自动发。
 5. **无效就续卡**：起草新卡并注明接续哪张，不改旧卡。
 6. **动作—结果曲线**：`python3 <skill>/actions.py timeline`。
+
+## 五·五、打标质量评测（改词表、换模型、换提示词之后跑）
+
+`<skill>/examples/golden.json` 是 50 条金标评论（楼梯踏板样例，按星级分层抽自竞品，人工复核过的标签当标准答案）。换成自己的品类后，用 `python3 <skill>/tag.py golden-build` 从自己已复核的 `voc-reports/` 里抽一份放到 `<skill>/_eval/golden.json`，之后只改不重建。
+`python3 <skill>/tag.py eval` 用当前模型重新打这 50 条，和金标比：Jaccard、完全一致率、好坏方向一致率，验收线在 `voc.config.json` 的 `acceptance.eval_jaccard` / `eval_polarity_pct`；明细写在金标旁边的 `eval-<日期>.json`。不通过就先看「召回低的标签」和「多打的标签」，改词表说明或提示词，再跑。
 
 ## 六、回答追问
 

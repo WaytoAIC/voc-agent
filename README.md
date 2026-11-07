@@ -127,7 +127,7 @@ After installing, restart your agent and say: **"Analyze B0FMJCMKY1"**.
 
 ### 分工：AI 读懂，脚本算数
 
-- **AI 负责**：读原话、写中文意思、打标签、写建议。
+- **AI 负责**：读原话、写中文意思、打标签（由 `tag.py` 分批调模型、只收词表里的词、逐条校验，不在对话里手打）、写建议。
 - **`analyze.py` 负责**：所有条数、占比、排序、满意度，AI 不手算，也不改脚本算出的数。
 - 每次跑脚本先做体检：没打标签的评论、词表外的标签、该谁改不在列表里、名称对不上的，会直接提示。
 - **口径只有一处**：`voc.config.json`。标签（一级固定 + 别名合并）、旅程 6 段、阈值、ASIN、飞书表都在里面；站内评论、竞品、站外 Reddit 用同一套标签，才能叠在一起比。
@@ -158,6 +158,7 @@ skill/
 ├── voc.config.example.json / voccfg.py   # 口径样例 + 加载器（analyze / dashboard / offsite / serve 都读它）
 ├── analyze.py        # 算数：体检、二八、优先级分、按月看、款式下钻、旅程满意度、竞品对比、Alexa 对照
 ├── import_reviews.py # 零付费入口：评论 CSV → data.json 骨架（不用任何 key）；data.schema.json 是字段说明
+├── tag.py            # 打标签：分批调模型、只收词表词、校验、不达线补跑、增量；eval 用金标集（examples/golden.json）量一致率
 ├── actions.py        # 行动闭环（可选，接飞书「行动项跟踪」）：镜像 / 到期读回 / 巡检 / 动作—结果曲线
 ├── render.py         # 把 data.json 填进模板，生成「报告.html」
 ├── alexa_import.py   # 把 apinsight 采集的 Alexa 问答读进 data.json
@@ -194,7 +195,7 @@ DEPLOY.md              # 部署指南（给 AI 照着做）
 
 ### Division of labor
 
-- **The AI** reads reviews, writes a Chinese summary per review, tags them, and drafts recommendations.
+- **The AI** reads reviews, writes a Chinese summary per review, tags them (through `tag.py`: batched model calls, vocabulary-only tags, per-item validation, automatic re-runs below the coverage line, and `eval` against a golden set), and drafts recommendations.
 - **`analyze.py`** computes every count, share, ranking, and score. The AI never does the math itself.
 - Each run starts with a data check that flags untagged reviews, tags without a journey stage, and names that don't match a tag.
 

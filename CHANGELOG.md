@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.6.0 · 2026-11-07
+
+- 新增 **打标脚本 `skill/tag.py`**：分批把评论交给模型（OpenAI / Anthropic 兼容口，或本机 Hermes 网关），只收 `voc.config.json` 词表里的一级词（别名自动换、词表外说法只汇总不写入），逐条校验、坏的重打、覆盖率低于验收线自动补跑，默认只处理还没打过标的评论（增量）。打标不再在对话里手写。
+  New tagging script `skill/tag.py`: batched model calls (OpenAI- or Anthropic-compatible endpoints, or the local Hermes gateway), vocabulary-only tags with alias folding, per-item validation and retries, an automatic extra pass when coverage falls below the acceptance line, and incremental runs by default. Tagging is no longer done by hand in chat.
+- 新增 **金标评测**：`skill/examples/golden.json`（50 条，按星级分层）+ `tag.py eval`，报 Jaccard、完全一致率、好坏方向一致率，验收线在 `acceptance.eval_jaccard` / `eval_polarity_pct`；`tag.py golden-build` 从自己复核过的数据建金标集。
+  Golden-set evaluation: `skill/examples/golden.json` (50 reviews, stratified by star) plus `tag.py eval`, reporting Jaccard, exact-match and polarity agreement against configurable lines; `tag.py golden-build` builds a golden set from your own reviewed data.
+- 词表新增兜底标签「总体满意」「总体不满」，只给没说具体内容的泛泛评论；`voccfg.canonicalize` 现在会按词表给用到的标签补阶段。
+  Two fallback tags for reviews with no specific content; `voccfg.canonicalize` now fills journey stages for every used tag from the vocabulary.
+
+
 ## v1.5.0 · 2026-11-05
 
 - 新增 **唯一口径文件 `voc.config.json`**（样例 `skill/voc.config.example.json`，加载器 `voccfg.py`）：一级标签词表 + 别名合并表、旅程 6 段（为什么买 → 选购比较 → 收货安装 → 日常使用 → 用了很久 → 再买或拆掉）、该谁改、阈值、自家 / 竞品 ASIN、飞书表和群。`analyze.py`、`dashboard.py`、站外脚本、`serve.py` 全部读它；站内、竞品、站外 Reddit 用同一套标签。

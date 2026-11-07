@@ -263,6 +263,10 @@
     [
      "好装",
      12
+    ],
+    [
+     "尺寸合适",
+     1
     ]
    ],
    "neg": [
@@ -283,10 +287,10 @@
      1
     ]
    ],
-   "good": 12,
+   "good": 13,
    "bad": 10,
-   "talked": 19,
-   "score": 11
+   "talked": 20,
+   "score": 15
   },
   {
    "n": "日常使用",
@@ -297,6 +301,10 @@
     ],
     [
      "防滑安心",
+     2
+    ],
+    [
+     "总体满意",
      2
     ],
     [
@@ -314,10 +322,10 @@
      1
     ]
    ],
-   "good": 19,
+   "good": 21,
    "bad": 13,
-   "talked": 24,
-   "score": 25
+   "talked": 26,
+   "score": 31
   },
   {
    "n": "用了很久",
@@ -654,8 +662,11 @@
    "vine": false,
    "verified": true,
    "en": "Very nice",
-   "zh": "很好",
-   "tags": []
+   "zh": "买家觉得踏板很好，但没有具体说明哪里好。",
+   "tags": [
+    "总体满意"
+   ],
+   "tagger": "tag.py/glm-5.2@2026-11-07"
   },
   {
    "star": 5,
@@ -744,8 +755,11 @@
    "vine": false,
    "verified": false,
    "en": "Perfect for basement stairs",
-   "zh": "地下室楼梯正合适",
-   "tags": []
+   "zh": "买家说踏板用在地下室楼梯上非常合适。",
+   "tags": [
+    "尺寸合适"
+   ],
+   "tagger": "tag.py/glm-5.2@2026-11-07"
   },
   {
    "star": 4,
@@ -858,8 +872,11 @@
    "vine": false,
    "verified": true,
    "en": "Like them on my stairs.",
-   "zh": "贴在楼梯上很喜欢",
-   "tags": []
+   "zh": "买家喜欢铺在自己楼梯上的这些踏板。",
+   "tags": [
+    "总体满意"
+   ],
+   "tagger": "tag.py/glm-5.2@2026-11-07"
   },
   {
    "star": 2,
@@ -903,7 +920,9 @@
   "防滑安心",
   "比定制便宜",
   "用得住",
-  "楼梯变安静"
+  "楼梯变安静",
+  "尺寸合适",
+  "总体满意"
  ],
  "stages": [
   "为什么买",
@@ -928,20 +947,22 @@
   "不能洗": "日常使用",
   "用得住": "用了很久",
   "不耐用、偏薄": "用了很久",
-  "伤地板": "再买或拆掉"
+  "伤地板": "再买或拆掉",
+  "尺寸合适": "收货安装",
+  "总体满意": "日常使用"
  },
  "calc": {
   "check": {
    "read": 42,
    "vine": 8,
    "analyzed": 34,
-   "untagged": 3,
+   "untagged": 0,
    "unknownTags": [],
    "notInVocab": [],
    "noStage": [],
    "badOwner": [],
    "countFixed": [],
-   "taggedPct": 91.2
+   "taggedPct": 100.0
   },
   "pareto": {
    "mentions": 27,

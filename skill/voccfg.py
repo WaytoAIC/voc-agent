@@ -101,14 +101,15 @@ def canonicalize(d, cfg):
                 item["tag"] = new
             elif "tag" in item and item["tag"] == item["name"]:
                 item.pop("tag")
-    if d.get("tagStage"):
-        ts = {}
-        for t, s in d["tagStage"].items():
-            ts[T(t)] = S(s)
-        # 一级词表里定了阶段的，以词表为准
-        for t in list(ts):
-            if t in stage_of:
-                ts[t] = stage_of[t]
+    ts = {}
+    for t, s in (d.get("tagStage") or {}).items():
+        ts[T(t)] = S(s)
+    # 一级词表里定了阶段的，以词表为准；评论里用到的一级标签没写阶段的，按词表补上
+    used_now = {T(t) for r in d.get("reviews", []) for t in r.get("tags", [])} | set(d.get("tagsNeg", [])) | set(d.get("tagsPos", []))
+    for t in list(ts) + sorted(used_now):
+        if t in stage_of:
+            ts[t] = stage_of[t]
+    if ts or d.get("tagStage") is not None:
         d["tagStage"] = ts
     d["stages"] = list(cfg["stages"]["order"])
     for it in (d.get("alexa") or {}).get("items", []):

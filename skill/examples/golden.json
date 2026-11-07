@@ -1,0 +1,570 @@
+{
+ "_说明": "打标金标集（50 条，2026-11-07 从已人工复核过的竞品打标里按星级分层抽样）。golden 是「标准答案」：人可以改；改词表后也要同步改这里。eval 用它衡量模型 + 提示词 + 词表的一致性，不是衡量某一次分析。",
+ "built": "2026-11-07",
+ "source": [
+  "B0FMJCMKY1",
+  "B09M7WWTFP",
+  "B07ZNXYCB6",
+  "B0FD3LVCL8",
+  "B0CG1FS73G"
+ ],
+ "items": [
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 12,
+   "star": 3,
+   "title": "",
+   "en": "I wish I could rate these higher but the sticking adhesive is horrible. They are very very very thin. Cute but thin as can be. I probably should have had carpet cut into pieces added padding and two sided tape. I’m really thinking about returning this",
+   "golden": [
+    "边角翘、粘不住",
+    "不耐用、偏薄"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 13,
+   "star": 1,
+   "title": "",
+   "en": "Does not stick on stairs as they move and have no adhesive to them.. Waste of money…",
+   "golden": [
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 31,
+   "star": 2,
+   "title": "",
+   "en": "I purchased this product about 2 years ago. The treads held up well enough for all the foot traffic on these stairs. I recently decided to replace them with new treads and ordered the same ones. I am disappointed with the sticky-ness of the new treads. Our feet were catching the edges almost every time we used the stairs. I ended up purchasing two sided tape and applying it to all the new treads. It is much safer now. So if you buy these treads, you should buy two sided tape as well.",
+   "golden": [
+    "边角翘、粘不住",
+    "新货不如旧货"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 34,
+   "star": 3,
+   "title": "",
+   "en": "Waited a few months to write this review because I wanted to test the quality over time. I bought it March 2026 (3 months ago). I put the carpet in the wash for the first time, using the quick 20-min cycle. After washing, the glue in the back starts to peel off. A bit disappointed.\n\nI actually bought this product many times over the years, washed them many times, and they turned out fine. This is the first time I am having this issue not sure if it’s the newer product is not holding up as well.  :(",
+   "golden": [
+    "洗后掉粘",
+    "新货不如旧货"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 98,
+   "star": 5,
+   "title": "",
+   "en": "These are great. They are just the right amount of thickness, stick well, are easy to vacuum and clean, and the tan color matches my light bamboo floors perfectly!",
+   "golden": [
+    "粘得牢",
+    "好看"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 108,
+   "star": 1,
+   "title": "",
+   "en": "I put these on less than a month ago. I would return them, but the window has closed. The edges started peeling up; we kept putting them back down but now they won't stick at all. Waste of money and time.",
+   "golden": [
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 114,
+   "star": 5,
+   "title": "",
+   "en": "Recently purchased, easy to apply, and 10 mins later all done. Wish it came with 16 instead of 15 steps but otherwise seems like a great product. I haven't vacuumed them yet, wondering if it will stay stuck and also I'm concerned about the adhesive ruining the stain on my stairs but otherwise I don't think I will be removing this product ever. Is there a product life for its use? I selected the dark brown product and it looks great. I wish the adhesive was also dark brown so the pad didn't show.",
+   "golden": [
+    "好装",
+    "好看",
+    "看着廉价"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 115,
+   "star": 3,
+   "title": "",
+   "en": "I bought these for my indoor stairs to the second floor. They look more like industrial fabric. I put them in my basement stairs instead. The liners peeled off the back easily, however they did not stick to the stair in the center right away. I think it was due to the packaging. They were packaged in a box not fully flat. Where they were folded over in the box did not stick. I placed weights on every stair to keep the adhesive sticking. After a few days they were fully attached. They look great in my basement. They did not have a quality fabric look for my second floor stairs. Other than that I am pleased with them.",
+   "golden": [
+    "运输折痕",
+    "看着廉价",
+    "背膜好撕"
+   ]
+  },
+  {
+   "asin": "B07ZNXYCB6",
+   "i": 154,
+   "star": 2,
+   "title": "",
+   "en": "First off, they are sent folded in half making a crease in the middle that has been impossible to get to sit flat on the stairs. They also just don’t stick very well in general. They are definitely slip resistant which is the only positive.",
+   "golden": [
+    "运输折痕",
+    "边角翘、粘不住",
+    "防滑安心"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 8,
+   "star": 1,
+   "title": "",
+   "en": "charging over $20 for only 4pc is criminal. sure they look and feel nice but idk who is doing their whole staircase for this price.",
+   "golden": [
+    "偏贵",
+    "好看"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 13,
+   "star": 5,
+   "title": "",
+   "en": "These carpet pieces for stairs are the perfect size and so easy to use. Just clean the stairs well prior and apply. They really look and feel great. They do cut down on noise a bit as well . So happy with the purchase.",
+   "golden": [
+    "好装",
+    "好看",
+    "楼梯变安静"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 45,
+   "star": 4,
+   "title": "",
+   "en": "Great stair treads.  I wish they were a little thicker but they worked out great on new hardwood staircase.  I got navy and color is gtrest",
+   "golden": [
+    "不耐用、偏薄",
+    "好看"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 63,
+   "star": 4,
+   "title": "",
+   "en": "The treads are beautiful, soft and easy to apply. I’m a little concerned on how long they will last with the back sticking to the step. I see the corners are already popping up.",
+   "golden": [
+    "好看",
+    "脚感软",
+    "好装",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 71,
+   "star": 3,
+   "title": "",
+   "en": "A lil on the thin side...wish the pieces were a lil thicker...had to nail down the corners to help hold to the steps",
+   "golden": [
+    "不耐用、偏薄",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 81,
+   "star": 3,
+   "title": "",
+   "en": "Beware!  The seller packages these by folding them into thirds, creating a crease in the carpet.  The instructions then tell you to take a damp towel and an iron and try to flatten them.  Why not just pack them unfolded?  Incredibly stupid and a total pain for the buyer.  You then are told to take a hair dryer to heat up carpet in order to peel the plastic off of the back.  If you have a “ yen” for creating extra work, this is your product!",
+   "golden": [
+    "运输折痕",
+    "背膜难撕"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 90,
+   "star": 4,
+   "title": "",
+   "en": "Nice material and construction. Color appears as photo - we selected the beige. Corners raise a bit but used on basements steps so aesthetics is less important than the function for our family.\nThey’ve been installed for 4 months and we’re pleased so far.",
+   "golden": [
+    "好看",
+    "边角翘、粘不住",
+    "用得住"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 100,
+   "star": 3,
+   "title": "",
+   "en": "They are very nice and perfect…UNTIL you wash them. They just don’t stick as well after being washed. Maybe use a shampooer to clean them. Because once you pull them up, they will never stick as good again.",
+   "golden": [
+    "洗后掉粘"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 116,
+   "star": 2,
+   "title": "",
+   "en": "Looks nice and plush on the steps however the edges will not stay flat - corners will not stay down (no adhesive on corners). Would not recommend because of that.",
+   "golden": [
+    "边角翘、粘不住",
+    "好看",
+    "脚感软"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 121,
+   "star": 1,
+   "title": "",
+   "en": "We ordered “matching” stair treads and landing mat in brown. While the landing mat looks good and as advertised, the treads are unacceptable quality. Not only do they obviously not match, they are thin, poor materials, and don’t have the same backing as the mat. Interestingly they were both from the same Amazon storefront… funny example of photos from online shopping vs reality.",
+   "golden": [
+    "颜色偏差",
+    "不耐用、偏薄"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 128,
+   "star": 4,
+   "title": "",
+   "en": "These seem to work well. Just put them down so they haven't been used much. Great for my wood stairs. I needed something that stayed put, but didn't damage the wood. These seem to do the job. My only disappointment is that the \"brown\" is sort of a dark gray brown. I got them to replace warm brown. When one thinks of \"brown\" I do think what comes to mind is not as gray or cold as these. They are very dark.",
+   "golden": [
+    "防滑安心",
+    "能重贴不留胶",
+    "颜色偏差"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 143,
+   "star": 2,
+   "title": "",
+   "en": "They claim washable. Washed and now all corners look like this. Love the product but don't recommend based on what they look like now.",
+   "golden": [
+    "洗后掉粘"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 144,
+   "star": 5,
+   "title": "",
+   "en": "I purchased these because our basement/garage stairs were bare wood and a bit too slippery for my likings. My small dog had slipped and fallen down a few steps on more than one occasion. These carpet pieces are exactly what I was looking for. They adhere very well and stay in place without any issues. Since putting them down, my dog has had a much easier time maintaining her footing/paws. They are soft underfoot and also help reduce noise on the stairs. We love these things and highly recommend them.",
+   "golden": [
+    "宠物不再打滑",
+    "防滑安心",
+    "脚感软",
+    "楼梯变安静"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 147,
+   "star": 5,
+   "title": "",
+   "en": "Nice material. They fit good and carpet is soft.would I definitely buy again.",
+   "golden": [
+    "脚感软"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 152,
+   "star": 1,
+   "title": "",
+   "en": "Unfortunately these did not stick well and corners easily lift. Not safe for my 90 yr old mother. Will have to search for a higher quality tread.",
+   "golden": [
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 177,
+   "star": 5,
+   "title": "",
+   "en": "We loved this product, and it's perfect for indoor use for stairs.  The carpet is thick and non-slippery.  We bought both for the stairs and the rug.",
+   "golden": [
+    "脚感软",
+    "防滑安心"
+   ]
+  },
+  {
+   "asin": "B09M7WWTFP",
+   "i": 194,
+   "star": 1,
+   "title": "",
+   "en": "These say that you can wash them, but you cannot as they become deformed and looked terrible. I followed the cleaning instructions but they’re no longer usable. Do not recommend.",
+   "golden": [
+    "洗后掉粘"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 11,
+   "star": 5,
+   "title": "",
+   "en": "Originally we bought these treads to help our Carolina Dog after her CCL surgery. She has yet to use them, but from a human experience — we appreciate the extra support &amp; durability using the steps. Super easy to install also.<br>",
+   "golden": [
+    "防滑安心",
+    "好装"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 19,
+   "star": 4,
+   "title": "",
+   "en": "I got these to help our aging dog from slipping down the stairs and that have done their job well. Took a star off because the ends don’t stay down that well but not a deal breaker for me. I’d still buy again.",
+   "golden": [
+    "宠物不再打滑",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 23,
+   "star": 2,
+   "title": "",
+   "en": "Didn’t hold up at all with two Boxers in the house lol. Loved the look of them though. Get what you pay for I guess.",
+   "golden": [
+    "不耐用、偏薄",
+    "好看"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 28,
+   "star": 3,
+   "title": "",
+   "en": "Difficult to remove back but look good. Edges curl up still",
+   "golden": [
+    "背膜难撕",
+    "好看",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 29,
+   "star": 5,
+   "title": "",
+   "en": "We received these yesterday. Installation was quick and easy. The clear film on the back was easy to pull off. We placed them on the stairs and they stuck immediately and firmly.<br><br>Our 11-year-old dog who was struggling coming up the stairs now easily comes up and down. We feel like these are a safe way for people and pets to navigate stairs like ours. We are happy with this purchase.",
+   "golden": [
+    "好装",
+    "宠物不再打滑",
+    "防滑安心"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 31,
+   "star": 5,
+   "title": "",
+   "en": "These are really nice looking anti-slip pads. I got them because the new material on the steps was so slippery, one of my dogs slipped and injured his leg when he was going down the stairs.<br>Make sure you clean the stairs well before applying.<br>I also like that they provided some additional double sided tape since eventually they will stop being so tacky.",
+   "golden": [
+    "好看",
+    "宠物不再打滑"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 58,
+   "star": 1,
+   "title": "",
+   "en": "I did all the necessary prep work including vacuuming and cleaning the stairs with alcohol. The protective covering over the adhesive is thin cellophane, tears easy and is stitched into the pad. PITA to remove. The adhesive itself is laughable. After the first step I went to put the next pad on the next step and the first pad slipped off. As I've already used one I'm stuck with them. Even double sided carpet tape would not stick to the underside of the pad. These are more of a slip hazard than the bare steps themselves.<br><br>They'd be fine if you're willing to use carpet tacks but don't expect them to adhere in any usable fashion.",
+   "golden": [
+    "背膜难撕",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 68,
+   "star": 2,
+   "title": "",
+   "en": "Luckily I had two sets of stairs to cover. 3 steps and 10. I now have no extra. Looks nice. The 'adhesive' is more like a non skid backing (not a true tape like adhesive). My last stair covers lasted 6 years but they were installed with carpet tape. We'll see if these last.<br><br>Update: 8 months later and they need replaced due to shredded edges",
+   "golden": [
+    "缺件、有瑕疵",
+    "边缘磨损、起毛",
+    "好看"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 73,
+   "star": 3,
+   "title": "",
+   "en": "My Pomeranian couldn’t go up and down the stairs because of the flooring in our new house, so I found myself hunting for something I could put down quickly for him. The dog in the photo sold me, so I ordered these. I don’t know who photoshopped that photo, but the pads do NOT fill the step as pictured. Eh, fine. I was pleasantly surprised the back of the pads are more tacky than adhesive, so it’s not like putting on a sticker. You can adjust them as needed. But, for the love, removing the CLEAR covering from the backing was awful! It kept tearing just before the edges, which is where you need the most adhesion 🙄 and it was very hard to tell if any pieces were left behind. But I got them on and with some coaxing, tiny doggo DID make it up the stairs! I worry about the longevity of this product as the edges are already curling, but they work for now.*update: do not let your toddler observe you putting them down because he will promptly pull them right back up and they will no longer be sticky enough to stay in place 🙄 They’re also too small for a typical foot. So these are getting replaced eventually*",
+   "golden": [
+    "宠物不再打滑",
+    "尺寸偏小",
+    "背膜难撕",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0CG1FS73G",
+   "i": 129,
+   "star": 5,
+   "title": "",
+   "en": "I JUST installed these today and already our elderly hound dog is comfortable going up and down the stairs again. (Sighhh of relief) I had no issue with installing these. They are *so far* laying flat and feel perfectly secure, despite my needing to ‘readjust’ several of them to line them up just right. For the price, I am very pleased and would recommend.",
+   "golden": [
+    "宠物不再打滑",
+    "好装",
+    "性价比高"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 35,
+   "star": 4,
+   "title": "",
+   "en": "Easy to install. Helped quiet the stairwell. Quite soft. Dirt/dust magnet though.",
+   "golden": [
+    "好装",
+    "楼梯变安静",
+    "脚感软",
+    "难清洁"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 40,
+   "star": 4,
+   "title": "",
+   "en": "Look to be what we were looking for. Haven’t put them down yet, need to deep clean stairs.",
+   "golden": [
+    "脚感软"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 50,
+   "star": 1,
+   "title": "",
+   "en": "The product doesn’t  grip the stairs more of a trip hazard!",
+   "golden": [
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 76,
+   "star": 4,
+   "title": "",
+   "en": "Easy to install, wish they were a bit stickier (this could be because of my stairs)",
+   "golden": [
+    "好装",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 81,
+   "star": 4,
+   "title": "",
+   "en": "They're nice but intend to roll up",
+   "golden": [
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 116,
+   "star": 3,
+   "title": "",
+   "en": "These carpet treads are nice but definitely show why they were so cheap. The carpet is low quality. Just put them on my stairs, we'll see how long they hold up",
+   "golden": [
+    "看着廉价"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 125,
+   "star": 2,
+   "title": "",
+   "en": "Starting to come apart after just a few months. Would not recommend.",
+   "golden": [
+    "不耐用、偏薄"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 161,
+   "star": 3,
+   "title": "",
+   "en": "Lay them out on warm day before you install them. They come folded in half in the box and they don’t stock super well cold.",
+   "golden": [
+    "运输折痕",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 180,
+   "star": 2,
+   "title": "",
+   "en": "Extra thin carpet and sticky backing didn’t seem strong. Other than that size was good. Not what I was looking for, but could meet someone’s needs.",
+   "golden": [
+    "不耐用、偏薄",
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 187,
+   "star": 2,
+   "title": "",
+   "en": "Does not stick well at all",
+   "golden": [
+    "边角翘、粘不住"
+   ]
+  },
+  {
+   "asin": "B0FD3LVCL8",
+   "i": 192,
+   "star": 4,
+   "title": "",
+   "en": "Se ven muy bien tienen poca pegatina en mi opinión solo necesitan un empaque más grande que no lleguen dobladas porque al tener poca pegatina se levantan donde están dobladas lo demas tengo que esperar un tiempo a ver cómo van me gustó el aspecto que dan a la escalera en mi caso mi escalera es resbaladiza por eso compré veremos en un tiempo como me va",
+   "golden": [
+    "好看",
+    "边角翘、粘不住",
+    "运输折痕"
+   ]
+  },
+  {
+   "asin": "B0FMJCMKY1",
+   "i": 9,
+   "star": 1,
+   "title": "",
+   "en": "Works well and easy to install, not cheap but I wanted natural materials. Just hoping the self adhesive doesn't damage the floor. Follow up: unfortunately, a week later it already hurt the floor.",
+   "golden": [
+    "伤地板",
+    "好装"
+   ]
+  },
+  {
+   "asin": "B0FMJCMKY1",
+   "i": 16,
+   "star": 1,
+   "title": "",
+   "en": "These look very nice but they are NOT washable. So, with kids and pets, this product is not the best product.",
+   "golden": [
+    "不能洗"
+   ]
+  },
+  {
+   "asin": "B0FMJCMKY1",
+   "i": 40,
+   "star": 2,
+   "title": "",
+   "en": "Quality is not good, thin. You have to fight to get the plastic off the back and then the product is supposed to be self stick, what a joke, it is not sticky at all. Not safe to use without buying carpet tape.",
+   "golden": [
+    "背膜难撕",
+    "边角翘、粘不住",
+    "不耐用、偏薄"
+   ]
+  }
+ ]
+}

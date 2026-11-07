@@ -167,6 +167,18 @@ curl -s http://127.0.0.1:8790/api/health
 
 返回里有 `"hermes": true`。页面右上角点「问 Agent」，问一句「你能做什么」，能流式回答就通了。
 
+## 第 7.5 步：打标签用哪个模型
+
+`skill/tag.py` 负责把评论打上标签。它调模型的方式二选一：
+
+- **什么都不设**：自动走本机 Hermes 网关（第 6 步），用 Hermes 自己配的模型。最省事。
+- **直接调模型接口**（更稳、可评测，推荐）：在跑工作台和 Hermes 的那个 shell 环境里设四个变量，例如 OpenAI 兼容口
+  `VOC_LLM_API=openai VOC_LLM_BASE=https://api.openai.com/v1 VOC_LLM_KEY=<密钥> VOC_LLM_MODEL=<模型名>`，
+  或 Anthropic 兼容口 `VOC_LLM_API=anthropic VOC_LLM_BASE=https://api.anthropic.com VOC_LLM_KEY=<密钥> VOC_LLM_MODEL=<模型名>`。
+  密钥只放 shell 环境或本机 env 文件，不进仓库。
+
+**检查**：`python3 skill/tag.py eval --n 10`（用自带的 10 条金标试打，约 1 次调用）能打印「一致率」一行。
+
 ## 第 8 步：第一次分析（跑通全流程）
 
 1. 工作台 → **我的产品** → 「+ 添加产品」，粘贴一个竞品 ASIN，点「添加」。
