@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.9.2 · 2026-11-07
+
+- 修 `skill/events_to_feishu.py`：读「表里已有」时按 2000 行一页用数字 offset 翻完整张表。此前只读第一页，表超过 2000 行后按事件 ID 去重失效，会把已有行重复写一遍。
+  Fix: the Feishu writer now pages through the whole events table; it previously read only the first 2000 rows, so dedup silently broke once the table grew past that and existing rows were written again.
+
+## v1.9.1 · 2026-11-07
+
+- `skill/project.py`：同（类型、日期、备注前 80 字）的事件键带序号，事件 ID = 键 + 序号的哈希，不再撞号；少于 3 个词的备注原样直传；备注改写并行、每 20 条落缓存。`skill/import_events.py` 码表加 `POOR_FIT`。
+  `project.py`: events sharing type, date and note prefix get numbered keys so ids never collide; trivial notes pass through; note rewriting runs in parallel with incremental caching. `import_events.py` maps `POOR_FIT`.
+
 ## v1.9.0 · 2026-11-07
 
 - 新增 **脱敏投影 `skill/project.py`**（配 `skill/llm.py` 共用模型通道）：把真实自家数据投成可对外演示的数据——原话由模型改写（意思、星级、标签、款式不变）、每条按固定倍数 k 扩成多条变体、日期整体平移、产品换别名；改写结果缓存，每周只改写新评论；`--check` 核对星级 / 标签 / 款式 / 送测分布与真实一致、每周条数 = 真实 × k、无敏感词、变体与真原话无连续 8 词重合。`weekly.py` 多一步「投影」；`voc.config.json` 加 `own.projection`（默认关）；别名 data.json 带 `projection.realByWeek`，看板 `kpi.voices.realNow` 给真实样本量，群草稿真实不足 5 条会提示别下结论。示例自家从此是真实产品的投影，口径「真实产品数据，经脱敏与等比扩增至类目中位规模」。DEPLOY 第 8.6 步、README「数据口径」说明。
