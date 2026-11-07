@@ -36,7 +36,7 @@ CODES = {  # 亚马逊 FBA 退货原因码 → 买家听得懂的话；表里已
     "NOT_AS_DESCRIBED": "与描述不符", "UNWANTED_ITEM": "不想要了", "DEFECTIVE": "有缺陷", "QUALITY_UNACCEPTABLE": "质量不行",
     "ORDERED_WRONG_ITEM": "买错了", "NO_REASON_GIVEN": "没写原因", "DAMAGED_BY_CARRIER": "运输损坏", "DAMAGED_BY_FC": "仓库损坏",
     "MISSED_ESTIMATED_DELIVERY": "送货太慢", "FOUND_BETTER_PRICE": "找到更便宜的", "UNAUTHORIZED_PURCHASE": "误下单", "NOT_COMPATIBLE": "不兼容",
-    "APPAREL_TOO_SMALL": "尺寸不合适", "APPAREL_TOO_LARGE": "尺寸不合适", "APPAREL_STYLE": "款式不喜欢", "MISSING_PARTS": "缺件",
+    "APPAREL_TOO_SMALL": "尺寸不合适", "APPAREL_TOO_LARGE": "尺寸不合适", "POOR_FIT": "尺寸不合适", "APPAREL_STYLE": "款式不喜欢", "MISSING_PARTS": "缺件",
     "EXCESSIVE_INSTALLATION": "太难装", "SWITCHEROO": "收到的不是这件", "UNDELIVERABLE_REFUSED": "拒收", "UNDELIVERABLE_UNKNOWN": "无法投递",
     "UNDELIVERABLE_FAILED_ATTEMPTS": "无法投递", "UNDELIVERABLE_INSUFFICIENT_ADDRESS": "地址不全", "EXTRA_ITEM": "多发了", "DID_NOT_LIKE": "不喜欢",
     "PRODUCT_NOT_AS_EXPECTED": "和想的不一样", "CUSTOMER_NO_LONGER_NEEDED": "不需要了", "ARRIVED_LATE": "到得太晚",

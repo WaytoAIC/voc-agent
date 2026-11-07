@@ -93,16 +93,20 @@ def sku_alias(sku):
         return ""
     if sku in (P.get("skuMap") or {}):
         return P["skuMap"][sku]
-    parts = [p.strip() for p in re.split(r"\s*[·,/]\s*", sku) if p.strip()]
-    color, count, mat = None, None, None
+    # 既认卖家精灵的「8" x 30" · Beige · 15」，也认后台 MSKU 的「NonslipTread_Liner_Beige_7pcs」「76x20_Gray_15PCS」「LandingCarpet_Liner_Grey」
+    parts = [p.strip() for p in re.split(r"\s*[·,/_\-]\s*|\s+", sku) if p.strip()]
+    color, count, glow = None, None, False
+    mat = "30×30 落地垫" if (re.search(r'30"?\s*x\s*30', sku.lower()) or "landing" in sku.lower()) else None
     for p in parts:
         pl = p.lower()
-        if pl in COLORS:
-            color = COLORS[pl]
+        if pl in COLORS or pl.rstrip("e") in ("brwon", "gre"):
+            color = COLORS.get(pl) or {"brwon": "棕色", "gre": "灰色"}.get(pl.rstrip("e"), color)
         elif re.fullmatch(r"\d+", pl):
             count = int(pl)
-        elif re.search(r'30"?\s*x\s*30', pl) or "landing" in pl:
-            mat = "30×30 落地垫"
+        elif re.fullmatch(r"(\d+)\s*(pcs|pc|pack)", pl):
+            count = int(re.match(r"\d+", pl).group())
+        elif pl == "fl":
+            glow = True
     out = []
     if color:
         out.append(color)
@@ -110,6 +114,10 @@ def sku_alias(sku):
         out.append(mat)
     elif count:
         out.append(f"{count} 片")
+    elif any(k in sku.lower() for k in ("tread", "76x20")):
+        out.append("15 片")                                                   # 后台不带片数的踏垫 MSKU = 15 片装
+    if glow:
+        out.append("夜光")
     return " · ".join(out) or "标准款"
 
 
@@ -216,7 +224,6 @@ def main():
         say(f"  注意：{len(untagged)} 条真实评论还没打标（先跑 tag.py），它们的变体标签也会是空的")
     old = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
     old_ids = {norm(r.get("en")): r.get("id") for r in (old.get("reviews") or []) if r.get("id") and not old.get("demo")}
-    old_eids = {(e.get("type"), e.get("date"), norm(e.get("note"))): e.get("id") for e in (old.get("events") or []) if e.get("id") and not old.get("demo")}
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
     alloc = allocate(reviews)
     ch = None
@@ -271,16 +278,51 @@ def main():
     ev_real = [e for e in (real.get("events") or []) if e.get("date")]
     if ev_real:
         ev_alloc = allocate(ev_real) if ev_real else []
+        seen_keys = {}
+        ev_keys = []
+        for e in ev_real:                                                     # 同类型 + 同日 + 同备注开头的事件要能分开，键后面带序号，不然 ID 撞号、飞书只写一份
+            base = f"ev|{e.get('type')}|{e.get('date')}|{norm(e.get('note'))[:80]}"
+            seen_keys[base] = seen_keys.get(base, 0) + 1
+            ev_keys.append(base if seen_keys[base] == 1 else f"{base}#{seen_keys[base]}")
+        ev_key = lambda e: ev_keys[ev_real.index(e)]   # noqa: E731
+        trivial = lambda e: len(words(e.get("note"))) < 3   # noqa: E731  「xx」这种没内容的备注不改写，原样带过去（没有泄露面）
+        ev_todo = [(i, e, ev_alloc[i]) for i, e in enumerate(ev_real) if e.get("note") and not trivial(e) and len((cache.get(ev_keys[i]) or {}).get("variants") or []) < ev_alloc[i]]
+        if ev_todo and not DRY:
+            ch = ch or llm.channel()
+            say(f"  改写 {len(ev_todo)} 条真实备注（并行 {WORKERS}）")
+
+            for i, e, n in list(ev_todo):                                     # 带序号的重复键直接复用第一条的改写
+                base = ev_keys[i].split("#")[0]
+                if "#" in ev_keys[i] and len((cache.get(base) or {}).get("variants") or []) >= n:
+                    cache[ev_keys[i]] = cache[base]
+            ev_todo = [(i, e, n) for i, e, n in ev_todo if len((cache.get(ev_keys[i]) or {}).get("variants") or []) < n]
+
+            def work_ev(item):
+                i, e, n = item
+                try:
+                    return i, paraphrase(ch, e, n, kind="event"), None
+                except Exception as ex:  # noqa: BLE001
+                    return i, None, repr(ex)
+            done = 0
+            with ThreadPoolExecutor(max_workers=WORKERS) as ex:
+                for i, v, err in ex.map(work_ev, ev_todo):
+                    if v:
+                        cache[ev_key(ev_real[i])] = {"at": TODAY, "variants": v}
+                    else:
+                        REPORT["errors"].append(f"备注 {ev_key(ev_real[i])[:40]} 改写失败：{err or '三次都不合规'}")
+                    done += 1
+                    if done % 20 == 0:                                        # 每 20 条落一次缓存，中断不白跑
+                        CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=0), encoding="utf-8")
+                        say(f"    已改写 {done}/{len(ev_todo)}")
+            CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=0), encoding="utf-8")
         for i, e in enumerate(ev_real):
-            key = f"ev|{e.get('type')}|{e.get('date')}|{norm(e.get('note'))[:80]}"
+            key = ev_keys[i]
             n = ev_alloc[i]
             vs = (cache.get(key) or {}).get("variants") or []
-            if e.get("note") and len(vs) < n and not DRY:
-                ch = ch or llm.channel()
-                v = paraphrase(ch, e, n, kind="event")
-                if v:
-                    cache[key] = {"at": TODAY, "variants": v}
-                    vs = v
+            if e.get("note") and trivial(e):
+                vs = [{"en": e["note"], "zh": e.get("zh", ""), "title": ""}] * n
+            if not vs and e.get("note"):                                      # 没改写成功的备注不带原文，只留原因
+                e = dict(e, note="")
             t0 = int(dt.datetime.fromisoformat(e["date"]).timestamp() * 1000)
             for j in range(n):
                 tt = shift_t(t0, key, j)
@@ -290,7 +332,7 @@ def main():
                     row["note"] = (vs[j]["en"] if j < len(vs) else "")
                     row["zh"] = (vs[j]["zh"] if j < len(vs) else e.get("zh", ""))
                     row["tagger"] = f"project.py@{TODAY}"
-                row["id"] = old_eids.get((row["type"], row["date"], norm(row.get("note")))) or hashlib.sha1(f"{ALIAS}|{key}|{j}".encode()).hexdigest()[:12]
+                row["id"] = hashlib.sha1(f"{ALIAS}|{key}|{j}".encode()).hexdigest()[:12]   # 事件 ID = 键 + 序号的哈希，确定性，不用从旧文件带
                 out_events.append(row)
         CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=0), encoding="utf-8")
     REPORT["events"] = len(out_events)
@@ -369,6 +411,23 @@ def check(real, d, reviews):
     for w, n in d["projection"]["realByWeek"].items():
         if abs(rw.get(w, 0) - n * K) > 1:
             REPORT["drift"].append(f"周 {w}：真实 {n} × k = {n * K:g}，投影 {rw.get(w, 0)}")
+    ev_real = [e for e in (real.get("events") or []) if e.get("date")]
+    ev_out = d.get("events") or []
+    if ev_real:
+        for name, key_real, key_out in (("事件类型", lambda e: e.get("type"), lambda e: e.get("type")), ("原因码", lambda e: e.get("code"), lambda e: e.get("code")),
+                                        ("真实原因", lambda e: e.get("real") or "", lambda e: e.get("real") or ""), ("事件款式", lambda e: sku_alias(e.get("sku")), lambda e: e.get("sku"))):
+            a, b = dist(ev_real, key_real), dist(ev_out, key_out)
+            worst = max(abs(a.get(k, 0) - b.get(k, 0)) for k in set(a) | set(b)) if (a or b) else 0
+            if worst > 0.01:
+                REPORT["drift"].append(f"{name}分布偏差 {worst:.1%}")
+        if abs(len(ev_out) - len(ev_real) * K) > 1:
+            REPORT["drift"].append(f"事件条数：真实 {len(ev_real)} × k = {len(ev_real) * K:g}，投影 {len(ev_out)}")
+        note_grams = set()
+        for e in ev_real:
+            note_grams |= ngrams(e.get("note"))
+        for e in ev_out:
+            if e.get("note") and (ngrams(e["note"]) & note_grams):
+                REPORT["leaks"].append(f"事件备注和真备注有连续 8 词重合：{e['note'][:50]}…")
     text = json.dumps(d, ensure_ascii=False).lower()
     for b in BANNED:
         if b and b.lower() in text:
