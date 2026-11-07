@@ -4,6 +4,7 @@
   python3 <skill>/tag.py <ASIN>/data.json               # 增量：只处理没打过标的非送测评论
   python3 <skill>/tag.py <ASIN>/data.json --all         # 全部重打（覆盖已有 zh / tags）
   python3 <skill>/tag.py <ASIN>/data.json --dry-run     # 只算要处理多少条、调用几次，不调模型、不写文件
+  python3 <skill>/tag.py <ASIN>/data.json --events      # 读退货 / 换货 / 买家消息的备注（import_events.py 导入的 events），每条写一个一级标签到 real
   python3 <skill>/tag.py eval [--golden 路径] [--n 50]   # 用金标评测集重新打一遍，和金标比一致率（不碰任何 data.json）
   python3 <skill>/tag.py golden-build [--n 50] [--force] # 从已打标的竞品里抽样建金标集（只建一次；之后人工改金标文件）
   通用选项：--batch 20（每次调用几条）  --workers 4（并行）  --max N（最多处理几条）  --model 名字
@@ -152,6 +153,7 @@ def system_prompt(product):
 - 只打评论里明确说到的事，不要推测；一条评论里同一件事只打一个标签。
 - 泛泛地夸、没说具体哪里好（Awesome / Works great / Love them）：打「{GENERIC_POS}」；泛泛地骂、没说具体哪里差：打「{GENERIC_NEG}」。说了具体内容就不要打这两个。
 - 评论里有词表没覆盖、而且对卖家有用的具体说法，写进 other（一个 3–8 字的短语，中文），tags 里不要放词表外的词。没有就省略 other。
+- 标题写着「买家消息」的是买家发来的提问，不是评论：只有明确在抱怨时才打问题标签；是提问就 tags 留空、把问的事写进 other（例如「能不能机洗」「要买几片」）。
 
 只输出 JSON，不要任何解释，格式：
 {{"items":[{{"i":0,"zh":"…","tags":["标签1","标签2"],"other":"可选"}}, …]}}
@@ -159,7 +161,7 @@ items 必须包含输入里的每一个 i。"""
 
 
 def user_prompt(rows):
-    items = [{"i": i, "star": r.get("star"), **({"title": r["title"]} if r.get("title") else {}), "en": (r.get("en") or "")[:1500]} for i, r in rows]
+    items = [{"i": i, **({"star": r["star"]} if r.get("star") is not None else {}), **({"title": r["title"]} if r.get("title") else {}), "en": (r.get("en") or "")[:1500]} for i, r in rows]
     return "评论（JSON）：\n" + json.dumps(items, ensure_ascii=False)
 
 
@@ -211,7 +213,7 @@ def validate(items, want, neg, pos):
             tags.remove(GENERIC_POS)
         if GENERIC_NEG in tags and any(t in neg and t != GENERIC_NEG for t in tags):
             tags.remove(GENERIC_NEG)
-        ok[i] = {"zh": it["zh"].strip(), "tags": tags[:4]}
+        ok[i] = {"zh": it["zh"].strip(), "tags": tags[:4], "other": o.strip() if isinstance(o, str) and o.strip() else ""}
     return ok, bad, other
 
 
@@ -269,6 +271,40 @@ def coverage(reviews):
     return (round(tagged / len(U) * 100, 1) if U else 0.0), len(U), len(U) - tagged
 
 
+def cmd_events(p, d):
+    """退货 / 换货 / 买家消息的备注 → real（一个一级标签，优先问题标签；只有夸的写「其他」）。"""
+    global CH
+    ev = d.get("events", [])
+    rows = [(i, {"star": None, "title": f"{e.get('type', '退货')}备注" + (f"（平台原因：{e['code']}）" if e.get("code") else ""), "en": e["note"]})
+            for i, e in enumerate(ev) if e.get("note") and ("--all" in ARGS or not e.get("real"))]
+    if MAXN:
+        rows = rows[:MAXN]
+    print(f"{p.parent.name}：事件 {len(ev)} 条，带备注 {sum(1 for e in ev if e.get('note'))} 条；本次要读 {len(rows)} 条，约 {-(-len(rows) // BATCH) if rows else 0} 次调用")
+    if not rows or "--dry-run" in ARGS:
+        return
+    CH = channel()
+    print(f"模型：{CH['model']}  通道：{CH['api']} {CH['base']}")
+    neg, pos, _ = voccfg.vocab(CFG)
+    results, stat = run_batches(rows, d.get("product", {}), "读备注")
+    tagger = f"tag.py/{CH['model']}@{TODAY}"
+    for i, res in results.items():
+        tags = res["tags"]
+        # 退货 / 换货：优先具体的问题标签；买家消息多是提问，没问题标签时记提问主题（模型的 other 短语），都没有就「其他」
+        real = next((t for t in tags if t in neg and t != GENERIC_NEG), None)
+        if not real:
+            real = (res.get("other") or "其他") if ev[i].get("type") == "买家消息" else (next((t for t in tags if t in neg), None) or "其他")
+        ev[i].update({"real": real, "zh": res["zh"], "tagger": tagger})
+    p.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+    c = {}
+    for i in results:
+        c[ev[i]["real"]] = c.get(ev[i]["real"], 0) + 1
+    print(f"完成：读了 {len(results)} 条，调用 {stat['calls']} 次，tokens 进 {stat['in']} 出 {stat['out']}")
+    print("读出来是：" + "、".join(f"{k}×{v}" for k, v in sorted(c.items(), key=lambda kv: -kv[1])[:8]))
+    if stat["other"]:
+        print("词表外说法：" + "、".join(f"{k}×{v}" for k, v in sorted(stat["other"].items(), key=lambda kv: -kv[1])[:8]))
+    print(f"下一步：python3 {HERE / 'dashboard.py'} {p}   # 看板和产品页的退货块按 real 重算")
+
+
 def cmd_tag(path):
     global CH
     p = pathlib.Path(path).resolve()
@@ -277,6 +313,8 @@ def cmd_tag(path):
     if errs:
         sys.exit("data.json 结构不对：\n  " + "\n  ".join(errs))
     voccfg.canonicalize(d, CFG)
+    if "--events" in ARGS:
+        return cmd_events(p, d)
     rv = d["reviews"]
     if "--all" in ARGS:
         rows = [(i, r) for i, r in enumerate(rv) if not r.get("vine")]

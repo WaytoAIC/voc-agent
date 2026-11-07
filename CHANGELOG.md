@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.7.0 · 2026-11-07
+
+- 工作台 **产品详情页和设置页不再写死任何数字**：新增 `skill/detail.py` 从 data.json（calc / journey）、竞品、行动卡算出概况、用户在说什么、退货与换货、用户旅程、和竞品比；`serve.py` 注入 `details` / `status`，并提供 `/api/detail?asin=`、`/api/status`。哪一块没数据就显示「还没有 … ：去哪接」，竞品也能进详情页。
+  The workbench product and settings pages no longer embed any numbers: new `skill/detail.py` computes overview, voice themes, returns, journey and competitor comparison from data.json (calc / journey), competitors and action cards; `serve.py` injects `details` / `status` and serves `/api/detail?asin=` and `/api/status`. Every block without data shows an empty state that says how to get it; competitor products open the detail page too.
+- 新增 **演示数据开关** `workbench.demo`（`voc.config.json`，或 `VOC_DEMO=0/1`）：关掉后 `workbench/products.json` 的演示行不再注入，列表只剩真实分析过的 ASIN。
+  New demo switch `workbench.demo` (or `VOC_DEMO=0/1`): off hides the demo rows in `workbench/products.json`, leaving only analyzed ASINs.
+- 新增 **退货 / 换货 / 买家消息导入** `skill/import_events.py`（FBA 退货报告、赛狐 / 领星导出、买家消息表；原因码翻中文、按类型 + 日期 + 款式 + 订单号去重、订单号不存）和 `tag.py --events`（把备注读成一个一级标签写进 `real`，买家消息记提问主题）。`dashboard.py` / `detail.py` 的退货块按 `real` 算。
+  New `import_events.py` for returns / exchanges / buyer messages from exported spreadsheets (FBA return report, Sellfox / Lingxing exports, message exports; reason codes translated, deduplicated, order ids never stored) and `tag.py --events`, which reads each note into one first-level tag (`real`; buyer messages get the question topic). Dashboard and detail use `real` for the returns blocks.
+- 产品列表：真实产品显示本周新评论、近 30 天退货 / 换货件数、按款式展开（评论占比、差评占比、退货、换货、最大问题）。缺失的数据文件接口返回空 JSON，不再在控制台报 404。
+  Product lists show weekly new reviews, 30-day returns / exchanges and a per-variant breakdown for real products; missing data files return empty JSON instead of 404.
+
+
 ## v1.6.0 · 2026-11-07
 
 - 新增 **打标脚本 `skill/tag.py`**：分批把评论交给模型（OpenAI / Anthropic 兼容口，或本机 Hermes 网关），只收 `voc.config.json` 词表里的一级词（别名自动换、词表外说法只汇总不写入），逐条校验、坏的重打、覆盖率低于验收线自动补跑，默认只处理还没打过标的评论（增量）。打标不再在对话里手写。

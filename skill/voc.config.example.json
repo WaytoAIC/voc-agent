@@ -370,5 +370,9 @@
  "asin_alias": {
   "_说明": "父体 / 旧 ASIN → 本地分析目录用的 ASIN（飞书卡片上写父体时按这个找 data.json）",
   "B0FKBFCTV2": "B0FMJCMKY1"
+ },
+ "workbench": {
+  "_说明": "工作台开关。demo=true：products.json 的演示展示行注入列表（课堂 / 演示用）；false：只显示真实分析过的 ASIN。环境变量 VOC_DEMO=0/1 可临时覆盖。",
+  "demo": true
  }
 }

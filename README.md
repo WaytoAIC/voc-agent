@@ -159,6 +159,8 @@ skill/
 ├── analyze.py        # 算数：体检、二八、优先级分、按月看、款式下钻、旅程满意度、竞品对比、Alexa 对照
 ├── import_reviews.py # 零付费入口：评论 CSV → data.json 骨架（不用任何 key）；data.schema.json 是字段说明
 ├── tag.py            # 打标签：分批调模型、只收词表词、校验、不达线补跑、增量；eval 用金标集（examples/golden.json）量一致率
+├── import_events.py  # 退货 / 换货 / 买家消息：后台导出表 → data.json 的 events（原因码翻中文、去重、订单号不存）；tag.py --events 读备注
+├── detail.py         # 工作台产品详情页的数据（概况 / 用户在说什么 / 退货 / 旅程 / 和竞品比），没数据的块返回空
 ├── actions.py        # 行动闭环（可选，接飞书「行动项跟踪」）：镜像 / 到期读回 / 巡检 / 动作—结果曲线
 ├── render.py         # 把 data.json 填进模板，生成「报告.html」
 ├── alexa_import.py   # 把 apinsight 采集的 Alexa 问答读进 data.json

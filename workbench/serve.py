@@ -27,6 +27,10 @@
   /api/product?asin= 现场分析/<ASIN> 里有没有分析结果（添加产品后轮询它）
   /api/products      现场分析/ 下所有分析过的 ASIN（页面打开时并进产品列表）
   /api/dashboard     自家产品的 dashboard.json；/api/offsite、/api/alexa 同理
+  /api/detail?asin=  产品详情页的全部数据（现场分析/detail.py 从 data.json + 竞品 + actions.json 算；没数据的块返回空，页面显示去哪接）
+  /api/status        设置页：数据源接没接、本周体检数、运行记录（现场分析/runs.jsonl）
+演示数据开关：voc.config.json 的 workbench.demo（默认 true）或环境变量 VOC_DEMO=0/1。关掉后 products.json 里标了 "demo": true 的展示行不再注入，
+  列表里只剩 现场分析/ 下真实分析过的 ASIN；自家产品仍以 own.asin 为准。
   /report/<ASIN>     打开 现场分析/<ASIN>/报告.html
   /api/post-to-group 人在面板里点了「发到群」才调用；只能发到配置里的群，用 VOC Agent 机器人身份发
 Hermes 的密钥只在这里从 ~/.hermes/profiles/<profile>/.env 读，不会发到浏览器；只监听本机。
@@ -48,8 +52,11 @@ ROOT = HERE.parent
 for _p in (ROOT / "现场分析", ROOT / "skill", HERE):     # voccfg.py：本地在 现场分析/，公开仓在 skill/
     sys.path.insert(0, str(_p))
 import voccfg  # noqa: E402
+import detail  # noqa: E402  产品详情数据（本地在 现场分析/，公开仓在 skill/）
 
 CFG = voccfg.load(HERE)
+_demo_env = os.environ.get("VOC_DEMO")
+DEMO = (_demo_env not in ("0", "false", "no")) if _demo_env is not None else bool((CFG.get("workbench") or {}).get("demo", True))
 PAGE = next((p for p in (HERE / "index.html", ROOT / "模拟稿" / "VOC工作台模拟稿.html") if p.exists()), None)
 LIVE_DIR = pathlib.Path(os.environ.get("VOC_DATA_DIR", ROOT / "现场分析")).expanduser()
 SS_PULL = next((p for p in (HERE / "ss_pull.py", LIVE_DIR / "_tools" / "ss_pull.py") if p.exists()), LIVE_DIR / "_tools" / "ss_pull.py")
@@ -108,18 +115,61 @@ def _text(path):
 
 def page_config():
     """注入给页面的配置：只给页面要用的，不给密钥。"""
-    return {"version": CFG.get("version"), "own": CFG.get("own"), "competitors": CFG.get("competitors", []),
+    return {"version": CFG.get("version"), "own": CFG.get("own"), "competitors": CFG.get("competitors", []), "demo": DEMO,
             "stages": CFG["stages"]["order"], "tags": {"neg": list(CFG["tags"]["neg"]), "pos": list(CFG["tags"]["pos"])},
             "feishu": {"wiki_url": FS.get("wiki_url", ""), "tables": FS.get("tables", {}), "table_names": FS.get("table_names", {}),
                        "group_name": GROUP_NAME, "can_post": bool(GROUP_ID)}}
 
 
+def demo_products():
+    rows = (_json(PRODUCTS) or {}).get("products", [])
+    return rows if DEMO else [r for r in rows if not r.get("demo")]
+
+
+def analyzed_asins():
+    return sorted(d.parent.name for d in LIVE_DIR.glob("*/data.json") if d.parent.name.isalnum() and d.parent.name.upper().startswith("B0"))
+
+
+def status():
+    """设置页要的：数据源接没接、本周体检、运行记录。只看文件和配置，不调任何接口。"""
+    own = _json(LIVE_DIR / OWN / "data.json") or {}
+    asins = analyzed_asins()
+    comps = [a for a in CFG.get("competitors", []) if (LIVE_DIR / a / "data.json").exists()]
+    ev = own.get("events", [])
+    ss_cfg = pathlib.Path.home() / ".hermes" / "profiles" / PROFILE / "config.yaml"
+    has_ss = ss_cfg.exists() and "sellersprite" in (_text(ss_cfg) or "")
+    runs = []
+    rp = LIVE_DIR / "runs.jsonl"
+    if rp.exists():
+        for line in (_text(rp) or "").splitlines()[-12:]:
+            try:
+                runs.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass
+    pulled = own.get("pulled") or {}
+    return {"demo": DEMO, "ownAsin": OWN, "analyzed": asins, "competitors": comps, "pulled": pulled, "check": (own.get("calc") or {}).get("check"),
+            "events": {t: sum(1 for e in ev if e.get("type") == t) for t in ("退货", "换货", "买家消息")},
+            "eventsNoted": sum(1 for e in ev if e.get("note")), "eventsRead": sum(1 for e in ev if e.get("real")),
+            "alexa": (LIVE_DIR / OWN / "alexa_compare.json").exists(), "offsite": bool(own.get("offsite")),
+            "feishu": bool(FS.get("tables", {}).get("events")) and bool(FS.get("base")), "group": bool(GROUP_ID),
+            "sellersprite": has_ss, "llm": bool(os.environ.get("VOC_LLM_KEY")), "hermesProfile": PROFILE,
+            "actionsAsOf": (_json(LIVE_DIR / "actions.json") or {}).get("asOf"), "runs": list(reversed(runs)),
+            "tags": {"neg": len([t for t in CFG["tags"]["neg"] if not t.startswith("_")]), "pos": len([t for t in CFG["tags"]["pos"] if not t.startswith("_")])}}
+
+
 def page_data():
     own = LIVE_DIR / OWN
     d = _json(own / "data.json") or {}
-    return {"config": page_config(), "products": (_json(PRODUCTS) or {}).get("products", []),
+    acts = _json(LIVE_DIR / "actions.json")
+    details = {}
+    for a in analyzed_asins():
+        try:
+            details[a] = detail.build(a, acts, OWN)
+        except Exception as e:  # 一个产品的数据坏了不拖垮整页
+            details[a] = {"asin": a, "exists": False, "error": str(e)}
+    return {"config": page_config(), "products": demo_products(),
             "dashboard": _json(own / "dashboard.json"), "offsite": d.get("offsite"), "alexa": _json(own / "alexa_compare.json"),
-            "actions": _json(LIVE_DIR / "actions.json"), "jobcard": _text(JOBCARD)}
+            "actions": acts, "jobcard": _text(JOBCARD), "details": details, "status": status()}
 
 
 def render_page(data=None):
@@ -150,7 +200,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def _file(self, path, what):
         if path.exists():
             return self._send(200, path.read_text(encoding="utf-8"))
-        return self._send(404, json.dumps({"error": f"没有 {what}：{path}"}, ensure_ascii=False))
+        return self._send(200, json.dumps({"missing": f"没有 {what}：{path}"}, ensure_ascii=False))   # 页面按「没数据」处理，不在控制台报 404
 
     def do_GET(self):
         path = self.path.split("?")[0]
@@ -168,13 +218,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if path == "/api/product":
             return self._product()
         if path == "/api/products":
-            out = []
-            for d in sorted(LIVE_DIR.glob("*/data.json")):
-                if d.parent.name.isalnum() and d.parent.name.upper().startswith("B0"):
-                    s = self._summary(d.parent.name)
-                    if s.get("exists"):
-                        out.append(s)
+            out = [s for s in (self._summary(a) for a in analyzed_asins()) if s.get("exists")]
             return self._send(200, json.dumps({"products": out}, ensure_ascii=False))
+        if path == "/api/detail":
+            from urllib.parse import parse_qs, urlparse
+            asin = (parse_qs(urlparse(self.path).query).get("asin") or [""])[0].upper()
+            if not asin.isalnum():
+                return self._send(400, json.dumps({"error": "asin?"}))
+            try:
+                return self._send(200, json.dumps(detail.build(asin, _json(LIVE_DIR / "actions.json"), OWN), ensure_ascii=False))
+            except Exception as e:
+                return self._send(500, json.dumps({"error": f"算不出 {asin} 的详情：{e}"}, ensure_ascii=False))
+        if path == "/api/status":
+            return self._send(200, json.dumps(status(), ensure_ascii=False))
         if path == "/api/dashboard":
             return self._file(LIVE_DIR / OWN / "dashboard.json", "看板（先跑 现场分析/dashboard.py）")
         if path == "/api/alexa":
@@ -214,10 +270,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
         top = max(cnt.items(), key=lambda kv: kv[1]) if cnt else None
         pr = data.get("product", {})
         rep = d / "报告.html"
+        now = datetime.date.today()
+        last_t = max((r.get("t") or 0) for r in rv) if rv else 0
+        ref = datetime.date.fromtimestamp(last_t / 1000) if last_t else now     # 「本周」= 数据最新一天往前 7 天；数据停在过去也能看
+        new_rev = sum(1 for r in rv if r.get("t") and (ref - datetime.date.fromtimestamp(r["t"] / 1000)).days < 7)
+        ev = [e for e in data.get("events", []) if e.get("date")]
+        ev_ref = max((datetime.date.fromisoformat(e["date"]) for e in ev), default=None)
+        in30 = lambda t: sum(1 for e in ev if e.get("type") == t and (ev_ref - datetime.date.fromisoformat(e["date"])).days < 30) if ev_ref else None
+        drill = (data.get("calc") or {}).get("drill") or {}
+        kidrows = [[s["sku"], s["n"], s["share"], s["negShare"],
+                    sum(1 for e in ev if e.get("type") == "退货" and e.get("sku") == s["sku"]) if ev else None,
+                    sum(1 for e in ev if e.get("type") == "换货" and e.get("sku") == s["sku"]) if ev else None,
+                    (s.get("top") or [{}])[0].get("name", "—")] for s in drill.get("skus", []) if s.get("sku")][:8]
         return {"asin": asin, "exists": True, "report": rep.exists(), "updated": int(rep.stat().st_mtime) if rep.exists() else 0,
                 "name": pr.get("name") or pr.get("title") or asin, "brand": pr.get("brand"), "rating": pr.get("rating"),
                 "n": len(rv), "neg": round(sum(1 for r in rv if r.get("star", 5) <= 3) / len(rv) * 100, 1) if rv else None,
-                "top": [top[0], top[1]] if top else None, "own": asin == OWN or data.get("role") == "自家"}
+                "top": [top[0], top[1]] if top else None, "own": asin == OWN or data.get("role") == "自家",
+                "newRev": new_rev, "ret30": in30("退货"), "ex30": in30("换货"), "msg30": in30("买家消息"), "kidrows": kidrows,
+                "pulledAt": (data.get("pulled") or {}).get("at")}
 
     def _post_to_group(self):
         n = int(self.headers.get("Content-Length", "0"))

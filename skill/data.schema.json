@@ -3,36 +3,288 @@
  "title": "VOC data.json",
  "description": "一个 ASIN 的全部 VOC 原料和结果。原料部分由采集 / 导入脚本 + AI 打标写，calc / journey 由 analyze.py 写。标签名只能用 voc.config.json 里的词。",
  "type": "object",
- "required": ["product", "reviews"],
+ "required": [
+  "product",
+  "reviews"
+ ],
  "properties": {
-  "product": {"type": "object", "required": ["asin"], "properties": {
-   "asin": {"type": "string", "pattern": "^B0[A-Z0-9]{8}$"}, "name": {"type": "string"}, "brand": {"type": "string"},
-   "price": {"type": ["number", "string"]}, "rating": {"type": "number"}, "ratings": {"type": "integer"}, "parent": {"type": "string"},
-   "variants": {"type": "array", "items": {"type": "string"}}, "image": {"type": "string"}}},
-  "role": {"type": "string", "enum": ["自家", "竞品"]},
-  "pulled": {"type": "object", "description": "采集信息：来源、页数 / 文件、条数、时间"},
-  "stars": {"type": "object", "description": "星级分布 {\"5\": n, ...}"},
-  "reviews": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["star", "t", "en"], "properties": {
-   "id": {"type": "string"}, "star": {"type": "integer", "minimum": 1, "maximum": 5},
-   "t": {"type": "number", "description": "评论时间，Unix 毫秒"},
-   "sku": {"type": "string", "description": "款式原文，没有留空"},
-   "vine": {"type": "boolean"}, "verified": {"type": "boolean"},
-   "title": {"type": "string"}, "en": {"type": "string", "description": "原话，一字不改，不留买家名"},
-   "zh": {"type": "string", "description": "AI 写的一句中文意思"},
-   "tags": {"type": "array", "items": {"type": "string"}, "description": "0–4 个一级标签（voc.config.json tags.neg / tags.pos）"}}}},
-  "tagsNeg": {"type": "array", "items": {"type": "string"}}, "tagsPos": {"type": "array", "items": {"type": "string"}},
-  "stages": {"type": "array", "items": {"type": "string"}}, "tagStage": {"type": "object", "additionalProperties": {"type": "string"}},
-  "problems": {"type": "array", "items": {"type": "object", "required": ["name"], "properties": {
-   "name": {"type": "string"}, "tag": {"type": "string"}, "stage": {"type": "string"}, "owner": {"type": "string"},
-   "fix": {"type": "string"}, "quotes": {"type": "array"}, "risk": {"type": "boolean"}, "count": {"type": "integer"}, "hidden": {"type": "integer"}}}},
-  "praises": {"type": "array", "items": {"type": "object", "required": ["name"], "properties": {
-   "name": {"type": "string"}, "tag": {"type": "string"}, "use": {"type": "string"}, "quotes": {"type": "array"}, "count": {"type": "integer"}}}},
-  "summary": {"type": "string"}, "insight": {"type": "string"},
-  "events": {"type": "array", "description": "退货 / 换货 / 买家消息（自家后台才有）", "items": {"type": "object", "required": ["type", "date"], "properties": {
-   "type": {"type": "string", "enum": ["退货", "换货", "买家消息"]}, "date": {"type": "string", "format": "date"}, "sku": {"type": "string"},
-   "code": {"type": "string", "description": "平台原因码"}, "real": {"type": "string", "description": "备注里的真实原因（一级标签）"}, "hasNote": {"type": "boolean"}}}},
-  "alexa": {"type": "object", "description": "Alexa 问答（alexa_import.py 写 items，AI 补 zh / tags / stance / findings）"},
-  "offsite": {"type": "object", "description": "站外 VOC 结果（analyze_offsite.py 写）"},
-  "journey": {"type": "array", "description": "analyze.py 写"}, "calc": {"type": "object", "description": "analyze.py 写：check / pareto / priority / monthly / drill / compare / alexa"}
+  "product": {
+   "type": "object",
+   "required": [
+    "asin"
+   ],
+   "properties": {
+    "asin": {
+     "type": "string",
+     "pattern": "^B0[A-Z0-9]{8}$"
+    },
+    "name": {
+     "type": "string"
+    },
+    "brand": {
+     "type": "string"
+    },
+    "price": {
+     "type": [
+      "number",
+      "string"
+     ]
+    },
+    "rating": {
+     "type": "number"
+    },
+    "ratings": {
+     "type": "integer"
+    },
+    "parent": {
+     "type": "string"
+    },
+    "variants": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "image": {
+     "type": "string"
+    }
+   }
+  },
+  "role": {
+   "type": "string",
+   "enum": [
+    "自家",
+    "竞品"
+   ]
+  },
+  "pulled": {
+   "type": "object",
+   "description": "采集信息：来源、页数 / 文件、条数、时间"
+  },
+  "stars": {
+   "type": "object",
+   "description": "星级分布 {\"5\": n, ...}"
+  },
+  "reviews": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "star",
+     "t",
+     "en"
+    ],
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "star": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+     },
+     "t": {
+      "type": "number",
+      "description": "评论时间，Unix 毫秒"
+     },
+     "sku": {
+      "type": "string",
+      "description": "款式原文，没有留空"
+     },
+     "vine": {
+      "type": "boolean"
+     },
+     "verified": {
+      "type": "boolean"
+     },
+     "title": {
+      "type": "string"
+     },
+     "en": {
+      "type": "string",
+      "description": "原话，一字不改，不留买家名"
+     },
+     "zh": {
+      "type": "string",
+      "description": "AI 写的一句中文意思"
+     },
+     "tags": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "0–4 个一级标签（voc.config.json tags.neg / tags.pos）"
+     }
+    }
+   }
+  },
+  "tagsNeg": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "tagsPos": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "stages": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "tagStage": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "string"
+   }
+  },
+  "problems": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "tag": {
+      "type": "string"
+     },
+     "stage": {
+      "type": "string"
+     },
+     "owner": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "quotes": {
+      "type": "array"
+     },
+     "risk": {
+      "type": "boolean"
+     },
+     "count": {
+      "type": "integer"
+     },
+     "hidden": {
+      "type": "integer"
+     }
+    }
+   }
+  },
+  "praises": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "tag": {
+      "type": "string"
+     },
+     "use": {
+      "type": "string"
+     },
+     "quotes": {
+      "type": "array"
+     },
+     "count": {
+      "type": "integer"
+     }
+    }
+   }
+  },
+  "summary": {
+   "type": "string"
+  },
+  "insight": {
+   "type": "string"
+  },
+  "events": {
+   "type": "array",
+   "description": "退货 / 换货 / 买家消息（自家后台才有；import_events.py 从导出表导入，tag.py --events 读备注写 real）",
+   "items": {
+    "type": "object",
+    "required": [
+     "type",
+     "date"
+    ],
+    "properties": {
+     "type": {
+      "type": "string",
+      "enum": [
+       "退货",
+       "换货",
+       "买家消息"
+      ]
+     },
+     "date": {
+      "type": "string",
+      "format": "date"
+     },
+     "sku": {
+      "type": "string"
+     },
+     "code": {
+      "type": "string",
+      "description": "平台原因码"
+     },
+     "real": {
+      "type": "string",
+      "description": "备注里的真实原因（一级标签）"
+     },
+     "hasNote": {
+      "type": "boolean"
+     },
+     "id": {
+      "type": "string",
+      "description": "去重用（类型 + 日期 + 款式 + 订单号的哈希）；订单号本身不存"
+     },
+     "note": {
+      "type": "string",
+      "description": "买家备注 / 消息原文，一字不改"
+     },
+     "zh": {
+      "type": "string",
+      "description": "AI 写的一句中文意思"
+     },
+     "qty": {
+      "type": "integer"
+     },
+     "tagger": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "alexa": {
+   "type": "object",
+   "description": "Alexa 问答（alexa_import.py 写 items，AI 补 zh / tags / stance / findings）"
+  },
+  "offsite": {
+   "type": "object",
+   "description": "站外 VOC 结果（analyze_offsite.py 写）"
+  },
+  "journey": {
+   "type": "array",
+   "description": "analyze.py 写"
+  },
+  "calc": {
+   "type": "object",
+   "description": "analyze.py 写：check / pareto / priority / monthly / drill / compare / alexa"
+  }
  }
 }

@@ -515,6 +515,8 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:1ms!important;animation-delay:0ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;transition-delay:0ms!important;scroll-behavior:auto!important}
 }
+  #pStats span{white-space:nowrap}
+  .hint.empty{padding:10px 12px;border:1px dashed var(--line,rgba(127,127,127,.4));border-radius:8px;margin:0;line-height:1.5}
 </style>
 
 <div class="app">
@@ -549,7 +551,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
 
       <!-- 首页 -->
       <section class="view" data-view="home">
-        <div class="pagehead"><div><h1>早上好</h1><p id="homeSub">有 4 件事需要你处理。下面是本周的 VOC 数据看板。</p></div></div>
+        <div class="pagehead"><div><h1>早上好</h1><p id="homeSub">下面是本周的 VOC 数据看板。</p></div></div>
         <div class="panel">
           <div><h2>需要你处理的事</h2><p class="sub">按对生意的影响从大到小排</p></div>
           <div class="todo" id="todo"></div>
@@ -559,7 +561,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
           <div class="pagehead"><div><h2>我的产品本周</h2><p class="sub">点任意一行看详情</p></div><button class="link" type="button" data-nav="products">看全部产品和竞品 →</button></div>
           <div class="tablewrap"><table id="homeProducts"></table></div>
         </div>
-        <div class="quiet"><span class="chip plain">数据</span>来源正常。5 个竞品的评论 10-27 / 10-28 拉取，Alexa 问答 10-27 采集。<button class="link" type="button" data-nav="settings">看数据接入</button></div>
+        <div class="quiet" id="homeData"><span class="chip plain">数据</span><span id="homeDataText">—</span> <button class="link" type="button" data-nav="settings">看数据接入</button></div>
       </section>
 
       <!-- 我的产品 -->
@@ -584,7 +586,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
       <!-- 产品详情 -->
       <section class="view" data-view="product" hidden>
         <div class="phero">
-          <div class="prod"><span id="pThumb"></span><div><h1 id="pName">亚麻楼梯踏板</h1><div class="stats"><span>父 ASIN <b>B0D2XK7Q1P</b></span><span>18 个款式 · MSKU LN-TRD-*</span><span>评分 <b>4.2</b> <span class="trend up">↓0.1</span></span><span>评论 <b>1,940</b></span><span>近 30 天退货 <b>46</b> 件 · 退货率 <b>9.7%</b></span><span>换货 <b>5</b> 件</span></div></div></div>
+          <div class="prod"><span id="pThumb"></span><div><h1 id="pName">亚麻楼梯踏板</h1><div class="stats" id="pStats"></div></div></div>
           <div class="picker"><label class="hint" for="prodSelect">切换产品</label><br><select id="prodSelect"></select></div>
         </div>
         <div class="quiet" id="pNote" hidden></div>
@@ -592,11 +594,11 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
 
         <div class="sv" data-sv="overview">
           <div class="view">
-            <div class="panel"><div class="summary">宠物家庭用了 2–3 个月后，背胶在清漆木楼梯上粘不住，这是本周最大的问题；灰色款还有「颜色比图片深」的问题。</div></div>
+            <div class="panel"><div class="summary" id="pSummary"></div></div>
             <div class="row3">
               <div class="panel"><h2>最该改的 3 件事</h2><div id="topIssues"></div></div>
               <div class="panel"><h2>用户最喜欢的 3 点</h2><p class="sub">可以直接用在主图和五点里</p><div class="love" id="loves"></div></div>
-              <div class="panel"><h2>和竞品比</h2><p class="sub">评分</p><div class="vs" id="vsRating"></div><p class="sub">差评里说「粘不住」的比例</p><div class="vs" id="vsSticky"></div></div>
+              <div class="panel"><h2>和竞品比</h2><p class="sub">评分</p><div class="vs" id="vsRating"></div><p class="sub" id="vsStickySub"></p><div class="vs" id="vsSticky"></div></div>
             </div>
           </div>
         </div>
@@ -613,7 +615,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
             </div>
             <div class="panel">
               <div class="pagehead"><div><h2>用户的原话，可以直接拿去用</h2><p class="sub">字越大，说的人越多</p></div>
-                <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>又说又搜：放进标题</span><span><i class="sw" style="background:var(--good)"></i>只在评论里说：放进主图</span><span><i class="sw" style="background:var(--warn)"></i>只在搜索里找：页面要补答</span></div></div>
+                <div class="legend"><span><i class="sw" style="background:var(--good)"></i>好评：放进主图和五点</span><span><i class="sw" style="background:var(--warn)"></i>抱怨：先改产品或页面</span></div></div>
               <div class="cloud" id="cloud"></div>
             </div>
           </div>
@@ -629,15 +631,15 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
                   <div><h3 style="margin-bottom:8px">平台记的原因</h3><div class="rlist" id="retPlatform"></div></div>
                   <div><h3 style="margin-bottom:8px">读完备注后</h3><div class="rlist" id="retReal"></div></div>
                 </div>
-                <div class="success">「与描述不符」的 18 件里，9 件其实是灰色款颜色问题，6 件是背胶粘不住。只看平台原因码，会以为是页面写错了。</div>
+                <div class="success" id="retInsight" hidden></div>
               </div>
               <div class="panel">
-                <div><h2>换货</h2><p class="sub">近 30 天 5 件，原订单和换货订单已经串起来</p></div>
+                <div><h2>换货</h2><p class="sub" id="exSub"></p></div>
                 <div id="exList" style="display:grid;gap:8px"></div>
               </div>
             </div>
             <div class="panel">
-              <div><h2>按款式看</h2><p class="sub">退货和换货都落在具体款式上</p></div>
+              <div><h2>按款式看</h2><p class="sub">退货和换货落在哪个款式上</p></div>
               <div class="tablewrap"><table id="retSku"></table></div>
             </div>
             <div class="panel">
@@ -666,7 +668,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
               <div id="axBody" style="display:grid;gap:14px"></div>
             </div>
             <div class="panel">
-              <div><h2>同一个问题，Alexa 对你和竞品怎么说</h2><p class="sub">6 个产品在 Alexa 那里，粘性没有一个是绿的：背胶款四角翘，TPE 底款号称能洗、洗完就掉粘。粘性是整个品类的痛点，谁先解决，Alexa 推荐的就会换人</p></div>
+              <div><h2>同一个问题，Alexa 对你和竞品怎么说</h2><p class="sub">同一套问题，Alexa 对每个产品分别怎么答：绿是说得好，红是短板，蓝是可借鉴</p></div>
               <div class="tablewrap"><table id="axVs"></table></div>
             </div>
           </div>
@@ -674,7 +676,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
 
         <div class="sv" data-sv="compare" hidden>
           <div class="panel">
-            <div><h2>同一个问题，你和 5 个竞品各有多少人在说</h2><p class="sub">同一套问题分类，每个数是「提到这个问题的评论 ÷ 全部评论」。高出竞品平均一半以上、且至少 3 条，标为短板或卖点。竞品是 10-28 拉取的真实评论</p></div>
+            <div><h2 id="cmpTitle">和竞品比</h2><p class="sub">同一套问题分类，每个数是「提到这个问题的评论 ÷ 全部评论」。高出竞品平均一半以上、且至少 3 条，标为短板或卖点</p></div>
             <div class="tablewrap"><table id="topics"></table></div>
           </div>
         </div>
@@ -682,7 +684,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
         <div class="sv" data-sv="changes" hidden>
           <div class="view">
             <div class="panel">
-              <div><h2>改了什么，数字有没有变</h2><p class="sub">竖线是每一次改动；灰色带是断货和大促，那几周的数字不拿来下结论</p></div>
+              <div><h2>改了什么，数字有没有变</h2><p class="sub">竖线是每一次改动（飞书行动卡的「实际完成日」）；按月算评论占比，评论少的月份不拿来下结论</p></div>
               <div class="chart" id="tl"></div>
             </div>
             <div class="panel"><h2>每次改动的结果</h2><div style="display:grid;gap:8px" id="results"></div></div>
@@ -772,7 +774,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
           <div class="view">
             <div class="panel">
               <div class="setrow"><div><b>从店铺后台自动同步产品</b><p>每周一 08:30 同步一次。新上架的产品不会自动开始分析，会先在首页问你。</p></div><label class="switch"><input type="checkbox" checked aria-label="自动同步产品"><span></span></label></div>
-              <div class="setrow"><div><b>上次同步</b><p>10-19 08:30 · 找到 4 个自家产品，1 处变化已推到首页</p></div><button class="btn sm" type="button" id="syncNow">现在同步</button></div>
+              <div class="setrow"><div><b>上次同步</b><p id="syncLast">—</p></div><button class="btn sm" type="button" id="syncNow">现在同步</button></div>
             </div>
             <div class="panel" style="padding:0;overflow:hidden"><div class="tablewrap"><table id="syncTable"></table></div></div>
           </div>
@@ -800,17 +802,13 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
         <div class="sp" data-sp="library" hidden>
           <div class="view">
             <div class="row3">
-              <div class="panel"><span class="hint">用户原话</span><span class="big">1,284</span><p class="sub">一字不改，不留作者名</p></div>
-              <div class="panel"><span class="hint">问题分类</span><span class="big">32 类</span><p class="sub">能归进 96% 的原话；遇到新说法会问你</p></div>
-              <div class="panel"><span class="hint">验证过的做法</span><span class="big">1 有效 · 2 无效</span><p class="sub">还有 1 条在等结果</p></div>
+              <div class="panel"><span class="hint">用户原话</span><span class="big" id="libVoices">—</span><p class="sub">一字不改，不留作者名</p></div>
+              <div class="panel"><span class="hint">标签词表</span><span class="big" id="libTags">—</span><p class="sub" id="libTagsSub"></p></div>
+              <div class="panel"><span class="hint">验证过的做法</span><span class="big" id="libDone">—</span><p class="sub" id="libDoneSub"></p></div>
             </div>
             <div class="panel">
               <h2>验证过的做法</h2>
-              <div style="display:grid;gap:8px">
-                <div class="result"><span class="chip good">有效</span><div><b>包装里放安装卡（3 步 + 先擦干净）</b><p>「不好装」的差评从 9.2% 降到 4.1%，用了 6 周</p></div><span></span></div>
-                <div class="result"><span class="chip bad">无效</span><div><b>去掉随货双面胶（为了降成本）</b><p>「粘不住」的差评从 15.4% 升到 21.3%，省下的钱抵不过退货</p></div><span></span></div>
-                <div class="result"><span class="chip bad">无效</span><div><b>主图改成白底多角度</b><p>点击率和退货率都没动</p></div><span></span></div>
-              </div>
+              <div style="display:grid;gap:8px" id="libResults"></div>
             </div>
           </div>
         </div>
@@ -890,8 +888,8 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     return `<svg class="pimg" viewBox="0 0 44 44" role="img" aria-label="${p.name}商品图"><rect width="44" height="44" fill="${bg}"/>${art}</svg>`;
   }
   const openKids=new Set();
-  function retCell(p){ if(!p.own) return '<span class="hint">竞品看不到</span>'; if(p.ret==null) return '<span class="hint">—</span>'; return `<span class="num">${p.ret}%</span><span class="trend ${p.retT==='up'?'up':'down'}">${p.retT==='up'?'↑':'↓'}</span><span class="skuline num">${p.retN} 件 / 30 天</span>`; }
-  function exCell(p){ if(!p.own) return '<span class="hint">—</span>'; return `<span class="num">${p.ex}</span>`; }
+  function retCell(p){ if(!p.own) return '<span class="hint">竞品看不到</span>'; if(p.ret==null&&p.retN==null) return '<span class="hint">—</span>'; if(p.ret==null) return `<span class="num">${p.retN} 件</span><span class="skuline num">30 天</span>`; return `<span class="num">${p.ret}%</span><span class="trend ${p.retT==='up'?'up':'down'}">${p.retT==='up'?'↑':'↓'}</span><span class="skuline num">${p.retN} 件 / 30 天</span>`; }
+  function exCell(p){ if(!p.own||p.ex==null) return '<span class="hint">—</span>'; return `<span class="num">${p.ex}</span>`; }
 
   /* ---------- 导航 ---------- */
   const TITLES={home:'首页',products:'我的产品',product:'我的产品',actions:'行动',opps:'新机会',settings:'设置',offsite:'站外 VOC',agent:'VOC Agent'};
@@ -906,8 +904,10 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     if(jump){ void k.offsetWidth; k.style.transition=''; }
   }
   function inkAll(jump){ $$('.subtabs').forEach(t=>ink(t,jump)); }
+  let OPENING=false;
   function go(view,opt={}){
     const changed=view!==curView; curView=view;
+    if(view==='product'&&!OPENING&&typeof D!=='undefined'&&!D&&typeof openProduct==='function'){ if(!PRODUCTS.some(x=>x.id===curProd)) curProd=(PRODUCTS.find(x=>x.own)||PRODUCTS[0]||{}).id; OPENING=true; openProduct(curProd).finally(()=>OPENING=false); }
     $$('.view[data-view]').forEach(v=>v.hidden=v.dataset.view!==view);
     if(view==='agent') sizeJob();
     $$('.nav').forEach(n=>{ const on=n.dataset.nav===view||(view==='product'&&n.dataset.nav==='products'); if(on) n.setAttribute('aria-current','page'); else n.removeAttribute('aria-current'); });
@@ -955,7 +955,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     toast('好，「夜光楼梯踏板」先不分析。以后想加，在「我的产品」里点「开始分析」。',{label:'撤销',fn:()=>{ $('#newProdBtns').outerHTML=html; bindNewProd(); }}); }
   bindNewProd();
 
-  function prodCell(p,toggle){ return `<div class="prod">${pimg(p)}<div><b>${p.name}</b><span class="skuline num">${p.asin}${p.kids?` · ${p.kids} 个款式`:''}${p.sku?' · '+p.sku:''}</span>${toggle&&KIDROWS[p.id]?`<button class="skubtn" type="button" data-kids="${p.id}" aria-expanded="${openKids.has(p.id)}">${openKids.has(p.id)?'收起款式 ▴':'看各款式和 SKU ▾'}</button>`:''}</div></div>`; }
+  function prodCell(p,toggle){ return `<div class="prod">${pimg(p)}<div><b>${p.name}</b><span class="skuline num">${p.asin}${p.kids?` · ${p.kids} 个款式`:''}${p.sku?' · '+p.sku:''}</span>${toggle&&(KIDROWS[p.id]||(p.kidrows&&p.kidrows.length))?`<button class="skubtn" type="button" data-kids="${p.id}" aria-expanded="${openKids.has(p.id)}">${openKids.has(p.id)?'收起款式 ▴':'看各款式和 SKU ▾'}</button>`:''}</div></div>`; }
   function negCell(p){ if(p.neg==null) return '<span class="hint">—</span>'; const up=p.negT==='up'; return `<span class="num">${p.neg}%</span>${p.negT?`<span class="trend ${up?'up':'down'}">${up?'↑':'↓'}</span>`:''}`; }
   function renderHomeProducts(){
     const ht=$('#homeProducts');
@@ -1058,7 +1058,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     if(!DASH.snaps||!DASH.snaps.length){ const b=$('#dash'); if(b) b.innerHTML='<p class="hint">还没有看板数据：跑 现场分析/dashboard.py</p>'; return; }
     const S=DASH.snaps[dbWeek], P=dbWeek?DASH.snaps[dbWeek-1]:null, K=S.kpi, C=DASH.compare, T=DASH.trend, O=DASH.owners, latest=dbWeek===DASH.snaps.length-1;
     const prevWk=T[S.idx-1].week, dec=ACTIONS.filter(a=>a.state==='decide').length, doing=ACTIONS.filter(a=>a.state==='doing').length, wait=ACTIONS.filter(a=>a.state==='wait').length;
-    $('#homeSub').textContent=latest?`本周（${S.week}）新增 ${K.voices.now} 条用户声音，差评占比 ${K.negShare.now}%；有 4 件事需要你处理。`:`正在看 ${S.week} 这周的看板；有 4 件事需要你处理。`;
+    $('#homeSub').textContent=latest?`本周（${S.week}）新增 ${K.voices.now} 条用户声音，差评占比 ${K.negShare.now}%；有 ${TODO.length} 件事需要你处理。`:`正在看 ${S.week} 这周的看板；有 ${TODO.length} 件事需要你处理。`;
     const kpi=(c,k,v,dl,sub)=>`<div class="db-kpi" style="border-left-color:${c}"><span>${k}</span>${v}${dl}<small>${sub}</small></div>`;
     const sp=K.voices.split;
     const kpis=[
@@ -1290,7 +1290,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     </div>`;
     $$('#offsite [data-rdt]').forEach(b=>b.onclick=()=>{ rdTopic=b.dataset.rdt; const y=scrollY; drawOffsite(); scrollTo(0,y); });
   }
-  function own_n(){ return 473; }
+  function own_n(){ const o=(VOC.details||{})[((CFG.own||{}).asin||'').toUpperCase()]; return o&&o.n!=null?o.n:'—'; }
   drawOffsite();
 
   /* ---------- 我的产品 ---------- */
@@ -1302,6 +1302,10 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
       ob.appendChild(el('tr',p.watch?{class:'click','data-prod':p.id,tabindex:'0'}:{class:'muted'},
         `<td>${prodCell(p,true)}</td><td class="n num">${p.rating}</td><td class="n num">${p.newRev}</td><td class="n">${p.watch?negCell(p):'<span class="hint">—</span>'}</td><td class="n">${retCell(p)}</td><td class="n">${exCell(p)}</td><td>${p.issue}</td>
          <td>${p.watch?`<span class="chip ${p.status[0]}">${p.status[1]}</span>`:`<button class="btn sm" type="button" data-start="${p.id}">开始分析</button>`}</td>`));
+      if(openKids.has(p.id)&&!KIDROWS[p.id]&&p.kidrows&&p.kidrows.length){
+        ob.appendChild(el('tr',{class:'kid'},`<td class="hint">款式</td><td class="n hint">评论占比</td><td></td><td class="n hint">差评占比</td><td class="n hint">退货</td><td class="n hint">换货</td><td class="hint">这个款式最大的问题</td><td></td>`));
+        p.kidrows.forEach(([sku,n,share,neg,ret,ex,top])=>ob.appendChild(el('tr',{class:'kid'},`<td><b>${esc(sku)}</b><span class="skuline num">${n} 条评论</span></td><td class="n num">${share}%</td><td></td><td class="n num">${neg}%</td><td class="n num">${ret??'—'}</td><td class="n num">${ex??'—'}</td><td>${esc(top)}</td><td></td>`)));
+      }
       if(openKids.has(p.id)&&KIDROWS[p.id]){
         ob.appendChild(el('tr',{class:'kid'},`<td class="hint">子 ASIN · MSKU · 款式</td><td class="n hint">销量占比</td><td></td><td></td><td class="n hint">退货率</td><td class="n hint">换货</td><td class="hint">这个款式最大的问题</td><td></td>`));
         KIDROWS[p.id].forEach(([ca,ms,spec,share,r,ex,top])=>ob.appendChild(el('tr',{class:'kid'},`<td><b>${spec}</b><span class="skuline num">${ca} · ${ms}</span></td><td class="n num">${share}</td><td></td><td></td><td class="n num"${r>10?' style="color:var(--bad);font-weight:700"':''}>${r}%</td><td class="n num">${ex}</td><td>${top}</td><td></td>`)));
@@ -1354,137 +1358,168 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   SUBS.forEach(([id,label])=>{ const b=el('button',{class:'subtab',role:'tab','aria-selected':'false','data-sub':id,type:'button'},label); b.addEventListener('click',()=>showSub(id)); $('#subtabs').appendChild(b); });
   function showSub(id){ curSub=id; $$('.sv').forEach(s=>s.hidden=s.dataset.sv!==id); $$('#subtabs .subtab').forEach(t=>t.setAttribute('aria-selected',t.dataset.sub===id?'true':'false')); if(booted) enter($(`.sv[data-sv="${id}"]`)); if(id==='journey') drawJourney(true); if(id==='changes') drawTL(true); ink($('#subtabs')); if(booted) updateCtx(); }
   const sel=$('#prodSelect');
-  sel.innerHTML='<optgroup label="自家产品">'+PRODUCTS.filter(p=>p.own&&p.watch).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')+'</optgroup><optgroup label="竞品">'+PRODUCTS.filter(p=>!p.own&&!p.report).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')+'</optgroup>';
+  function buildSel(){ sel.innerHTML='<optgroup label="自家产品">'+PRODUCTS.filter(p=>p.own&&p.watch).map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+'</optgroup><optgroup label="竞品">'+PRODUCTS.filter(p=>!p.own).map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+'</optgroup>'; }
+  buildSel();
   sel.addEventListener('change',()=>openProduct(sel.value));
-  function openProduct(id){
-    const p=PRODUCTS.find(x=>x.id===id); if(p.report){ openUrl(p.report,'分析报告'); return; }
-    curProd=id;
-    $('#pName').textContent=p.name; $('#pThumb').innerHTML=pimg(p);
-    $('#pNote').hidden=true;
-    if([...sel.options].some(o=>o.value===id)) sel.value=id;
-    go('product'); showSub('overview');
+  /* ---------- 产品详情：全部数据来自 现场分析/detail.py（serve.py 注入 VOC.details 或 /api/detail），页面不写死任何数字 ---------- */
+  const DETAILS=VOC.details||{};
+  const OWN_ASIN=((CFG.own||{}).asin||'').toUpperCase();
+  const EMPTY=(what,how)=>`<p class="hint empty">还没有${what}${how?`：${how}`:''}</p>`;
+  const NOTE={reviews:'先在「我的产品」里添加这个 ASIN，让 VOC Agent 拉评论、打标签、跑 analyze.py；没有卖家精灵 key 就用 import_reviews.py 导入评论表',
+    events:'退货 / 换货 / 买家消息只有自家后台有：从后台导出表格，跑 import_events.py 导入，再 tag.py --events 把备注读成真实原因',
+    compare:'跑 analyze.py <自家>/data.json --vs <竞品>/data.json …（竞品先各自分析一遍）',
+    actions:'在飞书「行动项跟踪」里起草行动卡，再跑 actions.py pull',
+    alexa:'按 SKILL 第三部分用 apinsight 采集 Alexa 问答，再 alexa_import.py 读入'};
+  let D=null, pol='all', kid='all', theme=0;
+  const fmtN=v=>v==null?'—':(typeof v==='number'?v.toLocaleString():v);
+  const trendZh=t=>t==='↑'?'变多':t==='↓'?'变少':t==='→'?'持平':'';
+  async function loadDetail(asin){
+    if(DETAILS[asin]&&DETAILS[asin].exists) return DETAILS[asin];
+    if(!LIVE) return DETAILS[asin]||null;
+    try{ const j=await (await fetch('/api/detail?asin='+asin,{cache:'no-store'})).json(); DETAILS[asin]=j; return j; }catch(e){ return DETAILS[asin]||null; }
   }
-  $('#pThumb').innerHTML=pimg(PRODUCTS[0]);
-  [['背胶在清漆木楼梯上粘不住','宠物家庭为主 · 差评里 18.4%','a1','≈ ¥2.6 万/月',true],
-   ['灰色款颜色比图片深','只在灰色款 · 近 4 周变多','a2','≈ ¥0.7 万/月',true],
-   ['安装时对不齐、离型纸难撕','主图已在改','a3','≈ ¥0.4 万/月',false]].forEach(([t,p,a,m,dec],i)=>$('#topIssues').appendChild(el('div',{class:'issue'},`<span class="rank">${i+1}</span><div><b>${t}</b><p>${p} · ${m}</p></div><button class="btn sm ${dec?'primary':''}" type="button" data-act="${a}">${dec?'去决定':'看进度'}</button>`)));
-  [['防滑效果好','No more slipping in socks.','63 人提到'],['看起来像真地毯','Looks like real carpet runner, guests ask where I got it.','48 人提到'],['老人上下楼踏实了','My 82-year-old mom feels safe on the stairs now.','38 人提到']].forEach(([t,en,n])=>$('#loves').appendChild(el('div',{},`<b>${t} <span class="hint">· ${n}</span></b><span class="en">“${en}”</span>`)));
-  [["COSY HOMEER", 4.7], ["MBIGM", 4.6], ["TranquilMoments", 4.5], ["GROWLING", 4.4], ["MontVoo", 4.2], ["你的产品", 4.2, 1]].forEach(([n,v,me])=>$('#vsRating').appendChild(el('div',{class:'vsrow'+(me?' me':'')},`<span>${n}</span><span class="vsbar"><i style="width:${(v-3.5)/1.5*100}%"></i></span><span class="num">${v}</span>`)));
-  [["MontVoo", 35.3], ["你的产品", 18.4, 1], ["GROWLING", 14.6], ["TranquilMoments", 11.8], ["MBIGM", 8.6], ["COSY HOMEER", 5.6]].forEach(([n,v,me])=>$('#vsSticky').appendChild(el('div',{class:'vsrow'+(me?' me':'')},`<span>${n}</span><span class="vsbar"><i style="width:${Math.min(v/40*100,100)}%;${me?'background:var(--bad)':''}"></i></span><span class="num">${v}%</span>`)));
-
+  function drawHero(p,d){
+    $('#pName').textContent=d&&d.exists?(d.brand&&!String(d.name).startsWith(d.brand)?`${d.brand} · ${d.name}`:d.name):p.name;
+    $('#pThumb').innerHTML=pimg(p);
+    const st=$('#pStats');
+    if(!d||!d.exists){ st.innerHTML=`<span>ASIN <b>${esc(p.asin||'—')}</b></span>`; return; }
+    const r=d.returns||{};
+    st.innerHTML=[`<span>${d.own?'自家':'竞品'} · ASIN <b>${d.asin}</b></span>`, d.parent&&d.parent!==d.asin?`<span>父 ASIN <b>${esc(d.parent)}</b></span>`:'',
+      d.variants?`<span>${d.variants} 个款式</span>`:'', d.rating!=null?`<span>评分 <b>${d.rating}</b>${d.ratings?` · ${fmtN(d.ratings)} 个评分`:''}</span>`:'',
+      `<span>分析了 <b>${fmtN(d.n)}</b> 条评论${d.negShare!=null?` · 差评 <b>${d.negShare}%</b>`:''}</span>`,
+      r.has?`<span>近 ${r.window} 天退货 <b>${r.n}</b> 件 · 换货 <b>${r.exchanges}</b> 件</span>`:'',
+      d.pulled&&d.pulled.at?`<span class="hint">数据 ${esc(d.pulled.at)}${d.pulled.source?` · ${esc(d.pulled.source)}`:''}</span>`:''].filter(Boolean).join('');
+  }
+  function drawOverview(d){
+    $('#pSummary').innerHTML=d.summary?`${esc(d.summary)}${d.insight?`<p class="sub" style="margin-top:6px">${esc(d.insight)}</p>`:''}`:EMPTY('一句话结论','跑完 analyze.py 后让 Agent 写 summary 和 insight');
+    const ti=$('#topIssues'); ti.innerHTML='';
+    if(!d.topIssues.length) ti.innerHTML=EMPTY('问题排序', d.n?'评论里没有打出问题标签':NOTE.reviews);
+    d.topIssues.forEach((t,i)=>{ const bits=[`${t.count} 人提到（${t.share}%）`, t.lowStar!=null?`其中 ${t.lowStar}% 给了 1–3 星`:'', t.hot?`集中在「${esc(t.hot.sku)}」（${t.hot.lift} 倍）`:'', t.trend?`按月${trendZh(t.trend)}`:'', t.owner?`该谁改：${esc(t.owner)}`:''].filter(Boolean);
+      ti.appendChild(el('div',{class:'issue'},`<span class="rank">${i+1}</span><div><b>${esc(t.name)}</b><p>${bits.join(' · ')}</p>${t.fix?`<p class="hint">${esc(t.fix)}</p>`:''}</div>${t.act?`<button class="btn sm primary" type="button" data-act="${t.act}">看行动</button>`:`<button class="btn sm" type="button" data-q="「${esc(t.name)}」这个问题该怎么改？帮我起草一条行动">起草行动</button>`}`)); });
+    const lv=$('#loves'); lv.innerHTML='';
+    if(!d.loves.length) lv.innerHTML=EMPTY('好评归类', d.n?'评论里没有打出好评标签':NOTE.reviews);
+    d.loves.forEach(l=>lv.appendChild(el('div',{},`<b>${esc(l.name)} <span class="hint">· ${l.count} 人提到</span></b>${l.quote?`<span class="en">“${esc(l.quote[0])}”</span>`:''}${l.use?`<span class="hint">${esc(l.use)}</span>`:''}`)));
+    const vr=$('#vsRating'), vsk=$('#vsSticky'); vr.innerHTML=''; vsk.innerHTML=''; $('#vsStickySub').textContent='';
+    if(!d.vs){ vr.innerHTML=EMPTY('竞品对比', d.own?NOTE.compare:'竞品页不和别人比；到自家产品页看'); return; }
+    const bar=(box,rows,lo,hi,pct)=>rows.forEach(r=>{ if(r.v==null) return; box.appendChild(el('div',{class:'vsrow'+(r.me?' me':'')},`<span>${esc(r.name)}</span><span class="vsbar"><i style="width:${Math.max(0,Math.min((r.v-lo)/(hi-lo)*100,100))}%;${r.me&&pct?'background:var(--bad)':''}"></i></span><span class="num">${r.v}${pct?'%':''}</span>`)); });
+    bar(vr,d.vs.ratings,3.5,5,false);
+    if(d.vs.shares.length){ $('#vsStickySub').textContent=`差评里说「${d.vs.topTag}」的比例`; bar(vsk,d.vs.shares,0,Math.max(10,...d.vs.shares.map(r=>r.v||0)),true); }
+  }
   /* 用户在说什么 */
-  const THEMES=[
-    {t:'粘不住、会滑动',pol:'neg',kids:{all:87,grey:24,beige:38,black:19,mat:6},trend:'↑',q:[['My lab runs up and the treads slide right off the varnished wood.','拉布拉多一跑，垫子就从清漆木面上滑掉。','1★ · 米色'],['After two months the adhesive gave up on our sealed oak stairs.','用了两个月，背胶在封漆橡木楼梯上就不行了。','2★ · 黑色']],act:'a1'},
-    {t:'颜色比图片深',pol:'neg',kids:{all:34,grey:24,beige:6,black:4,mat:0},trend:'↑',q:[['The grey is much darker than the photos, almost charcoal.','灰色比图片深很多，几乎是炭灰。','3★ · 灰色']],act:'a2'},
-    {t:'离型纸难撕、对不齐',pol:'neg',kids:{all:26,grey:8,beige:10,black:6,mat:2},trend:'→',q:[['The backing paper was hard to peel and lining them up took forever.','离型纸难撕，对齐花了很久。','3★ · 米色']],act:'a3'},
-    {t:'洗了以后背胶掉了',pol:'neg',kids:{all:21,grey:5,beige:9,black:5,mat:2},trend:'↓',q:[['Juice spill, washed it and the backing came off.','果汁洒了，一洗背胶就掉了。','2★ · 米色']],act:'a4'},
-    {t:'防滑效果好',pol:'pos',kids:{all:63,grey:15,beige:27,black:14,mat:7},trend:'↑',q:[['No more slipping in socks.','穿袜子再也不滑了。','5★ · 米色']]},
-    {t:'看起来像真地毯',pol:'pos',kids:{all:48,grey:10,beige:24,black:9,mat:5},trend:'→',q:[['Looks like real carpet runner, guests ask where I got it.','看着像真地毯，客人都问哪买的。','5★ · 米色']]},
-    {t:'老人上下楼踏实了',pol:'pos',kids:{all:38,grey:9,beige:17,black:8,mat:4},trend:'↑',q:[['My 82-year-old mom feels safe on the stairs now.','82 岁的妈妈上下楼终于踏实了。','5★ · 灰色']]}
-  ];
-  const KIDS=[['all','全部款式'],['grey','灰色'],['beige','米色'],['black','黑色'],['mat','落地垫']];
-  let pol='all',kid='all',theme=0;
-  [['all','全部'],['neg','只看抱怨'],['pos','只看好评']].forEach(([id,l])=>{ const b=el('button',{class:'fchip',type:'button','aria-pressed':id==='all'?'true':'false','data-pol':id},l); b.addEventListener('click',()=>{pol=id;$$('[data-pol]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));drawThemes();}); $('#polFilter').appendChild(b); });
-  KIDS.forEach(([id,l])=>{ const b=el('button',{class:'fchip',type:'button','aria-pressed':id==='all'?'true':'false','data-kid':id},l); b.addEventListener('click',()=>{kid=id;$$('[data-kid]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));drawThemes();}); $('#kidFilter').appendChild(b); });
+  function drawFilters(d){
+    const pf=$('#polFilter'), kf=$('#kidFilter'); pf.innerHTML=''; kf.innerHTML='';
+    [['all','全部'],['neg','只看抱怨'],['pos','只看好评']].forEach(([id,l])=>{ const b=el('button',{class:'fchip',type:'button','aria-pressed':pol===id?'true':'false','data-pol':id},l); b.addEventListener('click',()=>{pol=id;$$('[data-pol]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));drawThemes();}); pf.appendChild(b); });
+    if(d.kids.length>1) [['all','全部款式'],...d.kids.map(k=>[k,k])].forEach(([id,l])=>{ const b=el('button',{class:'fchip',type:'button','aria-pressed':kid===id?'true':'false','data-kid':id},l); b.addEventListener('click',()=>{kid=id;$$('[data-kid]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));drawThemes();}); kf.appendChild(b); });
+  }
   function drawThemes(){
-    const list=THEMES.map((t,i)=>({...t,i,cnt:t.kids[kid]})).filter(t=>(pol==='all'||t.pol===pol)&&t.cnt>0).sort((a,b)=>b.cnt-a.cnt);
-    if(list.length && !list.some(t=>t.i===theme)) theme=list[0].i;
-    const box=$('#themes'); box.innerHTML='';
+    const d=D, box=$('#themes'), det=$('#themeDetail'), cl=$('#cloud'); box.innerHTML=''; det.innerHTML=''; cl.innerHTML='';
+    if(!d||!d.themes.length){ box.innerHTML=EMPTY('标签', d&&d.n?'评论都没打出标签：跑 tag.py':NOTE.reviews); return; }
+    const list=d.themes.map((t,i)=>({...t,i,cnt:kid==='all'?t.count:(t.kids[kid]||0)})).filter(t=>(pol==='all'||t.pol===pol)&&t.cnt>0).sort((a,b)=>b.cnt-a.cnt);
+    if(!list.length){ box.innerHTML=EMPTY('这个筛选下的标签'); return; }
+    if(!list.some(t=>t.i===theme)) theme=list[0].i;
     const max=Math.max(...list.map(t=>t.cnt),1);
     list.forEach(t=>{ const b=el('button',{class:'theme',type:'button','aria-pressed':t.i===theme?'true':'false'},
-      `<span class="nm"><span class="chip ${t.pol==='neg'?'bad':'good'}">${t.pol==='neg'?'抱怨':'好评'}</span>${t.t}</span><span class="bar"><i style="width:${t.cnt/max*100}%;background:var(--${t.pol==='neg'?'bad':'good'})"></i></span><span class="num" style="text-align:right">${t.cnt} 人</span>`);
+      `<span class="nm"><span class="chip ${t.pol==='neg'?'bad':'good'}">${t.pol==='neg'?'抱怨':'好评'}</span>${esc(t.t)}</span><span class="bar"><i style="width:${t.cnt/max*100}%;background:var(--${t.pol==='neg'?'bad':'good'})"></i></span><span class="num" style="text-align:right">${t.cnt} 人</span>`);
       b.addEventListener('click',()=>{theme=t.i;drawThemes();}); box.appendChild(b); });
-    const t=THEMES[theme], d=$('#themeDetail');
-    const kidNote=kid==='all'&&t.kids.grey/t.kids.all>.6?`<p class="sub">${Math.round(t.kids.grey/t.kids.all*100)}% 来自灰色款，问题出在这一个款式</p>`:'';
-    d.innerHTML=`<div><h2>${t.t}</h2><p class="sub">${t.kids[kid]} 人提到 · ${KIDS.find(k=>k[0]===kid)[1]} · 比上周${t.trend==='↑'?'变多':t.trend==='↓'?'变少':'持平'}</p>${kidNote}</div>
-      ${t.q.map(([en,zh,src])=>`<div class="quote"><span class="en">${en}</span><span class="zh">${zh}</span><span class="src">${src}</span></div>`).join('')}
-      ${t.act?`<div class="btns"><button class="btn primary" type="button" data-act="${t.act}">看对应的行动</button></div>`:'<p class="hint">这是用户喜欢的地方，可以直接用在主图和五点里</p>'}`;
+    const t=d.themes[theme];
+    const tot=t.count||1, kidTop=Object.entries(t.kids).sort((a,b)=>b[1]-a[1])[0];
+    const kidNote=kid==='all'&&kidTop&&d.kids.length>1&&kidTop[1]/tot>.6?`<p class="sub">${Math.round(kidTop[1]/tot*100)}% 来自「${esc(kidTop[0])}」，集中在这一个款式</p>`:'';
+    det.innerHTML=`<div><h2>${esc(t.t)}</h2><p class="sub">${kid==='all'?t.count:(t.kids[kid]||0)} 人提到 · ${kid==='all'?'全部款式':esc(kid)}${t.trend?` · 按月${trendZh(t.trend)}`:''}${t.owner?` · 该谁改：${esc(t.owner)}`:''}</p>${kidNote}</div>
+      ${t.q.length?t.q.map(([en,zh,src])=>`<div class="quote"><span class="en">${esc(en)}</span><span class="zh">${esc(zh||'')}</span><span class="src">${esc(src||'')}</span></div>`).join(''):'<p class="hint">没有原话</p>'}
+      ${t.act?`<div class="btns"><button class="btn primary" type="button" data-act="${t.act}">看对应的行动</button></div>`:t.pol==='neg'?`<div class="btns"><button class="btn" type="button" data-q="「${esc(t.t)}」这些人都说了什么？该怎么改？">问 Agent</button></div>`:`<p class="hint">${t.use?esc(t.use):'这是用户喜欢的地方，可以直接用在主图和五点里'}</p>`}`;
+    d.themes.slice().sort((a,b)=>b.count-a.count).forEach(x=>cl.appendChild(el('span',{class:x.pol==='neg'?'search':'say',title:`${x.count} 人提到`,style:`font-size:${12+Math.round(Math.sqrt(x.count)*1.35)}px`},x.t)));
   }
-  drawThemes();
-  [['non slip','防滑','both',312],['no more slipping','再也不滑','say',72],['glow in the dark','夜光','search',42],['easy to install','好装','both',140],['looks like real carpet','像真地毯','say',48],['for senior dogs','老年犬','search',36],['stair treads for wood','木楼梯用','both',96],['safe for grandma','老人用着踏实','say',38],['bullnose','圆角台阶','search',30],['carpet','地毯质感','both',88],['backing paper hard to peel','离型纸难撕','say',26],['30x30 landing mat','30×30 落地垫','search',28],['self adhesive','自带背胶','both',77],['edges curl','边角翘','say',21],['christmas','圣诞款','search',24],['for dogs','给狗用','both',61],['dog hair sticks','粘狗毛','say',18],['washable','可洗','both',54]]
-    .forEach(([w,zh,src,n])=>$('#cloud').appendChild(el('span',{class:src,title:zh,style:`font-size:${12+Math.round(Math.sqrt(n)*1.35)}px`},w)));
-
-  /* 从下单到复购 */
-  const STAGES=[
-    {n:'动心',mood:['期待','good'],me:35,comp:30,own:'品牌 · 内容',say:'因为家里有狗、有老人才开始找'},
-    {n:'挑选下单',mood:['犹豫','warn'],me:5,comp:18,own:'运营 · 页面',say:'颜色和尺寸在页面上说不清'},
-    {n:'收货安装',mood:['褒贬不一','warn'],me:-8,comp:15,own:'产品 · 包装',say:'竞品随货送双面胶和定位卡'},
-    {n:'日常使用',mood:['满意','good'],me:42,comp:38,own:'产品',say:'防滑、像真地毯，这一段你赢了'},
-    {n:'用了很久',mood:['不满','bad'],me:-18,comp:12,own:'产品 · 供应链',say:'背胶在清漆木面上失效',gap:true},
-    {n:'再买或拆掉',mood:['中性偏正','plain'],me:20,comp:16,own:'客服 · 品牌',say:'愿意回来的人在为别的楼梯再买'}
-  ];
-  const MOMENTS=[
-    {pos:[['防宠物滑倒',24],['给老人用',15],['替换旧垫',11]],neg:[['怕伤地板',6]]},
-    {pos:[['价格划算',12],['好看',9]],neg:[['颜色比图深',14],['片数没写清',8]]},
-    {pos:[['安装简单',40],['自带背胶',22]],neg:[['离型纸难撕',18],['没送双面胶',11],['对不齐',9]]},
-    {pos:[['防滑好',63],['像真地毯',48],['老人踏实',38]],neg:[['边角翘',15]]},
-    {pos:[['耐用',14]],neg:[['背胶失效',41],['洗后掉胶',16],['掉色',9]]},
-    {pos:[['又买一套',12],['推荐邻居',6]],neg:[['换了别家',7]]}
-  ];
+  /* 用户旅程 */
   function drawJourney(anim){
-    const W=1000,H=440,L=24,R=24,T=60,B=46,n=STAGES.length,colW=(W-L-R)/n;
-    const mid=T+(H-T-B)/2, half=(H-T-B)/2-16;
-    const off=c=>14+Math.sqrt(c)/Math.sqrt(63)*(half-14);
-    const cx=i=>L+colW*(i+.5), ny=v=>mid-v/50*half;
+    const d=D, box=$('#journey'), sg=$('#stages'); sg.innerHTML='';
+    if(!d||!d.journey||!d.journey.stages.length){ box.innerHTML=EMPTY('用户旅程', d&&d.n?'跑一次 analyze.py 就有':NOTE.reviews); return; }
+    const ST=d.journey.stages, W=1000,H=440,L=24,R=24,T=60,B=52,n=ST.length,colW=(W-L-R)/n;
+    const mid=T+(H-T-B)/2, half=(H-T-B)/2-16, maxC=Math.max(1,...ST.flatMap(s=>[...s.pos,...s.neg].map(x=>x[1])));
+    const off=c=>14+Math.sqrt(c)/Math.sqrt(maxC)*(half-14);
+    const cx=i=>L+colW*(i+.5), ny=v=>mid-v/100*half;
     let s=`<svg viewBox="0 0 ${W} ${H}"${anim?' class="anim"':''} role="img" aria-label="用户旅程：每个阶段满意和不满意的具体时刻，以及你的产品和竞品的整体感受">`;
-    STAGES.forEach((st,i)=>{ if(st.gap) s+=`<rect x="${L+colW*i+3}" y="${T}" width="${colW-6}" height="${H-T-B}" fill="${css('--bad-soft')}" rx="6"/>`; });
-    [['使用前',0,2],['使用中',2,4],['使用后',4,6]].forEach(([tx,a,b])=>{ const x1=L+colW*a+8,x2=L+colW*b-8;
-      s+=`<line x1="${x1}" x2="${x2}" y1="${T-16}" y2="${T-16}" stroke="${css('--warn')}" stroke-width="2.5"/><text class="lab" x="${(x1+x2)/2}" y="${T-24}" text-anchor="middle" style="fill:${css('--warn')};font-weight:700;font-size:12.5px">${tx}</text>`; });
+    ST.forEach((st,i)=>{ if(st.gap) s+=`<rect x="${L+colW*i+3}" y="${T}" width="${colW-6}" height="${H-T-B}" fill="${css('--bad-soft')}" rx="6"/>`; });
     for(let i=1;i<n;i++) s+=`<line class="grid" x1="${L+colW*i}" x2="${L+colW*i}" y1="${T}" y2="${H-B}"/>`;
-    s+=`<line x1="${L}" x2="${W-R}" y1="${mid}" y2="${mid}" stroke="${css('--warn')}" stroke-dasharray="5 4" stroke-width="1.4"/><text class="lab" x="${L+4}" y="${mid-6}" style="fill:${css('--warn')}">情绪基线</text>`;
-    const pts=k=>STAGES.map((st,i)=>`${cx(i)},${ny(st[k])}`).join(' ');
-    s+=`<polyline class="line-comp" points="${pts('comp')}" fill="none" stroke="${css('--faint')}" stroke-width="2" stroke-dasharray="6 4" opacity=".7"/>`;
-    s+=`<polyline class="line-me" pathLength="1" points="${pts('me')}" fill="none" stroke="${css('--accent')}" stroke-width="12" stroke-linejoin="round" stroke-linecap="round" opacity=".12"/>`;
-    s+=`<polyline class="line-me" pathLength="1" points="${pts('me')}" fill="none" stroke="${css('--accent')}" stroke-width="1.6" opacity=".55"/>`;
-    MOMENTS.forEach((mm,i)=>{
+    s+=`<line x1="${L}" x2="${W-R}" y1="${mid}" y2="${mid}" stroke="${css('--warn')}" stroke-dasharray="5 4" stroke-width="1.4"/><text class="lab" x="${L+4}" y="${mid-6}" style="fill:${css('--warn')}">满意度 0</text>`;
+    const pts=k=>ST.map((st,i)=>st[k]==null?null:`${cx(i)},${ny(st[k])}`).filter(Boolean).join(' ');
+    if(d.journey.hasComp) s+=`<polyline points="${pts('comp')}" fill="none" stroke="${css('--faint')}" stroke-width="2" stroke-dasharray="6 4" opacity=".7"/>`;
+    s+=`<polyline class="line-me" pathLength="1" points="${pts('score')}" fill="none" stroke="${css('--accent')}" stroke-width="12" stroke-linejoin="round" stroke-linecap="round" opacity=".12"/>`;
+    s+=`<polyline class="line-me" pathLength="1" points="${pts('score')}" fill="none" stroke="${css('--accent')}" stroke-width="1.6" opacity=".55"/>`;
+    ST.forEach((st,i)=>{
       const place=(arr,sign,color)=>{
         const items=arr.map(([tx,c])=>({tx,c,o:off(c)})).sort((p,q)=>p.o-q.o);
         items.forEach((it,j)=>{ if(j===0) it.o=Math.max(it.o,14); else it.o=Math.max(it.o,items[j-1].o+17); });
         items.forEach((it,j)=>{ const r=3+Math.sqrt(it.c)*.6, x=cx(i)-colW*.3+(j%2)*6, y=mid-sign*it.o;
-          s+=`<g class="mo" style="--i:${i}" tabindex="0" role="button" aria-label="${it.tx}，${it.c} 人，看原话" data-q="「${it.tx}」这 ${it.c} 人都说了什么？"><circle cx="${x}" cy="${y}" r="${r}" fill="${color}" fill-opacity=".9"/><text class="lab" x="${x+r+5}" y="${y+4}" style="fill:${color};font-size:11.5px;font-weight:700;paint-order:stroke;stroke:${css('--surface')};stroke-width:3.5px;stroke-linejoin:round">${it.tx} ${it.c}</text></g>`; }); };
-      place(mm.pos,1,css('--good')); place(mm.neg,-1,css('--bad'));
+          s+=`<g class="mo" style="--i:${i}" tabindex="0" role="button" aria-label="${esc(it.tx)}，${it.c} 人，看原话" data-q="「${esc(it.tx)}」这 ${it.c} 人都说了什么？"><circle cx="${x}" cy="${y}" r="${r}" fill="${color}" fill-opacity=".9"/><text class="lab" x="${x+r+5}" y="${y+4}" style="fill:${color};font-size:11.5px;font-weight:700;paint-order:stroke;stroke:${css('--surface')};stroke-width:3.5px;stroke-linejoin:round">${esc(it.tx)} ${it.c}</text></g>`; }); };
+      place(st.pos,1,css('--good')); place(st.neg,-1,css('--bad'));
     });
-    STAGES.forEach((st,i)=>{ s+=`<text class="lab" x="${cx(i)}" y="${H-B+24}" text-anchor="middle" style="fill:${css('--ink')};font-weight:700;font-size:12.5px">${st.n}</text>`;
-      if(st.gap) s+=`<text class="lab" x="${cx(i)}" y="${H-B-8}" text-anchor="middle" style="fill:${css('--bad')};font-weight:700">差距最大</text>`; });
-    s+='</svg>'; $('#journey').innerHTML=s;
+    ST.forEach((st,i)=>{ s+=`<text class="lab" x="${cx(i)}" y="${H-B+22}" text-anchor="middle" style="fill:${css('--ink')};font-weight:700;font-size:12.5px">${esc(st.n)}</text><text class="lab" x="${cx(i)}" y="${H-B+38}" text-anchor="middle" style="fill:${css('--muted')};font-size:11px">${st.talked} 人 · ${st.score>0?'+':''}${st.score}${st.comp!=null?` / 竞品 ${st.comp>0?'+':''}${st.comp}`:''}</text>`;
+      if(st.gap) s+=`<text class="lab" x="${cx(i)}" y="${T-24}" text-anchor="middle" style="fill:${css('--bad')};font-weight:700">差距最大</text>`; });
+    s+='</svg>'; box.innerHTML=s;
+    ST.forEach(st=>{ const mood=st.talked?(st.score>=50?['满意','good']:st.score>=0?['褒贬不一','warn']:['不满','bad']):['没人提','plain'];
+      sg.appendChild(el('div',{class:'stage'+(st.gap?' gap':'')},`<div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><b>${esc(st.n)}</b><span class="chip ${mood[1]}">${mood[0]}</span></div>
+      <div class="nets"><span>满意度 <b>${st.score>0?'+':''}${st.score}</b>${st.comp!=null?` · 比竞品 <b style="color:var(--${st.score>=st.comp?'good':'bad'})">${st.score>=st.comp?'领先':'落后'}</b>`:''}</span></div>
+      <p>${st.neg.length?`最多人抱怨：${esc(st.neg[0][0])}（${st.neg[0][1]} 人）`:st.pos.length?`最多人夸：${esc(st.pos[0][0])}（${st.pos[0][1]} 人）`:'这一段评论里没人提'}</p>${st.owner?`<div class="own">归谁改：<b>${esc(st.owner)}</b>${st.act?` · <button class="link" type="button" data-act="${st.act}">看行动</button>`:''}</div>`:''}`)); });
   }
-  STAGES.forEach(st=>$('#stages').appendChild(el('div',{class:'stage'+(st.gap?' gap':'')},`<div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><b>${st.n}</b><span class="chip ${st.mood[1]}">${st.mood[0]}</span></div>
-    <div class="nets"><span>比竞品 <b style="color:var(--${st.me>=st.comp?'good':'bad'})">${st.me>=st.comp?'领先':'落后'}</b></span></div>
-    <p>${st.say}</p><div class="own">归谁改：<b>${st.own}</b>${st.gap?' · <button class="link" type="button" data-act="a1">看行动</button>':''}</div>`)));
-
   /* 退货与换货 */
-  [['近 30 天退货','46 件','退货率 9.7%（上月 10.1%）'],['换货','5 件','3 件是换尺寸'],['写了备注的退货','31 条','占 67%，能读出真实原因'],['最该先改的','背胶','14 件退货因为粘不住']]
-    .forEach(([a,b,c])=>$('#retKpis').appendChild(el('div',{class:'kpi'},`<span>${a}</span><b>${b}</b><small>${c}</small>`)));
-  const bars=(box,rows,color)=>{ const max=Math.max(...rows.map(r=>r[1])); rows.forEach(([n,v,sub])=>$(box).appendChild(el('div',{class:'rrow'},`<span>${n}${sub?`<small>${sub}</small>`:''}</span><span class="bar"><i style="width:${v/max*100}%;background:${color}"></i></span><span class="num" style="text-align:right">${v}</span>`))); };
-  bars('#retPlatform',[['与描述不符',18],['不想要了',11],['有缺陷',7],['尺寸不合适',6],['其他',4]],'var(--faint)');
-  bars('#retReal',[['背胶粘不住',14,'产品 · 供应链'],['说不清（没写备注）',12,'不拿来下结论'],['灰色比图片深',9,'运营 · 页面'],['尺寸买错了',6,'客户自己选错，可以引导换货'],['难装、对不齐',5,'产品 · 包装']],'var(--accent)');
-  [['换小一号','米色 · 8"×30" 15 片 → 7 片','买多了，客户自己选错'],['换小一号','灰色 · 8"×30" 15 片 → 7 片','买多了'],['换小一号','黑色 · 8"×30" 15 片 → 7 片','买多了'],['换颜色','灰色 → 米色','灰色比图片深'],['补发','米色 · 30"×30" 落地垫','少了一片防滑贴']]
-    .forEach(([k,spec,why])=>$('#exList').appendChild(el('div',{class:'result'},`<span class="chip plain">${k}</span><div><b>${spec}</b><p>${why}</p></div><span></span>`)));
-  $('#exList').appendChild(el('p',{class:'hint'},'3 件换尺寸都是「买多了」：页面上「几片够一段楼梯」没说清，可以和颜色问题一起改'));
-  const rs=$('#retSku');
-  rs.innerHTML='<thead><tr><th>款式</th><th>子 ASIN · MSKU</th><th class="n">销量占比</th><th class="n">退货率</th><th class="n">换货</th><th>主要原因</th></tr></thead>';
-  const rsb=document.createElement('tbody');
-  KIDROWS.p1.forEach(([ca,ms,spec,share,r,ex,top])=>rsb.appendChild(el('tr',{},`<td><b>${spec}</b></td><td class="num hint">${ca} · ${ms}</td><td class="n num">${share}</td><td class="n num"${r>10?' style="color:var(--bad);font-weight:700"':''}>${r}%</td><td class="n num">${ex}</td><td>${top}</td>`)));
-  rs.appendChild(rsb);
-  const rr=$('#retRecent');
-  rr.innerHTML='<thead><tr><th>日期</th><th>款式</th><th>平台原因</th><th>客户备注</th><th>读出来是</th></tr></thead>';
-  const rrb=document.createElement('tbody');
-  [['10-17','米色 · 15 片','与描述不符','Does not stick to our sealed oak stairs, slid off in a week.','清漆木面粘不住','背胶粘不住','bad'],
-   ['10-16','灰色 · 15 片','与描述不符','Color is way darker than the picture.','颜色比图片深很多','灰色比图片深','warn'],
-   ['10-14','黑色 · 7 片','有缺陷','Two of them would not stay, the dog pulled them off.','有两片粘不住，狗一扯就掉','背胶粘不住','bad'],
-   ['10-12','米色 · 15 片','尺寸不合适','Ordered too many, only have 7 steps.','买多了，家里只有 7 级台阶','尺寸买错了','plain']]
-    .forEach(([d,spec,pr,en,zh,real,c])=>rrb.appendChild(el('tr',{},`<td class="num">${d}</td><td>${spec}</td><td class="hint">${pr}</td><td>${en}<span class="skuline">${zh}</span></td><td><span class="chip ${c}">${real}</span></td>`)));
-  rr.appendChild(rrb);
-
-  /* 和竞品比 */
-  const tt=$('#topics');
-  tt.innerHTML=`<thead><tr><th>用户在说</th><th class="n">你的产品</th>${DASH.compare.names.map(n=>`<th class="n">${n}</th>`).join('')}<th class="n">竞品平均</th><th></th></tr></thead>`;
-  const tbd=document.createElement('tbody');
-  DASH.compare.rows.forEach(r=>{ const bad=r.verdict==='短板'||r.verdict==='不如竞品';
-    tbd.appendChild(el('tr',{},`<td><span class="chip ${r.kind==='neg'?'bad':'good'}">${r.kind==='neg'?'抱怨':'好评'}</span> ${r.name}</td><td class="n num"${bad?' style="color:var(--bad);font-weight:700"':''}>${r.mine}%</td>${r.comps.map(v=>`<td class="n num">${v==null?'<span class="hint">—</span>':v+'%'}</td>`).join('')}<td class="n num">${r.avg}%</td><td>${r.verdict?`<span class="chip ${bad?'bad':'good'}">${r.verdict}</span>`:''}</td>`)); });
-  tt.appendChild(tbd);
-
-
+  function drawReturns(d){
+    const r=d.returns; ['#retKpis','#retPlatform','#retReal','#exList','#retSku','#retRecent'].forEach(i=>$(i).innerHTML='');
+    const ins=$('#retInsight'), exs=$('#exSub'); exs.textContent='';
+    if(!r||!r.has){ ins.hidden=true; $('#retKpis').innerHTML=EMPTY('退货 / 换货 / 买家消息', d.own?NOTE.events:'竞品的退货和买家消息拿不到；看「Alexa 怎么说」或站外 VOC'); return; }
+    ins.hidden=false;
+    [[`近 ${r.window} 天退货`,`${r.n} 件`,`到 ${r.asOf.slice(5)} 为止`],['换货',`${r.exchanges} 件`,''],['买家消息',`${r.messages} 条`, r.msgTop.length?`最多问：${r.msgTop[0][0]}`:''],['写了备注的退货',`${r.withNote} 条`,r.n?`占 ${Math.round(r.withNote/r.n*100)}%，能读出真实原因`:''],['最该先改的',r.topReal?r.topReal[0]:'—',r.topReal?`${r.topReal[1]} 件退货因为它`:(r.withNote?'备注还没读：tag.py --events':'没有备注，读不出')]]
+      .forEach(([a,b,c])=>$('#retKpis').appendChild(el('div',{class:'kpi'},`<span>${a}</span><b>${esc(String(b))}</b><small>${esc(c)}</small>`)));
+    const bars=(box,rows,color)=>{ const max=Math.max(1,...rows.map(x=>x[1])); rows.forEach(([n,v,sub])=>$(box).appendChild(el('div',{class:'rrow'},`<span>${esc(n)}${sub?`<small>${esc(sub)}</small>`:''}</span><span class="bar"><i style="width:${v/max*100}%;background:${color}"></i></span><span class="num" style="text-align:right">${v}</span>`))); };
+    if(r.codes.length) bars('#retPlatform',r.codes,'var(--faint)'); else $('#retPlatform').innerHTML=EMPTY('平台原因码','导入的表里没有 reason 列');
+    if(r.reals.length) bars('#retReal',r.reals,'var(--accent)'); else $('#retReal').innerHTML=EMPTY('真实原因');
+    ins.innerHTML=r.topCode&&r.codeCross.length?`「${esc(r.topCode)}」的 ${r.codes[0][1]} 件里，${r.codeCross.map(([k,v])=>`${v} 件其实是「${esc(k)}」`).join('，')}。只看平台原因码会看错。`:(r.withNote&&!r.topReal?`${r.withNote} 条备注还没读成真实原因：跑 tag.py --events`:'退货大多没写备注，真实原因只能靠买家消息和评论补');
+    exs.textContent=`近 ${r.window} 天 ${r.exchanges} 件`;
+    if(!r.exList.length) $('#exList').innerHTML=EMPTY('换货记录','导入换货表时加 --type 换货');
+    r.exList.forEach(e=>$('#exList').appendChild(el('div',{class:'result'},`<span class="chip plain">换货</span><div><b>${esc(e.sku)}</b><p>${esc(e.zh||e.real||e.note||'—')}</p></div><span></span>`)));
+    const rs=$('#retSku');
+    if(r.bySku.length){ rs.innerHTML='<thead><tr><th>款式</th><th class="n">退货</th><th class="n">换货</th><th>主要原因</th></tr></thead>'; const rsb=document.createElement('tbody'); r.bySku.forEach(x=>rsb.appendChild(el('tr',{},`<td><b>${esc(x.sku)}</b></td><td class="n num">${x.ret}</td><td class="n num">${x.ex}</td><td>${esc(x.top)}</td>`))); rs.appendChild(rsb); }
+    else rs.innerHTML=`<tbody><tr><td>${EMPTY('按款式的退货','导入的表里没有 sku 列')}</td></tr></tbody>`;
+    const rr=$('#retRecent');
+    if(!r.recent.length){ rr.innerHTML=`<tbody><tr><td>${EMPTY('带备注的退货','导出退货报告时带 customer-comments 列，再 import_events.py')}</td></tr></tbody>`; return; }
+    rr.innerHTML='<thead><tr><th>日期</th><th>款式</th><th>平台原因</th><th>客户备注</th><th>读出来是</th></tr></thead>';
+    const rrb=document.createElement('tbody');
+    r.recent.forEach(e=>rrb.appendChild(el('tr',{},`<td class="num">${e.date}</td><td>${esc(e.sku)}</td><td class="hint">${esc(e.code)}</td><td>${esc(e.note)}${e.zh?`<span class="skuline">${esc(e.zh)}</span>`:''}</td><td><span class="chip ${/没读|说不清/.test(e.real)?'plain':'bad'}">${esc(e.real)}</span></td>`)));
+    rr.appendChild(rrb);
+  }
+  /* 和竞品比：同一套标签，这个产品 vs 各竞品（analyze.py --vs 写进 calc.compare） */
+  function drawCompare(d){
+    const tt=$('#topics'), c=d.compare; tt.innerHTML='';
+    $('#cmpTitle').textContent=c?`同一个问题，你和 ${c.names.length} 个竞品各有多少人在说`:'和竞品比';
+    if(!c){ tt.innerHTML=`<tbody><tr><td>${EMPTY('竞品对比', d.own?NOTE.compare:'竞品页不和别人比；到自家产品页看')}</td></tr></tbody>`; return; }
+    tt.innerHTML=`<thead><tr><th>用户在说</th><th class="n">你的产品</th>${c.names.map(n=>`<th class="n">${esc(n)}</th>`).join('')}<th class="n">竞品平均</th><th></th></tr></thead>`;
+    const tbd=document.createElement('tbody');
+    c.rows.forEach(r=>{ const bad=r.verdict==='短板'||r.verdict==='不如竞品';
+      tbd.appendChild(el('tr',{},`<td><span class="chip ${r.kind==='neg'?'bad':'good'}">${r.kind==='neg'?'抱怨':'好评'}</span> ${esc(r.name)}</td><td class="n num"${bad?' style="color:var(--bad);font-weight:700"':''}>${r.mine}%</td>${r.comps.map(v=>`<td class="n num">${v==null?'<span class="hint">—</span>':v+'%'}</td>`).join('')}<td class="n num">${r.avg==null?'—':r.avg+'%'}</td><td>${r.verdict?`<span class="chip ${bad?'bad':'good'}">${r.verdict}</span>`:''}</td>`)); });
+    tt.appendChild(tbd);
+  }
+  function drawResults(asin){
+    const box=$('#results'); box.innerHTML='';
+    const rows=ACTIONS.filter(a=>a.result&&(!asin||a.asin===asin));
+    if(!rows.length){ box.innerHTML=EMPTY('改动结果', ACTIONS.length?'这个产品的行动卡还没有到期读回（actions.py readback）':NOTE.actions); return; }
+    rows.forEach(a=>box.appendChild(el('div',{class:'result'},`<span class="chip ${a.result[0]}">${a.result[1]}</span><div><b>${esc(a.title)}</b><p>${esc(a.result[2])}</p></div><button class="link" type="button" data-act="${a.id}">详情</button>`)));
+  }
+  async function openProduct(id){
+    const p=PRODUCTS.find(x=>x.id===id);
+    if(!p){ $('#pName').textContent='还没有产品'; $('#pStats').innerHTML=''; $('#pNote').hidden=false; $('#pNote').innerHTML='<span class="chip plain">空</span>还没有任何分析过的产品：到「我的产品」点「+ 添加产品」，或在终端用 import_reviews.py 导入评论表；自家 ASIN 写在 voc.config.json 的 own.asin'; return; }
+    OPENING=true; curProd=id; pol='all'; kid='all'; theme=0; D=null;
+    if([...sel.options].some(o=>o.value===id)) sel.value=id;
+    go('product'); showSub('overview');
+    drawHero(p,null);
+    const d=p.asin?await loadDetail(p.asin):null;
+    if(curProd!==id) return;
+    const note=$('#pNote');
+    ['#pSummary','#topIssues','#loves','#vsRating','#vsSticky','#themes','#themeDetail','#cloud','#journey','#stages','#retKpis','#retPlatform','#retReal','#exList','#retSku','#retRecent','#topics','#results','#polFilter','#kidFilter'].forEach(i=>{ const n=$(i); if(n) n.innerHTML=''; });
+    if(!d||!d.exists){ note.hidden=false; note.innerHTML=`<span class="chip plain">还没分析</span>${p.asin?`${esc(p.asin)} 还没有分析数据：到「我的产品」点「+ 添加产品」粘贴它，让 VOC Agent 跑一遍；或在终端用 import_reviews.py 导入评论表`:'这一行没有 ASIN'}${d&&d.error?`<span class="hint"> · ${esc(d.error)}</span>`:''}`;
+      $('#retInsight').hidden=true; $('#pSummary').innerHTML=EMPTY('分析数据',NOTE.reviews); OPENING=false; return; }
+    note.hidden=d.own; if(!d.own) note.innerHTML=`<span class="chip plain">竞品</span>这是竞品的评论分析，退货和买家消息拿不到。${d.report?`<button class="link" type="button" data-go="url:/report/${d.asin}">打开一页式报告 ↗</button>`:''}`;
+    D=d; drawHero(p,d); drawOverview(d); drawFilters(d); drawThemes(); drawJourney(curSub==='journey'); drawReturns(d); drawCompare(d); drawResults(d.asin); if(curSub==='changes') drawTL(true);
+    OPENING=false;
+  }
   /* Alexa 怎么说：自家和竞品并排 */
   const AXD=VOC.alexa||{}, AX=AXD.by||{}, AXVS=AXD.vs||[], AXHEAD=AXD.head||[], AXK={'一致':'good','补充':'info','有误':'bad','它的长处':'good','它的短板':'bad','可借鉴':'info'};
   let axWho='own';
@@ -1520,8 +1555,6 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     P.forEach((p,i)=>{ s+=`<text x="${x(i)}" y="${H-B+18}" text-anchor="middle">${p.month.slice(2)}</text><text x="${x(i)}" y="${H-B+32}" text-anchor="middle" style="font-size:10px;fill:${css('--faint')}">${p.n} 条</text>`; });
     s+='</svg>'; $('#tl').innerHTML=s+`<p class="hint" style="margin:6px 0 0">按月算的评论占比，每月评论数标在下面；评论少的月份看不出趋势，退货 / 买家消息类指标要接后台数据。</p>`;
   }
-  ACTIONS.filter(a=>a.result).forEach(a=>$('#results').appendChild(el('div',{class:'result'},`<span class="chip ${a.result[0]}">${a.result[1]}</span><div><b>${a.title}</b><p>${a.result[2]}</p></div><button class="link" type="button" data-act="${a.id}">详情</button>`)));
-  $('#results').appendChild(el('div',{class:'result'},`<span class="chip plain">进行中</span><div><b>主图第 3 张改成「3 步安装 + 先擦干净」</b><p>10-14 上线，11-30 看结果</p></div><button class="link" type="button" data-act="a3">详情</button>`));
 
   /* ---------- 行动：只看结果和过程。拍板、执行、填结论都在飞书「行动项跟踪」里 ---------- */
   const LOOP=['发现','决定','执行','验证','复盘'], AT={decide:1,doing:2,wait:3,done:5};
@@ -1704,44 +1737,59 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   /* ---------- 设置 ---------- */
   [['data','数据接入'],['sync','产品同步'],['auto','自动运行'],['library','经验库']].forEach(([id,l])=>{ const b=el('button',{class:'subtab',role:'tab','aria-selected':id==='data'?'true':'false','data-stab':id,type:'button'},l);
     b.addEventListener('click',()=>{ $$('.sp').forEach(s=>s.hidden=s.dataset.sp!==id); $$('#sTabs .subtab').forEach(t=>t.setAttribute('aria-selected',t===b?'true':'false')); enter($(`.sp[data-sp="${id}"]`)); ink($('#sTabs')); }); $('#sTabs').appendChild(b); });
+  /* ---------- 设置：数据源 / 体检 / 同步 / 运行记录，全部来自 serve.py 的 status（文件和配置），页面不写死 ---------- */
+  const STT=VOC.status||{};
+  const PU=STT.pulled||{}, EVN=STT.events||{}, CK=STT.check||null, COMPN=(STT.competitors||[]).length;
   const SRC=[
-    ['飞书多维表格','数据库（3 张表）','飞书','good','已接通','实时','人写决定，AI 写分析，字段分开'],
-    ['自家评论','原话、问题分类','卖家精灵（主）+ sorftime（补）','good','已接通','每周一','两边合并去重，每次体检四个数'],
-    ['竞品评论','和竞品比','卖家精灵 + sorftime','good','已接通','每周一','5 个竞品 10-27 / 10-28 已拉取'],
-    ['退货、换货','原话、该谁改','店铺后台 · 紫鸟 SP-API 报告','good','已接通','每周一','只有自家的；约三分之一退货没写备注'],
-    ['买家消息','原话','紫鸟 CLI','plain','待接入','—','接通前可以从后台手动导出放进来'],
-    ['亚马逊官方评论主题','和竞品比、校准分类','紫鸟 SP-API','warn','有限制','每月','评论太少的产品拿不到'],
-    ['搜索词','新机会','紫鸟 SP-API：ABA（全站）+ SQP（你自己）','good','已接通','每周','SQP 只覆盖你已经有曝光的词'],
-    ['产品和 SKU','我的产品','店铺后台同步','good','已接通','每周一 08:30','新上架的产品先在首页问你'],
-    ['Reddit','新机会、站外声音','人工挑选放入','plain','手动','人放进来时','不自动抓，只分析人放进来的'],
-    ['Alexa 问答','Alexa 怎么说、和竞品比','Mac mini · apinsight（一个可用的美国站买家号）','good','已接通','按需 · 约 10 分钟/个','平台 AI 归纳，不是原话、不计数；单号每天约 25 个 ASIN'],
-    ['买家之声（NCX）','可选','后台下载','plain','未接','—','没有接口，需要的话按月下载']
+    ['飞书多维表格','数据库（3 张表）','飞书 · lark-cli 机器人身份', STT.feishu?'good':'plain', STT.feishu?'已接通':'未接', STT.feishu?'人改即生效':'—', STT.feishu?'人写决定，AI 写分析，字段分开':'在 voc.config.json 的 feishu 里填 base 和三张表'],
+    ['自家评论','原话、问题分类', PU.source||'卖家精灵 / 评论表导入', PU.at?'good':'plain', PU.at?`已拉 ${PU.at}`:'未接', '手动 / 每周', PU.at?`读入 ${PU.total??'—'}，送测 ${PU.vine??'—'}，分析 ${PU.analyzed??'—'}`:'添加产品，或 import_reviews.py'],
+    ['竞品评论','和竞品比','卖家精灵 / 评论表导入', COMPN?'good':'plain', COMPN?`${COMPN} 个已分析`:'未接', '手动', '同一套标签才能比'],
+    ['退货 · 换货 · 买家消息','真实原因、按款式','后台导出表 → import_events.py', (EVN['退货']||EVN['买家消息'])?'good':'plain', (EVN['退货']||EVN['买家消息'])?`退货 ${EVN['退货']||0} · 换货 ${EVN['换货']||0} · 消息 ${EVN['买家消息']||0}`:'未接', '手动导出', STT.eventsNoted?`${STT.eventsRead||0}/${STT.eventsNoted} 条备注已读成真实原因`:'只有自家后台有'],
+    ['Alexa 问答','Alexa 怎么说、和竞品比','apinsight（要真实买家号）', STT.alexa?'good':'plain', STT.alexa?'已采集':'未接', '按需 · 约 10 分钟/个', '平台 AI 归纳，不是原话、不计数'],
+    ['Reddit','站外声音','人工挑选 + reddit-readonly', STT.offsite?'good':'plain', STT.offsite?'已分析':'未接', '人放进来时', '不自动抓，只分析人放进来的'],
+    ['打标模型','给评论和备注打标签', STT.llm?'VOC_LLM_* 直连模型接口':`本机 Hermes 网关（profile ${STT.hermesProfile||'voc'}）`, 'good', STT.llm?'直连':'走 Hermes', '每次 tag.py', '改词表、换模型后跑 tag.py eval'],
   ];
   const sct=$('#srcTable');
   sct.innerHTML='<thead><tr><th>数据</th><th>用来做什么</th><th>从哪接</th><th>状态</th><th>更新</th><th>要注意</th></tr></thead>';
   const scb=document.createElement('tbody');
-  SRC.forEach(([n,use,from,c,stt,freq,note])=>scb.appendChild(el('tr',{},`<td><b>${n}</b></td><td>${use}</td><td class="hint">${from}</td><td><span class="chip ${c}">${stt}</span></td><td class="num">${freq}</td><td class="hint">${note}</td>`)));
+  SRC.forEach(([n,use,from,c,stt,freq,note])=>scb.appendChild(el('tr',{},`<td><b>${n}</b></td><td>${use}</td><td class="hint">${esc(from)}</td><td><span class="chip ${c}">${esc(stt)}</span></td><td class="num">${esc(freq)}</td><td class="hint">${esc(note)}</td>`)));
   sct.appendChild(scb);
-  [['good','评论 · 卖家精灵','拿到 312 条，平台总数 1,940，最新一条 10-17，去重后 301 条'],
-   ['good','竞品评论','COSY HOMEER、MBIGM、TranquilMoments、GROWLING 各拉最近 7–10 页，共 727 条（10-28），和 MontVoo 用同一套标签；粘不住竞品平均 10.2%，MontVoo 35.3%'],
-   ['good','Alexa 问答','你的产品和 5 个竞品各问了 24 题（10-27）；你的产品有 1 条已过时（能不能机洗），竞品回答里有 12 条前后矛盾或数字有误'],
-   ['warn','评论 · sorftime','拿到 188 条，最新一条停在 09-13，偏旧；只用来补卖家精灵没有的'],
-   ['good','退货 · 换货','近 30 天退货 46 条（31 条有备注）、换货 5 条'],
-   ['plain','剔除','重复 29 条、送测（Vine）8 条，不进分析'],
-   ['good','分类','96% 的原话能归进现有分类；4 条新说法已问你']]
-    .forEach(([c,a,b])=>$('#dataCheck').appendChild(el('div',{class:'result'},`<span class="chip ${c}">${c==='good'?'正常':c==='warn'?'注意':'说明'}</span><div><b>${a}</b><p>${b}</p></div><span></span>`)));
-  const st=$('#syncTable');
-  st.innerHTML='<thead><tr><th>店铺里的产品</th><th>每周分析</th><th>最近变化</th></tr></thead>';
-  const sb=document.createElement('tbody');
-  [['p1','2 个灰色款被挂到了新的父 ASIN 下，已自动合并，历史数据不受影响'],['p2','无变化'],['p3','新上架，已在首页问你']].forEach(([id,chg])=>{ const p=PRODUCTS.find(x=>x.id===id);
-    sb.appendChild(el('tr',{},`<td>${prodCell(p)}</td><td><label class="switch"><input type="checkbox" ${p.watch?'checked':''} aria-label="${p.name} 每周分析"><span></span></label></td><td class="hint">${chg}</td>`)); });
-  st.appendChild(sb);
+  const DC=[];
+  if(CK) DC.push([CK.taggedPct>=95?'good':'warn','自家评论打标',`读入 ${CK.read}，送测 ${CK.vine}，分析 ${CK.analyzed}，没打标签 ${CK.untagged}（覆盖 ${CK.taggedPct}%，验收线 95%）`]);
+  else DC.push(['plain','自家评论','还没有自家产品的分析：把 voc.config.json 的 own.asin 换成你的 ASIN 并分析一遍']);
+  if(CK&&CK.notInVocab&&CK.notInVocab.length) DC.push(['warn','词表外标签',CK.notInVocab.join('、')+'：先加进 voc.config.json']);
+  DC.push([COMPN?'good':'plain','竞品评论',COMPN?`${COMPN} 个竞品已分析，和自家用同一套标签`:'还没有竞品：在「我的产品」添加']);
+  DC.push([(EVN['退货']||EVN['买家消息'])?'good':'plain','退货 · 换货 · 买家消息',(EVN['退货']||EVN['买家消息'])?`退货 ${EVN['退货']||0} 件、换货 ${EVN['换货']||0} 件、买家消息 ${EVN['买家消息']||0} 条${STT.eventsNoted?`；${STT.eventsRead||0}/${STT.eventsNoted} 条备注已读`:''}`:'没有：从后台导出表格后 import_events.py']);
+  DC.push([STT.actionsAsOf?'good':'plain','行动卡镜像',STT.actionsAsOf?`飞书「行动项跟踪」镜像于 ${STT.actionsAsOf}`:'还没拉过：actions.py pull']);
+  DC.push(['plain','词表',`问题 ${(STT.tags||{}).neg||0} 类、好评 ${(STT.tags||{}).pos||0} 类（voc.config.json）`]);
+  DC.forEach(([c,a,b])=>$('#dataCheck').appendChild(el('div',{class:'result'},`<span class="chip ${c}">${c==='good'?'正常':c==='warn'?'注意':'说明'}</span><div><b>${a}</b><p>${esc(b)}</p></div><span></span>`)));
+  function drawSync(){
+    const st=$('#syncTable');
+    st.innerHTML='<thead><tr><th>产品</th><th>每周分析</th><th>数据</th></tr></thead>';
+    const sb=document.createElement('tbody');
+    const ownRows=PRODUCTS.filter(p=>p.own);
+    if(!ownRows.length) sb.appendChild(el('tr',{},`<td colspan="3">${EMPTY('自家产品','voc.config.json 的 own.asin 填上自己的 ASIN，分析一遍就会出现在这里')}</td>`));
+    ownRows.forEach(p=>sb.appendChild(el('tr',{},`<td>${prodCell(p)}</td><td><label class="switch"><input type="checkbox" ${p.watch?'checked':''} aria-label="${esc(p.name)} 每周分析"><span></span></label></td><td class="hint">${p.pulledAt?`评论 ${esc(p.pulledAt)}`:(p.demo?'演示行':'—')}</td>`)));
+    st.appendChild(sb);
+  }
+  drawSync();
+  $('#syncLast').textContent=PU.at?`自家评论最近一次拉取 ${PU.at}${PU.source?` · ${PU.source}`:''}；产品清单按 voc.config.json 的 own / competitors`:'还没拉过自家评论';
   const rt=$('#runs');
   rt.innerHTML='<thead><tr><th>时间</th><th>结果</th><th class="n">新评论</th><th>说明</th></tr></thead>';
   const rb=document.createElement('tbody');
-  [['10-19 周一','good','完成','412','起草 2 条行动，1 条到期提醒'],['10-12 周一','good','完成','389','「去掉双面胶」结果出来了：无效'],['10-05 周一','warn','暂停','—','退货报告没拿到，没有用旧数据硬出报告，已通知你'],['09-28 周一','good','完成','366','遇到不少没见过的说法，问过你之后加了新分类']]
-    .forEach(([t,c,l,n,note])=>rb.appendChild(el('tr',{},`<td class="num">${t}</td><td><span class="chip ${c}">${l}</span></td><td class="n num">${n}</td><td>${note}</td>`)));
+  if(!(STT.runs||[]).length) rb.appendChild(el('tr',{},`<td colspan="4">${EMPTY('运行记录','每周跑一次 weekly.py（第 3 步）会写 现场分析/runs.jsonl')}</td>`));
+  (STT.runs||[]).forEach(r=>rb.appendChild(el('tr',{},`<td class="num">${esc(r.at||'')}</td><td><span class="chip ${r.ok===false?'warn':'good'}">${r.ok===false?'有问题':'完成'}</span></td><td class="n num">${r.newReviews??'—'}</td><td>${esc(r.note||'')}</td>`)));
   rt.appendChild(rb);
+  /* 资产库：数字从数据来 */
+  { const own=DETAILS[OWN_ASIN]||{}; const voices=(own.n||0)+Object.values(EVN).reduce((a,b)=>a+(b||0),0);
+    $('#libVoices').textContent=voices?voices.toLocaleString():'—';
+    $('#libTags').textContent=`${((STT.tags||{}).neg||0)+((STT.tags||{}).pos||0)} 类`; $('#libTagsSub').textContent=CK?`能归进 ${CK.taggedPct}% 的自家原话；词表外的说法 tag.py 会列出来`:'一级固定、别名合并，站内站外同一套';
+    const done=ACTIONS.filter(a=>a.result), eff=done.filter(a=>a.result[1]==='有效').length, bad=done.filter(a=>a.result[1]==='无效').length, wait=ACTIONS.filter(a=>a.state==='wait').length;
+    $('#libDone').textContent=done.length?`${eff} 有效 · ${bad} 无效`:'—'; $('#libDoneSub').textContent=wait?`还有 ${wait} 条在等结果`:'到期读回后会写在这里';
+    const lr=$('#libResults'); if(!done.length) lr.innerHTML=EMPTY('验证过的做法','行动卡到期后 actions.py readback 写回「AI判断」');
+    done.forEach(a=>lr.appendChild(el('div',{class:'result'},`<span class="chip ${a.result[0]}">${a.result[1]}</span><div><b>${esc(a.title)}</b><p>${esc(a.result[2]||'')}</p></div><button class="link" type="button" data-act="${a.id}">详情</button>`))); }
+  $('#homeDataText').textContent=[PU.at?`自家评论 ${PU.at}${PU.source?`（${PU.source}）`:''}`:'还没有自家评论', COMPN?`${COMPN} 个竞品已分析`:'没有竞品', (EVN['退货']||EVN['买家消息'])?`退货 ${EVN['退货']||0} 件 · 买家消息 ${EVN['买家消息']||0} 条`:'退货 / 买家消息未接', STT.alexa?'Alexa 已采集':'', STT.offsite?'Reddit 已分析':''].filter(Boolean).join('；')+'。';
+
 
   /* ---------- 提示条 ---------- */
   function toast(msg,act){
@@ -1870,8 +1918,8 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   async function loadMine(){
     try{ const j=await (await fetch('/api/products',{cache:'no-store'})).json();
       let added=0; (j.products||[]).forEach(x=>{ if(PRODUCTS.some(p=>p.asin===x.asin)) return; added++;
-        PRODUCTS.push({id:'m'+x.asin,name:x.brand&&!String(x.name).startsWith(x.brand)?`${x.brand} · ${x.name}`:x.name,short:(x.brand||x.asin)[0],th:'t-d',asin:x.asin,own:x.own,watch:true,kids:null,rating:x.rating??'—',rd:'',newRev:x.n??'—',neg:x.neg,issue:x.top?`${x.top[0]}（${x.top[1]}/${x.n} 条）`:'—',vs:'',report:x.report?'/report/'+x.asin:null,status:['good','已分析']}); });
-      if(added){ renderProductTables(); renderHomeProducts(); } }catch(e){}
+        PRODUCTS.push({id:'m'+x.asin,name:x.brand&&!String(x.name).startsWith(x.brand)?`${x.brand} · ${x.name}`:x.name,short:(x.brand||x.asin)[0],th:'t-d',asin:x.asin,own:x.own,watch:true,kids:x.kidrows&&x.kidrows.length>1?x.kidrows.length:null,kidrows:x.kidrows||[],rating:x.rating??'—',rd:'',newRev:x.newRev??'—',neg:x.neg,retN:x.ret30,ex:x.ex30,pulledAt:x.pulledAt,issue:x.top?`${x.top[0]}（${x.top[1]}/${x.n} 条）`:'—',vs:'',report:x.report?'/report/'+x.asin:null,status:['good','已分析']}); });
+      if(added){ renderProductTables(); renderHomeProducts(); buildSel(); if(typeof drawSync==='function') drawSync(); if(curView==='product'&&!D) { curProd=(PRODUCTS.find(x=>x.own)||PRODUCTS[0]).id; openProduct(curProd); } } }catch(e){}
     try{ const r=await fetch('/api/dashboard',{cache:'no-store'}); if(r.ok){ const d=await r.json(); if(d&&d.snaps&&d.snaps.length){ DASH=d; dbWeek=DASH.snaps.length-1; drawDash(); } } }catch(e){}
   }
   function setStatus(){ const s=$('#agentStatus'); if(!s) return; if(LIVE){ s.textContent='已连上本机 Hermes · 真实数据'; } else { s.innerHTML='这是在线版，连不到 Hermes · <a href="http://127.0.0.1:8790" target="_blank" rel="noopener" style="color:inherit;font-weight:700">打开本机版 ↗</a>'; } s.style.color=LIVE?'var(--good)':'var(--warn)'; }

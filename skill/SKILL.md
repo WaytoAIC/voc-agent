@@ -28,6 +28,14 @@ description: VOC Agent。给一个亚马逊 ASIN，拉评论、读懂、出一�
 `python3 <skill>/import_reviews.py <评论.csv> --asin B0XXXXXXXX --name 产品名 --brand 品牌 --out voc-reports/<ASIN>/data.json`
 它导出 data.json 的原料骨架（列名认不出用 `--map 列名=star`）。然后直接从第一部分第 3 步开始：跑 `tag.py` 打标签，再跑 `analyze.py`。字段说明在 `<skill>/data.schema.json`，`analyze.py` 跑之前会先校验结构。
 
+## 〇·五、退货 / 换货 / 买家消息（自家后台才有，零 API）
+
+从后台导出表格（亚马逊 FBA 退货报告要带 customer-comments 列；赛狐 / 领星导出、买家消息导出、自己整理的表都行）：
+`python3 <skill>/import_events.py <退货.csv> --asin B0XXXXXXXX`（换货加 `--type 换货`，买家消息加 `--type 买家消息`；列名认不出用 `--map 列名=date`）
+它把每行写进 data.json 的 `events`（类型 / 日期 / 款式 / 平台原因码翻成中文 / 备注 / 去重 id，订单号不存），重复跑不重复写。然后：
+`python3 <skill>/tag.py voc-reports/<ASIN>/data.json --events`
+把每条备注读成一个一级标签写进 `real`（买家消息没抱怨就记提问主题，例如「能不能机洗」）。`dashboard.py` 和工作台产品页的「退货与换货」「为什么退货」「按款式看」「最近的退货备注」都按 `real` 算；没导入过就显示「没数据 + 去哪接」。
+
 ## 一、分析一个新产品（用户给了 ASIN）
 
 1. **先说一句要做什么**：「拉 <ASIN> 的详情和评论，约 N 次卖家精灵调用」。评论每页 20 条；超过 10 页先问用户。
