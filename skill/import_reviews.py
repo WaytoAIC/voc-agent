@@ -129,7 +129,7 @@ def main():
     out.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     vine = sum(1 for r in reviews if r["vine"])
     print(f"读入 {len(rows)} 行，导入 {len(reviews)} 条（送测 {vine}，跳过 {skipped}），星级 {stars} → {out}")
-    print("下一步：让 AI 给每条写 zh 和 tags（只用 voc.config.json 的词），然后 python3 <skill>/analyze.py " + str(out))
+    print(f"下一步：python3 <skill>/tag.py {out} 打标签（只收 voc.config.json 的词），再 python3 <skill>/analyze.py {out}")
 
 
 if __name__ == "__main__":
