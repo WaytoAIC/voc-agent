@@ -60,14 +60,12 @@ def norm(s):
 
 
 def existing():
-    """表里已有的：事件ID 集合、（子ASIN, 原话）→ 事件ID、每个 ASIN 的最大评论序号。一次拉完（最多 2000 行一页）。"""
+    """表里已有的：事件ID 集合、（子ASIN, 原话）→ 事件ID、每个 ASIN 的最大评论序号。按 2000 行一页翻完整张表（表超过 2000 行后去重才不会瞎）。"""
     ids, by_text, seq = set(), {}, {}
-    offset = None
+    offset = 0
     while True:
         tmp = DATA_DIR / "_events_pull.ndjson"
-        extra = ["--field-id", "事件ID", "--field-id", "子ASIN", "--field-id", "原话", "--format", "ndjson", "--output", str(tmp), "--overwrite"]
-        if offset:
-            extra += ["--offset", str(offset)]
+        extra = ["--field-id", "事件ID", "--field-id", "子ASIN", "--field-id", "原话", "--format", "ndjson", "--output", str(tmp), "--overwrite", "--limit", "2000", "--offset", str(offset)]
         r = subprocess.run([LARK, "base", "+record-list", "--as", "bot", "--base-token", BASE, "--table-id", TABLE, *extra],
                            capture_output=True, text=True, env=ENV, cwd=DATA_DIR)
         if not tmp.exists():
@@ -86,11 +84,10 @@ def existing():
                     seq[mm[1]] = max(seq.get(mm[1], 0), int(mm[2]))
             if sub and text:
                 by_text[(sub, norm(text))] = eid
-        # lark-cli 一次最多 2000 行；更多的话 stderr 会给 next_offset
-        mo = re.search(r"next_offset[\"':= ]+([A-Za-z0-9_=-]+)", r.stderr or "")
-        if len(rows) < 2000 or not mo:
+        # lark-cli 一次最多 2000 行，按数字 offset 翻页翻到不满一页为止（不能等 stderr 的 next_offset，它不一定打）
+        if len(rows) < 2000:
             break
-        offset = mo[1]
+        offset += len(rows)
     return ids, by_text, seq
 
 
