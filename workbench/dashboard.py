@@ -39,7 +39,7 @@ if "--vs" in args:                                                            # 
 LIVE = pathlib.Path(__file__).resolve().parent
 if not args:
     CFG = voccfg.load(LIVE)
-    args = [str(LIVE / CFG["own"]["asin"] / "data.json")]       # 不带参数 = 用 voc.config.json 里的自家产品
+    args = [str(voccfg.data_dir(LIVE) / CFG["own"]["asin"] / "data.json")]       # 不带参数 = 用 voc.config.json 里的自家产品
 own_path = pathlib.Path(args[0])
 CFG = voccfg.load(own_path)
 d = json.loads(own_path.read_text(encoding="utf-8"))

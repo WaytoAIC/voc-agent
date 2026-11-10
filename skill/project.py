@@ -37,7 +37,7 @@ CHECK, DRY, AS_JSON = "--check" in ARGS, "--dry-run" in ARGS, "--json" in ARGS
 WORKERS = int(ARGS[ARGS.index("--workers") + 1]) if "--workers" in ARGS else 2
 CFG = voccfg.load()
 ROOT = HERE.parent.parent
-DATA = pathlib.Path(os.environ.get("VOC_DATA_DIR") or HERE.parent).expanduser()
+DATA = voccfg.data_dir(HERE)
 PJ = (CFG.get("own") or {}).get("projection") or {}
 if not PJ.get("enabled"):
     sys.exit("voc.config.json own.projection.enabled 不是 true，没有投影要做")
@@ -93,7 +93,7 @@ def sku_alias(sku):
         return ""
     if sku in (P.get("skuMap") or {}):
         return P["skuMap"][sku]
-    # 既认卖家精灵的「8" x 30" · Beige · 15」，也认后台 MSKU 的「NonslipTread_Liner_Beige_7pcs」「76x20_Gray_15PCS」「LandingCarpet_Liner_Grey」
+    # 既认卖家精灵的「8" x 30" · Beige · 15」，也认后台 MSKU 的写法（例如「Tread_Beige_7pcs」「76x20_Gray_15PCS」「Landing_Grey」）
     parts = [p.strip() for p in re.split(r"\s*[·,/_\-]\s*|\s+", sku) if p.strip()]
     color, count, glow = None, None, False
     mat = "30×30 落地垫" if (re.search(r'30"?\s*x\s*30', sku.lower()) or "landing" in sku.lower()) else None

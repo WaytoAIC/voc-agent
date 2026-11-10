@@ -30,7 +30,7 @@ import voccfg  # noqa: E402
 
 CFG = voccfg.load(HERE)
 ROOT = pathlib.Path(CFG.get("_path", HERE.parent / "voc.config.json")).resolve().parent if CFG.get("_path") else HERE.parent
-DATA = pathlib.Path(os.environ.get("VOC_DATA_DIR", HERE)).expanduser()
+DATA = voccfg.data_dir(HERE)
 WB = next((p for p in (ROOT / "工作台", ROOT / "workbench") if p.exists()), ROOT / "工作台")
 OWN = (CFG.get("own") or {}).get("asin", "").upper()
 COMPS = [a.upper() for a in CFG.get("competitors", [])]
@@ -226,7 +226,7 @@ def collect():
     features.append(card("tag", "模型打标", "按 voc.config.json 词表给每条评论和退货备注打一级标签，金标集评测过线才算数",
                          [["已打标", f"{len(tagged)} 条"], ["自家覆盖", f"{ck.get('taggedPct', '—')}%"], ["备注读出", f"{sum(1 for e in ownEv if e.get('real'))} 条"],
                           ["金标 Jaccard", f"{ev_last.get('jaccard', '—')}" + (f"（方向一致 {ev_last.get('polarity_pct')}%）" if ev_last else "")]],
-                         ev_last.get("date"), "good" if ck.get("taggedPct", 0) >= 95 else "warn", f"模型 {ev_last.get('model')}" if ev_last else "还没跑过 tag.py eval"))
+                         ev_last.get("date"), "good" if ck.get("taggedPct", 0) >= 95 else ("warn" if ownU else "plain"), f"模型 {ev_last.get('model')}" if ev_last else "还没跑过 tag.py eval"))
     if pj:
         features.append(card("project", "脱敏投影", "真实自家数据原话改写、等比扩增、日期平移后才进仓和飞书；判断看真实样本量",
                              [["倍数 k", f"×{int(k) if k.is_integer() else k}"], ["真实 → 投影评论", f"{pj.get('realReviews')} → {len(ownU)}"], ["真实 → 投影事件", f"{pj.get('realEvents')} → {len(ownEv)}"], ["真实 ASIN", "不出现在任何对外文件"]],

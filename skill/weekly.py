@@ -14,7 +14,7 @@
              weekly.commit=true 时把这次运转改动的数据、看板、行动卡、时间线、周报 commit 进仓（只 add 这几个路径，落款 weekly.commit_sign，默认 @Hermes；
              环境变量 VOC_COMMIT_SIGN 可改；--no-commit 跳过）。仓库历史就是项目时间线，资产随每周运转自动沉淀。
 口径：voc.config.json 的 weekly 段（pages / detail / competitors / feishu / readback_write / export / schedule / commit / commit_sign）。
-数据目录：VOC_DATA_DIR（默认 现场分析/；公开版默认 ./voc-reports）。
+数据目录：VOC_DATA_DIR（默认 现场分析/；公开版默认 <项目根>/voc-reports，见 voccfg.data_dir）。
 --dry-run：不调卖家精灵、不调模型、不写飞书，只走本地算数和草稿，看流程通不通。
 每次的完整输出在 voc-reports/_runs/weekly-<时间>.log。
 """
@@ -44,7 +44,7 @@ PROJ = bool(PJ.get("enabled"))                                                # 
 PY = sys.executable
 TOOLS = HERE / "_tools" if (HERE / "_tools").exists() else HERE            # 本地在 现场分析/_tools，公开仓在 skill/ 平铺
 ROOT = HERE.parent
-DATA = pathlib.Path(os.environ.get("VOC_DATA_DIR") or (HERE if (HERE / OWN).exists() else pathlib.Path.cwd() / "voc-reports")).expanduser()
+DATA = voccfg.data_dir(HERE)                                                  # VOC_DATA_DIR，否则 现场分析/（本地）或 voc-reports/（公开版）
 os.environ["VOC_DATA_DIR"] = str(DATA)                                        # 子脚本（ss_pull / actions / events_to_feishu / serve）用同一个数据目录
 WB = next((p for p in (ROOT / "工作台", ROOT / "workbench") if p.exists()), ROOT / "工作台")
 SS_PULL = next((p for p in (TOOLS / "ss_pull.py", WB / "ss_pull.py") if p.exists()), TOOLS / "ss_pull.py")

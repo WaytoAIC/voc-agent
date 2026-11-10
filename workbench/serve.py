@@ -6,7 +6,7 @@
 口径与 ID 都读项目根目录 voc.config.json（唯一真相源）：自家 / 竞品 ASIN、飞书表、群、Hermes profile。
 环境变量只做覆盖（都可选）：
   VOC_CONFIG         voc.config.json 的路径（默认：从本文件往上找）
-  VOC_DATA_DIR       每个 ASIN 的分析目录（默认：仓库根目录/现场分析）
+  VOC_DATA_DIR       每个 ASIN 的分析目录（默认：仓库根目录/现场分析，公开版 仓库根目录/voc-reports）
   VOC_OWN_ASIN       自家产品 ASIN（默认 voc.config.json 的 own.asin）
   VOC_HERMES_PROFILE Hermes 的 profile 名（默认 voc.config.json 的 hermes.profile）
   VOC_GROUP_CHAT_ID  飞书群 chat_id（默认 voc.config.json 的 feishu.group_chat_id；都没有就不能发群）
@@ -64,7 +64,7 @@ CFG = voccfg.load(HERE)
 _demo_env = os.environ.get("VOC_DEMO")
 DEMO = (_demo_env not in ("0", "false", "no")) if _demo_env is not None else bool((CFG.get("workbench") or {}).get("demo", True))
 PAGE = next((p for p in (HERE / "index.html", ROOT / "模拟稿" / "VOC工作台模拟稿.html") if p.exists()), None)
-LIVE_DIR = pathlib.Path(os.environ.get("VOC_DATA_DIR", ROOT / "现场分析")).expanduser()
+LIVE_DIR = voccfg.data_dir(HERE)                                              # VOC_DATA_DIR，否则 现场分析/（本地）或 voc-reports/（公开版）
 SS_PULL = next((p for p in (HERE / "ss_pull.py", LIVE_DIR / "_tools" / "ss_pull.py") if p.exists()), LIVE_DIR / "_tools" / "ss_pull.py")
 PRODUCTS = HERE / "products.json"
 JOBCARD = next((p for p in (HERE / "jobcard.html", ROOT / "导出" / "VOC Agent 岗位卡.html") if p.exists()), HERE / "jobcard.html")

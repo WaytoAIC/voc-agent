@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: 单元测试（离线：看板 / 时间线 / 每周运转留痕 / 增量拉评论去重 / 投影核对 / 飞书模板）
+        run: python -m unittest discover -s tests -v
+      - name: 每周运转演练（不调卖家精灵、不调模型、不写飞书、不 commit）
+        run: python skill/weekly.py --dry-run --no-commit
+      - name: 公开仓一致性（脱敏扫描、voccfg 两份一致、样例口径、CHANGELOG 版本、飞书模板）
+        run: python scripts/check_public.py

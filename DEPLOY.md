@@ -99,12 +99,12 @@ bash <仓库目录>/install.sh --repo <仓库目录> --dest ~/.hermes/profiles/v
 
 | 占位符 | 填什么 |
 |---|---|
-| `{{DATA_DIR}}` | `<仓库目录>/现场分析`（每个 ASIN 的分析结果放这里，没有就建） |
+| `{{DATA_DIR}}` | `<仓库目录>/voc-reports`（每个 ASIN 的分析结果放这里，没有就建；脚本默认也用它，环境变量 `VOC_DATA_DIR` 可改） |
 | `{{REPO_DIR}}` | `<仓库目录>` |
 | 飞书那两节里的 `{{...}}` | 第 9 步再填；**不接飞书就把这两节整节删掉** |
 
 ```bash
-mkdir -p <仓库目录>/现场分析
+mkdir -p <仓库目录>/voc-reports
 ```
 
 **检查**：`~/.hermes/profiles/voc/skills/ecommerce/voc-agent/SKILL.md` 存在；`grep -c "{{" ~/.hermes/profiles/voc/SOUL.md`，不接飞书时应为 0。
@@ -153,11 +153,19 @@ curl -s http://127.0.0.1:8642/v1/health
 
 ## 第 7 步：启动工作台
 
+macOS 一条命令装成常驻（launchd：开机自起、挂了自动拉起，监听 127.0.0.1:8790，装好顺手打开浏览器）：
+
+```bash
+cd <仓库目录> && workbench/voc up
+```
+
+`workbench/voc status` 一屏看工作台 / Hermes 网关 / 定时任务在不在；`restart` / `down` / `log` / `weekly` / `timeline` 见脚本开头。Linux 或只想临时跑：
+
 ```bash
 cd <仓库目录> && python3 workbench/serve.py
 ```
 
-浏览器打开 http://127.0.0.1:8790 。自家产品、群、飞书表都从 `voc.config.json` 读（环境变量 `VOC_OWN_ASIN` 等只做临时覆盖）。这个终端别关；以后每次开机都要跑这一条（或者让 AI 帮你做成开机自启）。
+浏览器打开 http://127.0.0.1:8790 。自家产品、群、飞书表都从 `voc.config.json` 读（环境变量 `VOC_OWN_ASIN` 等只做临时覆盖）。临时跑的话这个终端别关。
 
 **检查**：
 
@@ -165,7 +173,7 @@ cd <仓库目录> && python3 workbench/serve.py
 curl -s http://127.0.0.1:8790/api/health
 ```
 
-返回里有 `"hermes": true`。页面右上角点「问 Agent」，问一句「你能做什么」，能流式回答就通了。
+返回里有 `"hermes": true`（`workbench/voc status` 也会打印）。页面右上角点「问 Agent」，问一句「你能做什么」，能流式回答就通了。
 
 ## 第 7.5 步：打标签用哪个模型
 
@@ -183,22 +191,22 @@ curl -s http://127.0.0.1:8790/api/health
 
 1. 工作台 → **我的产品** → 「+ 添加产品」，粘贴一个竞品 ASIN，点「添加」。
 2. 右边 Agent 面板会说要调卖家精灵几次（一般最多 11 次：商品详情 1 + 评论 10 页），回「确认」。
-3. 3–10 分钟后，列表里这一行变成真实数据，点它打开报告（`<仓库目录>/现场分析/<ASIN>/报告.html`）。
+3. 3–10 分钟后，列表里这一行变成真实数据，点它打开报告（`<仓库目录>/voc-reports/<ASIN>/报告.html`）。
 4. 对每个竞品重复；最后对**自家产品**也跑一次，并在面板里说：「把自家产品和这几个竞品对比，跑 analyze.py --vs」。
-5. 生成首页看板（自家产品要有近 8 周以上的评论，数字才有意义）：
+5. 生成首页看板：
 
 ```bash
-cd <仓库目录> && python3 workbench/dashboard.py 现场分析/<自家ASIN>/data.json
+cd <仓库目录> && python3 workbench/dashboard.py voc-reports/<自家ASIN>/data.json
 ```
 
-刷新工作台，首页就换成自家产品的看板；产品列表里会自动出现所有分析过的 ASIN。
+看板按**运行日**锚定「最新完整周」（周一到周日），不是按最后一条评论的日期；最新周没评论就如实显示 0，副标题写评论 / 退货最新到哪天。评论少的产品看「近 12 个月」和「累计」两块，周环比只看方向。要看别的日期：`--as-of 2026-11-02` 或环境变量 `VOC_AS_OF`。刷新工作台，首页就换成自家产品的看板；产品列表里会自动出现所有分析过的 ASIN。
 
-**检查**：`<仓库目录>/现场分析/` 下每个 ASIN 都有 `data.json` 和 `报告.html`；首页标题下写的是你自己的数据。
+**检查**：`<仓库目录>/voc-reports/` 下每个 ASIN 都有 `data.json` 和 `报告.html`；首页标题下写的是你自己的数据。
 
 ## 第 8.5 步（可选）：导入退货 / 买家消息，关掉演示数据
 
 - 自家后台能导出退货报告（带 customer-comments 列）、换货表、买家消息时：
-  `python3 skill/import_events.py <表格.csv> --asin <自家ASIN>`（换货 `--type 换货`，消息 `--type 买家消息`），再 `python3 skill/tag.py 现场分析/<自家ASIN>/data.json --events` 把备注读成真实原因，最后重跑 `workbench/dashboard.py`。工作台「退货与换货」页就有数了；不导的话那一页会写明去哪接。
+  `python3 skill/import_events.py <表格.csv> --asin <自家ASIN>`（换货 `--type 换货`，消息 `--type 买家消息`），再 `python3 skill/tag.py voc-reports/<自家ASIN>/data.json --events` 把备注读成真实原因，最后重跑 `workbench/dashboard.py`。工作台「退货与换货」页就有数了；不导的话那一页会写明去哪接。
 - 工作台默认带楼梯踏板的演示展示行（`workbench/products.json`，课堂用）。接了自己的产品后，把 `voc.config.json` 的 `workbench.demo` 改成 `false`（或启动时 `VOC_DEMO=0`），列表就只剩你真实分析过的 ASIN。
 
 **检查**：工作台「我的产品」里没有「亚麻楼梯踏板 / 转角落地垫 / 夜光楼梯踏板」这几行演示产品；自家产品的「退货与换货」页有数字，或写着「还没有退货 / 换货 / 买家消息：…」。
@@ -223,14 +231,26 @@ cd <仓库目录> && python3 workbench/dashboard.py 现场分析/<自家ASIN>/da
 
 1. **建机器人**：飞书开放平台建「企业自建应用」→ 开启机器人能力 → 事件订阅选「长连接」，订阅接收消息事件 → 开权限（以后台实际名称为准）：收发消息、读群消息里 @ 它的消息、读群信息、多维表格读写、云文档读写 → 发布版本。
 2. **写进 profile**：`~/.hermes/profiles/voc/.env` 按 `.env.EXAMPLE` 填 `FEISHU_APP_ID`、`FEISHU_APP_SECRET`、`FEISHU_ALLOWED_USERS`（谁能私聊它）；建一个 VOC 专项群，把机器人拉进去，群 chat_id 填 `FEISHU_HOME_CHANNEL`。然后 `hermes gateway restart`。
-3. **建多维表格**：按 `agent/feishu/schema.json` 建一个「VOC工作台」多维表格，三张表（VOC 事件明细、行动手册、站外 VOC · Reddit），字段和选项照抄；在文档的「…→ 添加文档应用」里把机器人加成可管理。读写用 lark-cli 的机器人身份：
+3. **建多维表格（一条命令）**：`agent/feishu/VOC工作台.base` 是三张表（VOC 事件明细、行动项跟踪、站外 VOC · Reddit）的结构模板，字段、类型、描述、视图都在，选项按 `voc.config.json` 的词表；导入就是一个新的「VOC工作台」多维表格（不带任何记录）：
 
 ```bash
 HERMES_HOME=~/.hermes/profiles/voc lark-cli config bind --source hermes --identity bot-only
 ```
 
+```bash
+HERMES_HOME=~/.hermes/profiles/voc lark-cli drive +import --as bot --file agent/feishu/VOC工作台.base --type bitable --name "VOC工作台"
+```
+
+   返回里的 `token` 就是 base token、`url` 是链接；再查三张表的 id：
+
+```bash
+HERMES_HOME=~/.hermes/profiles/voc lark-cli base +table-list --as bot --base-token <BASE_TOKEN>
+```
+
+   用机器人身份导入的文档默认只有机器人能看：在飞书里打开 `url`，或让它在「…→ 添加文档应用 / 协作者」里把你加成可管理（上面命令的 `permission_grant` 字段会说明有没有自动授权）。不想用模板、要自己建表的，字段结构在 `agent/feishu/schema.json`（由 `workbench/base_template.py` 从模板生成，只给人读）。以后改了词表（新标签、新阶段），不用动表：写入脚本会自动把缺的选项补进字段；要重新出模板跑 `python3 workbench/base_template.py export`（从你的表导结构）或 `build <快照.base>`。
+
 4. **填占位符**：SOUL.md 里飞书两节的 `{{BASE_TOKEN}}`、三个 `{{TABLE_...}}`、`{{LARK_CLI}}`、`{{HERMES_PROFILE_DIR}}`、`{{OWNER_OPEN_ID}}`、`{{OWNER_NAME}}`、`{{GROUP_NAME}}`、`{{GROUP_CHAT_ID}}`。
-5. **工作台连飞书**：在 `voc.config.json` 的 `feishu` 段填 `wiki_url`（多维表格链接）、`base`、三个 `tables`、`group_chat_id`（人点按钮才发群）。页面里不用改任何东西。
+5. **工作台连飞书**：在 `voc.config.json` 的 `feishu` 段填 `wiki_url`（多维表格链接）、`base`（上一步的 token）、三个 `tables`（上一步 table-list 的 id，按表名对应 events / actions / reddit）、`group_chat_id`（人点按钮才发群）。页面里不用改任何东西。
 
 **检查**：飞书私聊它「你能做什么」能回；群里 @ 它能回；它往「VOC 事件明细」写一行测试数据、写入方是「VOC Agent」，然后删掉。
 
@@ -245,8 +265,8 @@ python3 skill/weekly.py               # 真跑
 
 - 结果写 `voc-reports/runs.jsonl`（工作台设置页「运行记录」读它），完整日志在 `voc-reports/_runs/`。
 - 口径在 `voc.config.json` 的 `weekly` 段：每个 ASIN 最多翻几页（默认 3，一页 20 条）、要不要刷新详情、竞品拉不拉、写不写飞书、到期判断写不写回（默认只打印）、要不要重建离线版、运转完要不要自动 commit（`commit`，默认开）和落款（`commit_sign`）。
-- 第 7 步「留痕」：重算 `voc-reports/timeline.json`（工作台 设置 → 资产库：功能价值卡 + 项目时间线），写 `voc-reports/_history/周报-<日期>.md`，只 add 这次改动的数据 / 报告 / 看板 / 行动卡 / 时间线 / 周报并 commit；不在 git 仓里自动跳过，`--no-commit` 也能跳过。看板按运行日锚定「最新完整周」，评论少的产品看「近 12 个月」和「累计」。
-- 工作台常驻（macOS）：`workbench/voc up` 装成 launchd，`workbench/voc status` 看工作台 / Hermes / 定时三样在不在。
+- 第 7 步「留痕」：重算 `voc-reports/timeline.json`（工作台 设置 → 资产库：功能价值卡 + 项目时间线，手动重算 `python3 skill/timeline.py`），写 `voc-reports/_history/周报-<日期>.md`，只 add 这次改动的数据 / 报告 / 看板 / 行动卡 / 时间线 / 周报并 commit（落款 `weekly.commit_sign`，环境变量 `VOC_COMMIT_SIGN` 可改）；不在 git 仓里自动跳过，`--no-commit` 也能跳过。仓库的 git log 从此就是项目的运转史。看板按运行日锚定「最新完整周」（`--as-of` / `VOC_AS_OF` 可改），评论少的产品看「近 12 个月」和「累计」。
+- 工作台常驻（macOS）：第 7 步的 `workbench/voc up`；`workbench/voc status` 看工作台 / Hermes / 定时三样在不在，`workbench/voc weekly` 立刻跑一次每周运转。
 - 打标模型通道照第 7.5 步设环境变量；没设就走本机 Hermes 网关。
 - **定时**：把它挂到 Hermes 的 cron（纯脚本模式，不走模型；电脑合盖错过的会在下次唤醒时补跑）。先写一个包装脚本 `~/.hermes/profiles/voc/scripts/voc-weekly.sh`：
 
@@ -273,7 +293,15 @@ HERMES_HOME=~/.hermes/profiles/voc hermes cron create "0 9 * * 1" --name "VOC �
 bash <仓库目录>/scripts/doctor.sh
 ```
 
-没有 ❌ 就是搭好了。再亲手走一遍：工作台加一个新 ASIN → 回「确认」→ 出报告。
+```bash
+cd <仓库目录> && python3 -m unittest discover -s tests
+```
+
+```bash
+cd <仓库目录> && python3 skill/weekly.py --dry-run --no-commit
+```
+
+doctor 没有 ❌、测试 OK、演练退出码 0 就是搭好了。再亲手走一遍：工作台加一个新 ASIN → 回「确认」→ 出报告。测试全离线（不调卖家精灵、不调模型、不写飞书、不动你的 git 仓），和仓库的 GitHub Actions 跑的是同一套。
 
 ---
 
@@ -281,11 +309,13 @@ bash <仓库目录>/scripts/doctor.sh
 
 | 现象 | 原因和办法 |
 |---|---|
-| 工作台打不开 | `serve.py` 没在跑，重新跑第 7 步那条命令 |
+| 工作台打不开 | `workbench/voc status` 看一眼，不在线就 `workbench/voc up`（Linux：重新跑 `python3 workbench/serve.py`） |
 | 面板显示连不上 Agent | `curl http://127.0.0.1:8642/v1/health` 不通就 `hermes gateway restart`；通了就检查 profile 的 `API_SERVER_KEY` |
 | 加产品后一直「分析中」 | 多半在等你在右边面板回「确认」 |
 | 卖家精灵报 500 / 工具列表里没有它 | 对方偶发故障；Agent 会改用 `workbench/ss_pull.py` 直连，或稍后再试 |
 | 首页还是案例数据 | `voc.config.json` 的 `own.asin` 没改成自己的，或还没跑第 8 步的 `dashboard.py` |
 | 脚本提示「没找到 voc.config.json，先用样例」 | 还没做第 4.5 步；或者不是在仓库目录下跑的（也可以设环境变量 `VOC_CONFIG=<路径>`） |
-| 首页数字很小或很多 0 | 自家产品近几周评论太少；接上自家店铺的退货、买家消息（比如紫鸟 SP-API）会更准 |
+| 首页「最新完整周」很多 0 | 正常：看板按运行日锚定，最新周没评论就是 0；看「近 12 个月」和「累计」，副标题写了评论 / 退货最新到哪天；接上自家店铺的退货、买家消息（后台导出或 SP-API 退货报告）会更准 |
+| 设置 → 资产库 是空的 | 还没跑过 `python3 skill/timeline.py`（每周运转留痕时会自动跑） |
+| 工作台装了常驻但起不来（macOS） | `workbench/voc log` 看日志；launchd 直接起 python 读不了桌面目录，脚本已经用 osascript 包了一层，别改回去 |
 | 飞书里它不回 | 发消息的人不在 `FEISHU_ALLOWED_USERS`；或应用权限、版本没发布 |

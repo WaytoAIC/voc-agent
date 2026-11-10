@@ -31,6 +31,11 @@ else
   warn "没有 voc.config.json：脚本会先用 skill/voc.config.example.json（cp 一份到仓库根目录改成自己的）"
 fi
 
+echo "== 离线测试"
+if [ -d "$REPO/tests" ]; then
+  if (cd "$REPO" && python3 -m unittest discover -s tests >/dev/null 2>&1); then pass "tests/ 全部通过"; else fail "tests/ 没通过" "cd $REPO && python3 -m unittest discover -s tests -v 看哪一条"; fi
+fi
+
 echo "== 运行状态"
 if curl -s -m 3 http://127.0.0.1:8642/v1/health >/dev/null 2>&1; then pass "Hermes 网关在线（127.0.0.1:8642）"; else fail "Hermes 网关没在跑" "hermes gateway install && hermes gateway start（或前台：hermes gateway run）"; fi
 H=$(curl -s -m 3 http://127.0.0.1:8790/api/health 2>/dev/null)

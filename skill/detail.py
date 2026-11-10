@@ -19,7 +19,7 @@ sys.path.insert(0, str(HERE))
 import voccfg  # noqa: E402
 
 CFG = voccfg.load(HERE)
-DATA = pathlib.Path(os.environ.get("VOC_DATA_DIR", HERE)).expanduser()
+DATA = voccfg.data_dir(HERE)
 WINDOW_DAYS = 30
 
 

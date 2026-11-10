@@ -138,13 +138,18 @@ Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它�
 
 ## 五·六、每周运转（用户说「跑一下本周」「周报」「这周有什么新评论」时）
 
-`python3 skill/weekly.py` 一条命令：增量拉评论（`workbench/ss_pull.py <ASIN> --merge --new-only`，自家 + 竞品，按日期倒序只拉到已有评论为止）→ `tag.py` 只给新评论打标 → analyze / render / dashboard → `actions.py pull / readback / check` → `skill/events_to_feishu.py` 把新评论和新事件写进飞书「VOC 事件明细」→ 起草群消息 `voc-reports/weekly_draft.md`。
+`python3 skill/weekly.py` 一条命令：增量拉评论（`workbench/ss_pull.py <ASIN> --merge --new-only`，自家 + 竞品，按日期倒序只拉到已有评论为止）→ `tag.py` 只给新评论打标 → 投影（自家开了 `own.projection` 时）→ analyze / render / dashboard → `actions.py pull / readback / check` → `skill/events_to_feishu.py` 把新评论和新事件写进飞书「VOC 事件明细」→ 起草群消息 `voc-reports/weekly_draft.md` → **留痕**：`timeline.py` 重算项目时间线，写 `voc-reports/_history/周报-<日期>.md`，把这次改动的数据 / 报告 / 看板 / 行动卡 / 时间线 / 周报自动 commit（只 add 这几个路径，落款 `weekly.commit_sign`；`--no-commit` 跳过，不在 git 仓里自动跳过）。
 - 结果一行写进 `voc-reports/runs.jsonl`（工作台设置页「运行记录」）；完整日志在 `voc-reports/_runs/`。
+- 看板按运行日锚定「最新完整周」：最新周没评论就是 0，`dashboard.json` 的 `fresh` 写评论 / 退货最新到哪天，`monthly` / `cumulative` 是近 12 个月和累计。回答「这周怎么样」时先看 `fresh`，评论少的产品按月度和累计说，别拿一周的 0 下结论。
 - 群消息草稿**不自动发**：人在工作台设置页「本周群消息草稿」改好点「发到群」才发。你不要替人发。
 - 演示数据（data.json `demo: true`）不拉、不写飞书；还没分析过的 ASIN 不拉（先按第一部分分析一遍）。
 - 口径在 `voc.config.json` 的 `weekly` 段；定时由 Hermes cron 跑同一条命令（`hermes cron list`，见 DEPLOY 第 9.5 步）。
 - 要花钱的只有拉评论（每个 ASIN 1 次详情 + 1–3 页评论）；用户问本周花了多少，读 `runs.jsonl` 最后一行的 `calls`。
 - 先看流程通不通：`--dry-run`（不调卖家精灵、不调模型、不写飞书）。
+
+## 五·七、项目时间线与资产库（用户说「这个项目做到哪了」「做了什么」「资产库」时）
+
+`python3 <skill>/timeline.py` 把所有带日期的动作串成一条线写进 `voc-reports/timeline.json`（每周运转留痕时自动跑）：运转（runs.jsonl）、版本（git log）、文档、数据（每个 ASIN 的评论 / 事件区间）、行动（每张卡的计划 / 上线 / 验证 / 读回）、播报（发到群的）、评测（打标金标）、计划（Hermes 定时的下次触发）；再算 11 张功能价值卡（拉评论 / 打标 / 投影 / 报告看板 / 退货 / 行动闭环 / 入飞书 / 群播报 / 站外 / 自动运转 / 资产沉淀）：做什么、累计做到多少、最近一次、状态。工作台 设置 → 资产库 读它。回答进展类问题按 `features` 的数字答，按 `events` 说最近发生了什么；数字只引用，不自己算。
 
 ## 六、回答追问
 
@@ -160,8 +165,14 @@ Alexa for Shopping（原 Rufus）是亚马逊商品页上的 AI 导购。向它�
   - 「该谁改」：按问题的 owner 字段答。
   - 「起草一条行动」：按第五部分写成一行飞书卡；没接飞书就写成文字给用户。
   - 「这件事进展怎么样」「哪些卡卡住了」：先 `actions.py pull`，再按 `actions.json` 答。
+  - 「这周有什么新的」「为什么看板都是 0」：按 `dashboard.json` 的 `fresh`（评论 / 退货最新到哪天）、`monthly`、`cumulative` 答；真实样本（`projection.realByWeek` / `kpi.voices.realNow`）不到 5 条就说先别下结论。
+  - 「项目做到哪了」「做了什么」：按 `voc-reports/timeline.json` 的 `features` 和 `events` 答（第五·七部分）。
   - 「写主图文案」「写五点」：只用好评里用户自己的说法，附上出处条数。
   - 「Alexa 怎么说」「亚马逊怎么跟买家介绍我们」：按 `alexa.findings` 和 `calc.alexa` 答，注明是平台归纳；没有 `alexa` 块就按第三部分走。
   - 「和竞品比」：有 `calc.compare` 就直接答；没有就按第二部分走，先让用户确认竞品。
   - 「站外 / Reddit 在说什么」「买之前在犹豫什么」：按 `offsite` 答——`offsite.onsite` 里站内没有对应的问题、`offsite.journey` 情绪最低的环节、`offsite.needs` 里「最大机会 · 先做」的需求，原话用 `offsite.quotes`（带原帖链接）；没有 `offsite` 块就按第四部分走。
 - 只写本地文件。发消息、改 listing、动广告都不做，最多起草，交给人决定。
+
+## 七、改了脚本之后
+
+跑一遍离线测试再交付：`python3 -m unittest discover -s tests`（项目根目录；不调卖家精灵、不调模型、不写飞书、不动 git 仓）。改了 `voc.config.json` 的词表 / 阶段 / 该谁改，飞书表不用动（写入脚本会补选项），但模板要重新出：`python3 workbench/base_template.py export`（从你的表导结构）或 `build <快照.base>`。

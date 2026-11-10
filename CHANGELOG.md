@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.0.0 · 2026-11-10
+
+产品化第 5 步收口：测试、CI、飞书模板、文档。从这版起换一个不是作者的卖家，照 DEPLOY 装上就能用、每周自己转、三个月不靠人救场（`DEPLOY.md` 第 10 步的验收 = doctor 无 ❌ + 测试 OK + 演练退出码 0）。
+Step 5 of productisation: tests, CI, a Feishu Base template and a documentation pass. From this version a seller other than the author can install from DEPLOY.md, run weekly on their own and verify it with doctor + tests + a dry run.
+
+- **离线测试** `tests/`（只用标准库 `unittest`，`python3 -m unittest discover -s tests`，几秒；不调卖家精灵、不调模型、不写飞书、不动你的 git 仓）：
+  `dashboard.py` 运行日锚定（`--as-of` / `VOC_AS_OF`、12 周、快照、`monthly` / `cumulative` / `fresh`、投影倍数折算、安静周如实为 0）；`timeline.py` 8 类事件 + 11 张功能卡、空目录不报错；`weekly.py` 八步演练 + 第 7 步留痕（周报、时间线、临时 git 仓里只 add 本次改动路径的自动 commit、落款 `VOC_COMMIT_SIGN`、`--no-commit` / `weekly.commit=false` / 非 git 仓跳过、runs.jsonl 和草稿不进提交）；`workbench/ss_pull.py --merge --new-only` 去重（首次并入、短页「拉完」、整页已有评论即停、旧压缩行按实词重合认同一条并换真原话且 tags / id 不动、新评论排最前、`--no-detail`、缺页记 errors、演示数据不并，`VOC_SS_STUB` 离线桩）；`project.py --check`（条数 = 真实 × k、分布一致、确定性、敏感词 / 原话 8 词重合 / 变体雷同被拦、缺缓存 `--dry-run` 不写文件）；飞书模板与 `voc.config.json` 词表一致。
+  Offline tests (standard library only) for the run-date-anchored dashboard, the timeline and feature cards, the weekly runner's keep step (auto-commit of touched paths only in a throwaway git repo), the incremental review pull's dedup logic (with a `VOC_SS_STUB` fixture), the projection invariants, and the Feishu template.
+- **CI** `.github/workflows/ci.yml`：Python 3.9 / 3.12 跑单元测试、`skill/weekly.py --dry-run --no-commit`、`scripts/check_public.py`（脱敏扫描：真实飞书链接 / ID、本机绝对路径、内网 IP、密钥样子的串；`skill/voccfg.py` 与 `workbench/voccfg.py` 一致；样例口径里飞书 ID 全空、投影关着；不跟踪 `_real/`、`*.raw.json`、`runs.jsonl`；CHANGELOG 顶部版本 = tag；飞书模板与词表一致；tests / CI 文件在）。
+  GitHub Actions on Python 3.9 / 3.12: the test suite, a weekly dry run and `scripts/check_public.py` (redaction scan, config example hygiene, changelog-vs-tag, template consistency).
+- **飞书多维表格模板** `agent/feishu/VOC工作台.base`：三张表（VOC 事件明细 / 行动项跟踪 / 站外 VOC · Reddit）的全部字段、类型、描述、视图列顺序，选项按 `voc.config.json`（阶段 = 旅程 6 段，问题分类 = 全部一级标签，该谁改 / 归属部门 = owners，状态 / AI判断 = actions，Reddit 的抱怨 / 好评 = 负 / 正标签，人群 / 替代方案 = 站外配置）；不带记录，不带原库的 token / 租户 / 表 ID。一条命令建库：`lark-cli drive +import --file agent/feishu/VOC工作台.base --type bitable --name VOC工作台`，再把返回的 token 和 `base +table-list` 的三个 id 填进 `voc.config.json`。新 `workbench/base_template.py`：`export`（从你的表只导结构）/ `build <快照.base>` / `check` / `print`；`schema.json` 改由它生成（人读版）。
+  A `.base` snapshot of the three Feishu tables (fields, types, descriptions, views; select options rewritten from `voc.config.json`; no records, no source identifiers) that `lark-cli drive +import` turns into a ready Base in one command; `workbench/base_template.py` exports, rebuilds, checks and prints it, and now generates `schema.json`.
+- **文档收口**：README 给人、DEPLOY 给 AI、SKILL.md 给 Agent，三份和代码对齐——`workbench/voc up` 常驻（DEPLOY 第 7 步）、设置 → 资产库（时间线 + 功能卡）、每周运转第 7 步留痕与自动 commit、看板 `--as-of` / `VOC_AS_OF`、数据目录统一写 `voc-reports/`（DEPLOY 以前混写 `现场分析/`）、第 9 步改成 .base 模板建库、第 10 步验收加测试与演练；SKILL.md 新增 五·七 项目时间线、七 改了脚本之后；`scripts/doctor.sh` 多一项离线测试。
+  README (for people), DEPLOY (for the AI assistant) and SKILL.md (for the agent) now match the code: `workbench/voc up`, the Assets tab, the keep step, `--as-of`, a single `voc-reports/` data directory, template-based Feishu setup and a test-backed acceptance step.
+- 小修：`timeline.py` 没有自家数据时打标卡不再标 warn；`project.py` 注释里的款式示例改成编的写法。
+  Minor: the tagging card is plain (not warn) without own-product data; a comment in `project.py` uses made-up variant names.
+
 ## v1.10.0 · 2026-11-10
 
 - **看板按运行日锚定**（`workbench/dashboard.py`）：「最新一周」= 运行日之前最后一个完整周（`--as-of YYYY-MM-DD` / `VOC_AS_OF` 可改），退货等事件按周归入；新增 `monthly`（近 12 个月评论 / 差评占比 / 退货 / 换货 / 买家消息）、`cumulative`（累计）、`fresh`（评论和退货最新到哪天、最近有评论的周）。此前锚在最后一条评论日，评论少的产品看板会停在几周前，像没在运转。首页副标题、看板新增「近 12 个月」「累计」两块、脚注都按它写。

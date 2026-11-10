@@ -34,6 +34,19 @@ def find(start=None):
     raise FileNotFoundError(f"找不到 {NAME}：放在项目根目录，或设环境变量 VOC_CONFIG")
 
 
+def data_dir(start=None):
+    """每个 ASIN 的分析目录（<ASIN>/data.json、报告.html、dashboard.json、timeline.json、runs.jsonl 都在这）。
+    环境变量 VOC_DATA_DIR 优先；否则看口径文件所在的项目根：有 现场分析/ 就是它（本地源仓），没有就是 voc-reports/（公开版）。
+    用的是样例口径（skill/voc.config.example.json）时，项目根 = skill/ 的上一级。所有脚本都从这里取，别各写各的默认值。"""
+    env = os.environ.get("VOC_DATA_DIR")
+    if env:
+        return pathlib.Path(env).expanduser()
+    p = find(start)
+    root = p.parent.parent if p.name == "voc.config.example.json" else p.parent
+    local = root / "现场分析"
+    return local if local.exists() else root / "voc-reports"
+
+
 def load(start=None):
     p = find(start)
     if p not in _cache:

@@ -18,3 +18,5 @@
 - 卖家精灵、TikHub、Alexa 采集按次计费：真实调用前说清次数，等用户确认。
 - 所有条数、占比由 `skill/analyze.py`、`workbench/dashboard.py` 等脚本算，不要手算或估。
 - 不改用户已有的 Hermes 配置和其他 profile；要改先问。
+- 改了 `skill/` 或 `workbench/` 里的脚本，交付前跑 `python3 -m unittest discover -s tests`（离线，几秒）；公开发布前再跑 `python3 scripts/check_public.py`。
+- 建飞书多维表格用 `agent/feishu/VOC工作台.base` 一键导入（DEPLOY 第 9 步），不要照 schema.json 一个字段一个字段手建。
