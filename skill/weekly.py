@@ -414,7 +414,7 @@ def s_keep():
     body = "自动留痕：weekly.py 第 7 步。改动 " + "、".join(staged) + "\n" + "\n".join(f"- {n}：{'完成' if st.get('ok') else '失败'}" for n, st in REPORT["steps"].items())
     rc, out = run(["git", "-C", ROOT, "commit", "-q", "-m", title, "-m", body], timeout=60)
     if rc:
-        res["ok"], res["error"] = False, "git commit 失败（看日志；落款要在 sops 宪法的七个之内）"
+        res["ok"], res["error"] = False, "git commit 失败（看日志：多半是这台机器的 git 没配 user.name / user.email，或 commit-msg hook 不认这个落款）"
         return res
     res["commit"] = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
     res["files"] = len(staged)

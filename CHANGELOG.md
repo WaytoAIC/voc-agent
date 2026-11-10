@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.1 · 2026-11-10
+
+- CI 修正：runner 钉 `ubuntu-24.04`（`ubuntu-latest` 已是 26.04，setup-python 上没有 Python 3.9 的包）；测试里的临时 git 仓配好 `user.name` / `user.email`（`weekly.py` 第 7 步自己跑 `git commit`，没身份的机器会报 empty ident）。v2.0.0 的 CI 因此是红的，功能不变。
+  CI fix: pin the runner to `ubuntu-24.04` (no Python 3.9 build for 26.04) and give the throwaway git repo in the tests an identity so `weekly.py`'s own commit works on a bare machine. v2.0.0's CI run failed for these two reasons only; nothing else changed.
+- `weekly.py` 自动 commit 失败时的提示改成说人话（多半是 git 没配身份，或 commit-msg hook 不认落款）。
+  Friendlier error when the auto-commit fails (usually a missing git identity or a commit-msg hook).
+
 ## v2.0.0 · 2026-11-10
 
 产品化第 5 步收口：测试、CI、飞书模板、文档。从这版起换一个不是作者的卖家，照 DEPLOY 装上就能用、每周自己转、三个月不靠人救场（`DEPLOY.md` 第 10 步的验收 = doctor 无 ❌ + 测试 OK + 演练退出码 0）。

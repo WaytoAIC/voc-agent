@@ -104,6 +104,9 @@ def git(repo, *args):
 def git_repo(path):
     """把目录变成一个干净的临时 git 仓（不碰真仓的 hook）。"""
     git(path, "init", "-q")
+    git(path, "config", "user.name", "voc-test")                           # weekly.py 自己跑 git commit，没有身份的机器（CI）会拒绝
+    git(path, "config", "user.email", "voc-test@example.com")
+    git(path, "config", "commit.gpgsign", "false")
     git(path, "add", "-A")
     r = git(path, "commit", "-q", "-m", "init")
     assert r.returncode == 0, r.stderr
