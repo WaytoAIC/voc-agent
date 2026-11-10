@@ -239,6 +239,24 @@ tr.muted td{color:var(--faint)}
 .impbar i{position:absolute;top:0;bottom:0}
 .result{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
 .result p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+/* 资产库：功能价值卡 + 项目时间线 */
+.feats{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.feat{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:8px;align-content:start;min-width:0}
+.feat.good{border-left-color:var(--good)}.feat.warn{border-left-color:var(--warn)}
+.feat h4{margin:0;font-size:14px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.feat p{margin:0;font-size:12.5px;color:var(--muted)}
+.feat dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;margin:0;font-size:12.5px}
+.feat dt{margin:0;color:var(--faint)}.feat dd{margin:0;font-family:var(--font-num);font-weight:600;text-align:right;overflow-wrap:anywhere}
+.tl{margin:0;padding:0;list-style:none}
+.tl li{display:grid;grid-template-columns:96px 14px minmax(0,1fr);gap:0 10px;padding:7px 0;border-top:1px solid var(--line);align-items:start}
+.tl li:first-child{border-top:0}
+.tl .d{font-family:var(--font-num);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.tl .d small{color:var(--faint)}
+.tl .dot{width:10px;height:10px;border-radius:50%;margin-top:5px;background:var(--faint);box-sizing:border-box}
+.tl .t{font-size:13.5px;min-width:0}.tl .t small{display:block;color:var(--muted);font-size:12px;margin-top:1px;overflow-wrap:anywhere}
+.tl li.future{opacity:.75}.tl li.future .dot{background:transparent;border:2px solid var(--accent)}
+.tl .k{display:inline-block;font-size:11px;padding:0 6px;border-radius:5px;margin-right:6px;background:var(--surface-2);color:var(--muted);vertical-align:1px}
+@media (max-width:560px){.tl li{grid-template-columns:80px 12px minmax(0,1fr)}}
 
 /* 行动 */
 .acts{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px}
@@ -536,7 +554,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
       <button class="nav" data-nav="settings" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>设置</button>
     </nav>
     <div class="side-foot">
-      <div style="display:flex;gap:8px;align-items:center"><span class="dot"></span><span>每周一 09:00 自动更新<br>上次 10-19 · 下次 10-26</span></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="dot"></span><span id="sideAuto">每周一 09:00 自动更新<br>上次 — · 下次 —</span></div>
       <div class="me"><span class="avatar">运</span><div><b>运营负责人</b>楼梯踏板项目</div></div>
     </div>
   </aside>
@@ -795,6 +813,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
             </div>
             <div class="panel">
               <h2>运行记录</h2>
+              <p class="hint" id="runsNext"></p>
               <div class="tablewrap"><table id="runs"></table></div>
             </div>
             <div class="panel">
@@ -810,6 +829,15 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
               <div class="panel"><span class="hint">用户原话</span><span class="big" id="libVoices">—</span><p class="sub">一字不改，不留作者名</p></div>
               <div class="panel"><span class="hint">标签词表</span><span class="big" id="libTags">—</span><p class="sub" id="libTagsSub"></p></div>
               <div class="panel"><span class="hint">验证过的做法</span><span class="big" id="libDone">—</span><p class="sub" id="libDoneSub"></p></div>
+            </div>
+            <div class="panel">
+              <div><h2>每个功能在做什么、做到了多少</h2><p class="sub">数字全部从本机文件里算（timeline.py）；左边绿条 = 在正常运转，黄条 = 有卡住的地方</p></div>
+              <div class="feats" id="featCards"></div>
+            </div>
+            <div class="panel">
+              <div class="pagehead"><div><h2>项目时间线</h2><p class="sub" id="tlSub">每次运转、每次版本、每份文档、每张行动卡、每条播报，按日期串起来</p></div></div>
+              <div class="chips" id="tlKinds"></div>
+              <div id="projTL"></div>
             </div>
             <div class="panel">
               <h2>验证过的做法</h2>
@@ -983,6 +1011,19 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   const dbDelta=(now,prev,unit,badUp)=>{ const dv=Math.round((now-prev)*10)/10; if(!dv) return '<span class="db-dl flat">和前一周持平</span>';
     const up=dv>0, cls=badUp==null?'flat':(badUp===up?'bad':'good'); return `<span class="db-dl ${cls}">${up?'▲':'▼'} ${Math.abs(dv)}${unit}</span>`; };
 
+  // 近 12 个月：柱 = 每月评论，线 = 每月退货（右轴）。评论少的产品看这个和累计，不看周环比
+  function dbMonthly(M){
+    if(!M||!M.length) return '<p class="hint">还没有月度数据：重跑 现场分析/dashboard.py</p>';
+    const W=600,H=236,l=34,r=44,t=24,b=26,n=M.length,bw=(W-l-r)/n;
+    const mb=dbNice(Math.max(1,...M.map(x=>x.reviews))*1.15), mr=dbNice(Math.max(1,...M.map(x=>x.returns))*1.2);
+    const yb=v=>t+(1-v/mb)*(H-t-b), yr=v=>t+(1-v/mr)*(H-t-b), cx=i=>l+i*bw+bw/2;
+    let g='';
+    for(let k=0;k<=4;k++) g+=`<line x1="${l}" x2="${W-r}" y1="${yb(mb*k/4)}" y2="${yb(mb*k/4)}" style="stroke:var(--dbgrid)"/><text x="${l-6}" y="${yb(mb*k/4)+4}" text-anchor="end">${dbShort(mb*k/4)}</text><text x="${W-r+6}" y="${yr(mr*k/4)+4}">${dbShort(mr*k/4)}</text>`;
+    M.forEach((x,i)=>{ const last=i===n-1; g+=`<rect x="${cx(i)-bw*.26}" y="${yb(x.reviews)}" width="${bw*.52}" height="${yb(0)-yb(x.reviews)}" rx="2" style="fill:${last?'var(--db1)':'var(--db4)'}"><title>${x.month}：评论 ${x.reviews} 条${x.realReviews!=null?`（真实 ${x.realReviews}）`:''}，差评 ${x.negShare}%，退货 ${x.returns}</title></rect><text x="${cx(i)}" y="${H-8}" text-anchor="middle"${last?' class="v"':''}>${x.label}</text>`; });
+    const pts=M.map((x,i)=>cx(i)+','+yr(x.returns)).join(' ');
+    g+=`<polyline fill="none" points="${pts}" style="stroke:var(--db3);stroke-width:2.2" stroke-linejoin="round"/>`+M.map((x,i)=>`<circle cx="${cx(i)}" cy="${yr(x.returns)}" r="2.6" style="fill:var(--db3)"><title>${x.month}：退货 ${x.returns}</title></circle>`).join('');
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="近 12 个月每月评论数和退货数">${g}</svg>${dbLegend([['每月评论','var(--db4)'],['最新一个月','var(--db1)'],['退货（右轴）','var(--db3)']])}`;
+  }
   // 近 12 周：柱 = 每周评论，线 = 差评占比（右轴）；底色框出「近 4 周」，可点柱子切周
   function dbTrend(T,sel,first){
     const W=600,H=236,l=34,r=44,t=24,b=26,n=T.length,bw=(W-l-r)/n;
@@ -1063,7 +1104,10 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     if(!DASH.snaps||!DASH.snaps.length){ const b=$('#dash'); if(b) b.innerHTML='<p class="hint">还没有看板数据：跑 现场分析/dashboard.py</p>'; return; }
     const S=DASH.snaps[dbWeek], P=dbWeek?DASH.snaps[dbWeek-1]:null, K=S.kpi, C=DASH.compare, T=DASH.trend, O=DASH.owners, latest=dbWeek===DASH.snaps.length-1;
     const prevWk=T[S.idx-1].week, dec=ACTIONS.filter(a=>a.state==='decide').length, doing=ACTIONS.filter(a=>a.state==='doing').length, wait=ACTIONS.filter(a=>a.state==='wait').length;
-    $('#homeSub').textContent=latest?`本周（${S.week}）新增 ${K.voices.now} 条用户声音，差评占比 ${K.negShare.now}%；有 ${TODO.length} 件事需要你处理。`:`正在看 ${S.week} 这周的看板；有 ${TODO.length} 件事需要你处理。`;
+    const FR=DASH.fresh||{}, CU=DASH.cumulative||{}, LE=FR.lastEvent||{};
+    $('#homeSub').textContent=latest
+      ?`截至 ${DASH.runDate||DASH.asOf}，最新完整周（${S.week}）${K.voices.now?`新增 ${K.voices.now} 条用户声音，差评占比 ${K.negShare.now}%`:`没有新声音（评论最新到 ${FR.lastReview||'—'}，退货最新到 ${LE['退货']||'—'}）`}；有 ${TODO.length} 件事需要你处理。`
+      :`正在看 ${S.week} 这周的看板；有 ${TODO.length} 件事需要你处理。`;
     const kpi=(c,k,v,dl,sub)=>`<div class="db-kpi" style="border-left-color:${c}"><span>${k}</span>${v}${dl}<small>${sub}</small></div>`;
     const sp=K.voices.split;
     const kpis=[
@@ -1117,10 +1161,24 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
       <div class="db-g2 w">
         <div class="db-c"><div class="h"><b>近 12 周走势</b><span>柱：每周评论 · 线：差评占比</span></div>
           ${dbTrend(T,S.idx,DASH.snaps[0].idx)}
-          <div class="db-note">这周 <b>${T[S.idx].reviews}</b> 条评论，差评占比 <b>${K.negShare.now}%</b>，前一周 ${K.negShare.prev}%；从 8/3 到这周，最低 ${Math.min(...T.slice(0,S.idx+1).map(x=>x.negShare))}%、最高 ${Math.max(...T.slice(0,S.idx+1).map(x=>x.negShare))}%。${K.top.tag}这周占 <b>${K.top.now}%</b> 的评论。</div></div>
+          <div class="db-note">这周 <b>${T[S.idx].reviews}</b> 条评论，差评占比 <b>${K.negShare.now}%</b>，前一周 ${K.negShare.prev}%；从 ${T[0].week} 到这周，最低 ${Math.min(...T.slice(0,S.idx+1).map(x=>x.negShare))}%、最高 ${Math.max(...T.slice(0,S.idx+1).map(x=>x.negShare))}%。${K.top.tag}这周占 <b>${K.top.now}%</b> 的评论。</div></div>
         <div class="db-c"><div class="h"><b>声音从哪来</b><span>近 4 周 · 条</span></div>
           ${dbDonut(Object.entries(src).map(([k,v],i)=>({n:k,v,c:DBC[i]})),srcTot,'条 · 近 4 周')}
           <div class="db-note">评论之外，退货和买家消息合计 <b>${src['退货']+src['买家消息']}</b> 条，占 ${Math.round((src['退货']+src['买家消息'])/srcTot*100)}%；读了备注才看得出真实原因。Alexa 问答是平台归纳，只用来对照，不计入。</div></div>
+      </div>
+
+      <div class="db-g2 w">
+        <div class="db-c"><div class="h"><b>近 12 个月</b><span>柱：每月评论 · 线：每月退货${DASH.k?` · 真实样本 = 条数 ÷ ${DASH.k}`:''}</span></div>
+          ${dbMonthly(DASH.monthly)}
+          <div class="db-note">${(()=>{ const M=DASH.monthly||[]; const lm=[...M].reverse().find(x=>x.reviews); const sum=M.reduce((a,x)=>a+x.reviews,0), rs=M.reduce((a,x)=>a+x.returns,0); return `近 12 个月评论 <b>${sum}</b> 条${DASH.k?`（真实约 ${Math.round(sum/DASH.k)} 条）`:''}、退货 <b>${rs}</b> 件；${lm?`最近有评论的月份是 ${lm.label}（${lm.reviews} 条）`:'12 个月内没有评论'}。评论少的产品看这里和右边的累计，周环比只看方向。`; })()}</div></div>
+        <div class="db-c"><div class="h"><b>累计</b><span>全部非送测评论和事件</span></div>
+          <div class="db-kpis" style="grid-template-columns:repeat(2,minmax(0,1fr))">${[
+            ['累计评论',`${CU.reviews??'—'}<small>条</small>`,CU.realReviews!=null?`真实 ${CU.realReviews} 条 · 投影 ×${DASH.k}`:`${CU.firstReview||'—'} 起`],
+            ['差评占比（累计）',`${CU.negShare??'—'}%`,`${CU.neg??'—'} 条 1–3 星`],
+            ['退货累计',`${(CU.events||{})['退货']||0}<small>件</small>`,CU.realEvents!=null?`真实 ${CU.realEvents} 件`:(LE['退货']?`最新到 ${LE['退货']}`:'未接')],
+            ['评论最新到',FR.lastReview?FR.lastReview.slice(5).replace('-','/'):'—',(FR.lastReview?`${FR.lastReview.slice(0,4)} 年；`:'')+(FR.lastWeekWithReviews?`最近有评论的周 ${FR.lastWeekWithReviews}`:'12 周内没有评论')]
+          ].map(([k,v,sb])=>`<div class="db-kpi" style="border-left-color:var(--db4)"><span>${k}</span><b>${v}</b><small>${sb}</small></div>`).join('')}</div>
+          <div class="db-note">覆盖 ${CU.firstReview||'—'} 起 ${CU.months||0} 个月；看板按运行日 ${DASH.runDate||DASH.asOf} 锚定，最新完整周没有声音就如实显示 0，不拿旧数据当本周。</div></div>
       </div>
 
       <div class="db-sec"><h3>问题和原因</h3><span>近 4 周 vs 再往前 4 周</span></div>
@@ -1153,7 +1211,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
           ${dbDumbbell(C)}
           <div class="db-note">${topRow?`${topRow.name}：你 <b>${topRow.mine}%</b>，竞品平均 ${topRow.avg}%。`:''}${C.weak.length?`短板「${C.weak.join('、')}」`:''}${C.strong.length?`，卖点「${C.strong.join('、')}」`:''}。 <button class="link" type="button" data-go="sub:compare">看每个竞品 →</button></div></div>
       </div>
-      <p class="hint" style="margin:0">数据来源：评论、退货和换货备注、买家消息、Alexa 问答；竞品评论 10-27 / 10-28 采集。所有数字由 dashboard.py 从数据里算出来。</p>
+      <p class="hint" style="margin:0">数据来源：评论、退货和换货备注、买家消息、Alexa 问答。看板按运行日 ${DASH.runDate||DASH.asOf} 锚定；自家评论最近拉取 ${FR.pulledAt||'—'}，评论最新到 ${FR.lastReview||'—'}，退货最新到 ${LE['退货']||'—'}。所有数字由 dashboard.py 从数据里算出来。</p>
     </div>`;
     $('#dbWeekSel').onchange=e=>{ dbWeek=+e.target.value; drawDash(); };
     $$('#dash [data-wk]').forEach(b=>b.addEventListener('click',()=>{ dbWeek=+b.dataset.wk-DASH.snaps[0].idx; drawDash(); }));
@@ -1741,7 +1799,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   drawQuad(); renderAba();
 
   /* ---------- 设置 ---------- */
-  [['data','数据接入'],['sync','产品同步'],['auto','自动运行'],['library','经验库']].forEach(([id,l])=>{ const b=el('button',{class:'subtab',role:'tab','aria-selected':id==='data'?'true':'false','data-stab':id,type:'button'},l);
+  [['data','数据接入'],['sync','产品同步'],['auto','自动运行'],['library','资产库']].forEach(([id,l])=>{ const b=el('button',{class:'subtab',role:'tab','aria-selected':id==='data'?'true':'false','data-stab':id,type:'button'},l);
     b.addEventListener('click',()=>{ $$('.sp').forEach(s=>s.hidden=s.dataset.sp!==id); $$('#sTabs .subtab').forEach(t=>t.setAttribute('aria-selected',t===b?'true':'false')); enter($(`.sp[data-sp="${id}"]`)); ink($('#sTabs')); }); $('#sTabs').appendChild(b); });
   /* ---------- 设置：数据源 / 体检 / 同步 / 运行记录，全部来自 serve.py 的 status（文件和配置），页面不写死 ---------- */
   const STT=VOC.status||{};
@@ -1806,6 +1864,23 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
     const lr=$('#libResults'); if(!done.length) lr.innerHTML=EMPTY('验证过的做法','行动卡到期后 actions.py readback 写回「AI判断」');
     done.forEach(a=>lr.appendChild(el('div',{class:'result'},`<span class="chip ${a.result[0]}">${a.result[1]}</span><div><b>${esc(a.title)}</b><p>${esc(a.result[2]||'')}</p></div><button class="link" type="button" data-act="${a.id}">详情</button>`))); }
   $('#homeDataText').textContent=[PU.at?`自家评论 ${PU.at}${PU.source?`（${PU.source}）`:''}`:'还没有自家评论', COMPN?`${COMPN} 个竞品已分析`:'没有竞品', (EVN['退货']||EVN['买家消息'])?`退货 ${EVN['退货']||0} 件 · 买家消息 ${EVN['买家消息']||0} 条`:'退货 / 买家消息未接', STT.alexa?'Alexa 已采集':'', STT.offsite?'Reddit 已分析':''].filter(Boolean).join('；')+'。';
+  /* ---------- 资产库：功能价值 + 项目时间线（现场分析/timeline.py 生成，serve.py 注入 timeline） ---------- */
+  { const TL=VOC.timeline||{}; const lr=TL.lastRun, nx=TL.next;
+    const hd=$('#homeDataText'); if(hd&&(lr||(nx&&nx.next))) hd.textContent+=' '+[lr?`上次自动运转 ${lr.at}（${lr.ok===false?'有失败':'完成'}，${lr.note||''}）`:'', nx&&nx.next?`下次 ${nx.next}`:''].filter(Boolean).join('；')+'。';
+    const sa=$('#sideAuto'); if(sa&&nx){ const sd=x=>x?x.slice(5,16).replace('-','/').replace(' ',' '):'—'; sa.innerHTML=`${esc(nx.schedule||'每周一 09:00')} 自动运转<br>上次 ${esc(sd(nx.last))} · 下次 ${esc(sd(nx.next))}`; }
+    const rn=$('#runsNext'); if(rn) rn.textContent=nx?`Hermes 定时「${nx.name}」${nx.schedule||''}：上次 ${nx.last||'—'}（${nx.lastStatus||'—'}），下次 ${nx.next||'—'}${nx.enabled?'':'（已停用）'}。每次运转完自动 commit 数据、看板、行动卡和周报。`:'本机没读到 Hermes 定时任务（命令速查 2.5）。';
+    const fc=$('#featCards');
+    if(fc){ const F=TL.features||[]; if(!F.length) fc.innerHTML=EMPTY('功能价值','跑 python3 现场分析/timeline.py');
+      else fc.innerHTML=F.map(f=>`<div class="feat ${f.status||'plain'}"><h4><span>${esc(f.name)}</span>${f.last?`<span class="hint num">${esc(f.last)}</span>`:''}</h4><p>${esc(f.does)}</p><dl>${(f.value||[]).map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>${f.note?`<p class="hint">${esc(f.note)}</p>`:''}${f.link?`<button class="link" type="button" data-feishu="${esc(f.link)}">在飞书打开 ↗</button>`:''}</div>`).join(''); }
+    const tlb=$('#projTL'), tlk=$('#tlKinds');
+    if(tlb){ const E=TL.events||[]; const KC={'运转':'var(--accent)','版本':'var(--db2)','数据':'var(--db1)','行动':'var(--db3)','文档':'var(--db5)','播报':'var(--good)','评测':'var(--dbair)','计划':'var(--accent)'};
+      let kind='全部'; const kinds=['全部',...Object.keys(TL.kinds||{})];
+      const draw=()=>{ const rows=E.filter(e=>kind==='全部'||e.kind===kind); if(!rows.length){ tlb.innerHTML=EMPTY('时间线','跑 python3 现场分析/timeline.py'); return; }
+        let last=''; tlb.innerHTML='<ol class="tl">'+rows.slice(0,200).map(e=>{ const d=e.date===last?'':e.date; last=e.date; const c=KC[e.kind]||'var(--faint)';
+          return `<li${e.future?' class="future"':''}><span class="d">${d}${e.time?` <small>${e.time}</small>`:''}</span><span class="dot" style="${e.future?`border-color:${c}`:`background:${c}`}"></span><span class="t"><span class="k">${esc(e.kind)}</span>${e.act&&ACTIONS.some(a=>a.id===e.act)?`<button class="link" type="button" data-act="${esc(e.act)}">${esc(e.title)}</button>`:esc(e.title)}${e.detail?`<small>${esc(e.detail)}</small>`:''}</span></li>`; }).join('')+'</ol>'+(rows.length>200?`<p class="hint">只显示最近 200 条，共 ${rows.length} 条</p>`:''); };
+      if(tlk){ tlk.innerHTML=kinds.map(k=>`<button class="chipbtn" type="button" aria-pressed="${k===kind}" data-kind="${k}">${k} ${k==='全部'?E.length:((TL.kinds||{})[k]||0)}</button>`).join('');
+        tlk.addEventListener('click',ev=>{ const b=ev.target.closest('[data-kind]'); if(!b) return; kind=b.dataset.kind; $$('[data-kind]',tlk).forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); draw(); }); }
+      draw(); const sub=$('#tlSub'); if(sub&&E.length) sub.textContent=`${E.length} 条${TL.builtAt?`，生成于 ${TL.builtAt}`:''}${nx&&nx.next?`；下次自动运转 ${nx.next}`:''}。点行动卡可以跳到那张卡`; } }
 
 
   /* ---------- 提示条 ---------- */

@@ -2,7 +2,10 @@
 
 用法：python3 dashboard.py <自家 ASIN>/data.json --vs <竞品>/data.json ...
 口径：
-  - 周 = 周一到周日；数据里最后一个完整周是「最新一周」，往前共 12 周。
+  - 周 = 周一到周日；「最新一周」= 运行日（默认今天，--as-of YYYY-MM-DD 或环境变量 VOC_AS_OF 可改）之前最后一个完整周，往前共 12 周。
+    评论少的周就是 0，不拿数据里最后一条评论当「本周」糊弄；评论最新到哪天、退货最新到哪天写在 fresh 里，页面照实说。
+  - 月度（monthly）：到最新完整周所在月为止的近 12 个月，每月评论 / 差评占比 / 退货 / 换货 / 买家消息；累计（cumulative）：全部非送测评论和事件的总数与覆盖区间。
+    评论少的产品看月度和累计，周环比只看方向。
   - 时间轴：看板可以切到任意一周，切过去以后所有数都按那一周重算（快照 snaps）。
     只有往前满 8 周数据的周才能选（「抱怨怎么变」要比近 4 周和再往前 4 周）。
   - 每个快照：
@@ -15,6 +18,7 @@
 """
 import datetime as dt
 import json
+import os
 import pathlib
 import sys
 from collections import Counter
@@ -23,6 +27,15 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import voccfg  # noqa: E402
 
 args = sys.argv[1:]
+AS_OF = None
+if "--as-of" in args:
+    i = args.index("--as-of")
+    AS_OF = dt.date.fromisoformat(args[i + 1])
+    del args[i:i + 2]
+elif os.environ.get("VOC_AS_OF"):
+    AS_OF = dt.date.fromisoformat(os.environ["VOC_AS_OF"])
+if "--vs" in args:                                                            # 竞品路径只是和 analyze.py 命令行对齐，这里不用（compare 读 calc.compare）
+    args = args[:args.index("--vs")]
 LIVE = pathlib.Path(__file__).resolve().parent
 if not args:
     CFG = voccfg.load(LIVE)
@@ -37,8 +50,9 @@ HOT = CFG["thresholds"]["sku_hot"]
 
 U = [r for r in d["reviews"] if not r.get("vine")]
 day = lambda r: dt.date.fromtimestamp(r["t"] / 1000)
-last = max(day(r) for r in U)
-latest_end = last - dt.timedelta(days=(last.weekday() + 1) % 7)          # 最后一个周日
+RUN_DAY = AS_OF or dt.date.today()
+latest_end = RUN_DAY - dt.timedelta(days=(RUN_DAY.weekday() + 1) % 7)    # 运行日之前最后一个周日 = 最新完整周的结束
+last_review = max((day(r) for r in U), default=None)
 NW = DB["weeks"]
 starts = [latest_end - dt.timedelta(days=6 + 7 * k) for k in range(NW - 1, -1, -1)]
 end = lambda i: starts[i] + dt.timedelta(days=6)
@@ -46,9 +60,10 @@ md = lambda x: f"{x.month}/{x.day}"
 wk = lambda x: next((i for i, s in enumerate(starts) if s <= x <= end(i)), None)
 for r in U:
     r["_w"] = wk(day(r))
-ev = d.get("events", [])
+ev = [e for e in d.get("events", []) if e.get("date")]
 for e in ev:
-    e["_w"] = wk(dt.date.fromisoformat(e["date"]))
+    e["_w"] = wk(dt.date.fromisoformat(e["date"][:10]))
+last_event = {t: max((e["date"][:10] for e in ev if e.get("type") == t), default=None) for t in ("退货", "换货", "买家消息")}
 neg, pos = d["tagsNeg"], d["tagsPos"]
 ts = d.get("tagStage", {})
 problems = {p["name"]: p for p in d.get("problems", [])}
@@ -164,7 +179,49 @@ compare = {"names": [c.get("brand") or c.get("name") for c in cmp.get("comps", [
            "weak": [r["name"] for r in rows if r.get("verdict") in ("短板", "不如竞品")],
            "strong": [r["name"] for r in rows if r.get("verdict") in ("卖点", "比竞品好")]}
 
-out = {"asOf": latest_end.isoformat(), "trend": trend, "snaps": snaps, "compare": compare,
+# 月度：到最新完整周所在月为止的近 12 个月；累计：全部
+mkeys = []
+y, m = latest_end.year, latest_end.month
+for _ in range(12):
+    mkeys.append(f"{y}-{m:02d}")
+    m -= 1
+    if m == 0:
+        y, m = y - 1, 12
+mkeys.reverse()
+mrev = {k: [] for k in mkeys}
+for r in U:
+    k = day(r).strftime("%Y-%m")
+    if k in mrev:
+        mrev[k].append(r)
+mev = {k: Counter() for k in mkeys}
+for e in ev:
+    k = e["date"][:7]
+    if k in mev:
+        mev[k][e.get("type", "退货")] += 1
+monthly = []
+for k in mkeys:
+    rows = mrev[k]
+    n_neg = sum(1 for r in rows if r["star"] <= 3)
+    row = {"month": k, "label": f"{int(k[5:])}月", "reviews": len(rows), "neg": n_neg, "negShare": pct(n_neg, len(rows)),
+           "returns": mev[k]["退货"], "exchanges": mev[k]["换货"], "messages": mev[k]["买家消息"]}
+    if K_PJ:
+        row["realReviews"] = round(len(rows) / K_PJ)
+    monthly.append(row)
+first_review = min((day(r) for r in U), default=None)
+cumulative = {"reviews": len(U), "vine": sum(1 for r in d["reviews"] if r.get("vine")), "neg": sum(1 for r in U if r["star"] <= 3),
+              "negShare": pct(sum(1 for r in U if r["star"] <= 3), len(U)),
+              "events": {t: sum(1 for e in ev if e.get("type") == t) for t in ("退货", "换货", "买家消息")},
+              "firstReview": first_review.isoformat() if first_review else None, "lastReview": last_review.isoformat() if last_review else None,
+              "months": len({day(r).strftime("%Y-%m") for r in U}),
+              **({"realReviews": round(len(U) / K_PJ), "realEvents": round(len(ev) / K_PJ)} if K_PJ else {})}
+fresh = {"lastReview": last_review.isoformat() if last_review else None, "lastEvent": last_event,
+         "reviewGapDays": (latest_end - last_review).days if last_review else None,
+         "lastWeekWithReviews": next((f"{md(starts[i])}–{md(end(i))}" for i in range(NW - 1, -1, -1) if trend[i]["reviews"]), None),
+         "pulledAt": (d.get("pulled") or {}).get("at")}
+
+out = {"asOf": latest_end.isoformat(), "runDate": RUN_DAY.isoformat(), "anchor": "run",
+       "latestWeek": f"{md(starts[-1])}–{md(latest_end)}", "trend": trend, "snaps": snaps, "compare": compare,
+       "monthly": monthly, "cumulative": cumulative, "fresh": fresh, "k": K_PJ or None,
        "owners": {k: {"owner": v.get("owner"), "fix": v.get("fix")} for k, v in problems.items()}}
 p = own_path.parent / "dashboard.json"
 p.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -172,4 +229,6 @@ for s in snaps:
     k = s["kpi"]
     print(f"{s['week']}：声音 {k['voices']['now']}（前周 {k['voices']['prev']}）差评 {k['negShare']['now']}%  最大问题 {k['top']['tag']} {k['top']['now']}%  "
           f"核心 {s['pareto']['core']} 占 {s['pareto']['cum']}%  热点 {s['hot'] and (s['hot']['name'], s['hot']['sku'], s['hot']['count'])}  退货 {s['returns']['n']}")
+print(f"锚定运行日 {RUN_DAY}，最新完整周 {out['latestWeek']}；评论最新到 {fresh['lastReview']}（最近有评论的周 {fresh['lastWeekWithReviews'] or '12 周内没有'}），"
+      f"退货最新到 {last_event['退货']}；累计评论 {cumulative['reviews']}" + (f"（真实 {cumulative['realReviews']}）" if K_PJ else "") + f"，近 12 个月 {sum(x['reviews'] for x in monthly)} 条")
 print(p)

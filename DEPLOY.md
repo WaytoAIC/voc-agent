@@ -244,7 +244,9 @@ python3 skill/weekly.py               # 真跑
 ```
 
 - 结果写 `voc-reports/runs.jsonl`（工作台设置页「运行记录」读它），完整日志在 `voc-reports/_runs/`。
-- 口径在 `voc.config.json` 的 `weekly` 段：每个 ASIN 最多翻几页（默认 3，一页 20 条）、要不要刷新详情、竞品拉不拉、写不写飞书、到期判断写不写回（默认只打印）、要不要重建离线版。
+- 口径在 `voc.config.json` 的 `weekly` 段：每个 ASIN 最多翻几页（默认 3，一页 20 条）、要不要刷新详情、竞品拉不拉、写不写飞书、到期判断写不写回（默认只打印）、要不要重建离线版、运转完要不要自动 commit（`commit`，默认开）和落款（`commit_sign`）。
+- 第 7 步「留痕」：重算 `voc-reports/timeline.json`（工作台 设置 → 资产库：功能价值卡 + 项目时间线），写 `voc-reports/_history/周报-<日期>.md`，只 add 这次改动的数据 / 报告 / 看板 / 行动卡 / 时间线 / 周报并 commit；不在 git 仓里自动跳过，`--no-commit` 也能跳过。看板按运行日锚定「最新完整周」，评论少的产品看「近 12 个月」和「累计」。
+- 工作台常驻（macOS）：`workbench/voc up` 装成 launchd，`workbench/voc status` 看工作台 / Hermes / 定时三样在不在。
 - 打标模型通道照第 7.5 步设环境变量；没设就走本机 Hermes 网关。
 - **定时**：把它挂到 Hermes 的 cron（纯脚本模式，不走模型；电脑合盖错过的会在下次唤醒时补跑）。先写一个包装脚本 `~/.hermes/profiles/voc/scripts/voc-weekly.sh`：
 

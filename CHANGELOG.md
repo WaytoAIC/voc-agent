@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.10.0 · 2026-11-10
+
+- **看板按运行日锚定**（`workbench/dashboard.py`）：「最新一周」= 运行日之前最后一个完整周（`--as-of YYYY-MM-DD` / `VOC_AS_OF` 可改），退货等事件按周归入；新增 `monthly`（近 12 个月评论 / 差评占比 / 退货 / 换货 / 买家消息）、`cumulative`（累计）、`fresh`（评论和退货最新到哪天、最近有评论的周）。此前锚在最后一条评论日，评论少的产品看板会停在几周前，像没在运转。首页副标题、看板新增「近 12 个月」「累计」两块、脚注都按它写。
+  The dashboard is now anchored on the run date: "latest week" is the last complete week before today (override with `--as-of` / `VOC_AS_OF`), events are bucketed by week, and the output gains `monthly`, `cumulative` and `fresh` (last review / last return dates). Previously it anchored on the newest review, so low-volume products looked stale. The home page, a new 12-month + cumulative row and the footnote use it.
+- **项目时间线 + 功能价值卡**（新 `skill/timeline.py` → `voc-reports/timeline.json`，`serve.py` 注入 `timeline`，`/api/timeline`）：把每次运转、每次 commit、每份文档、每个 ASIN 的数据区间、每张行动卡的计划 / 上线 / 验证 / 读回、每条群播报、金标评测、Hermes 定时的下次触发串成一条线；并算 11 张功能卡（拉评论 / 打标 / 投影 / 报告看板 / 退货 / 行动闭环 / 入飞书 / 群播报 / 站外 / 自动运转 / 资产沉淀）：做什么、累计做到多少、最近一次、状态。工作台设置页「经验库」改名「资产库」承载。
+  New `skill/timeline.py` builds a project timeline (runs, commits, documents, data coverage, action-card milestones, broadcasts, evals, next scheduled run) plus eleven feature cards (what each feature does, cumulative counts, last activity, status), shown on the renamed Settings → Assets tab.
+- **每周运转第 7 步「留痕」**（`skill/weekly.py`）：重算时间线、写 `voc-reports/_history/周报-<日期>.md`、只 `git add` 本次改动的 data.json / 报告 / 看板 / 行动卡 / 时间线 / 周报并自动 commit（`voc.config.json` `weekly.commit` 默认开、`weekly.commit_sign` 落款；`--no-commit` 跳过；不在 git 仓里自动跳过）。群草稿在最新周没声音时改报月度和评论最新日。
+  `weekly.py` gained a final "keep" step: rebuild the timeline, write a weekly report under `_history/`, and auto-commit only the files this run touched (`weekly.commit`, `weekly.commit_sign`; `--no-commit` to skip; skipped outside a git repo). The group draft reports monthly numbers when the latest week is empty.
+- **`workbench/voc`**：`voc up` 把工作台装成 macOS launchd 常驻（开机自起、挂了自动拉起），`status` 一屏看工作台 / Hermes 网关 / 定时任务，`restart / down / log / weekly / timeline`。launchd 直接起 python 读不了 `~/Desktop`，所以 plist 用 `osascript` 包一层。
+  `workbench/voc`: `voc up` installs the workbench as a macOS launchd agent (auto-start, auto-restart), `status` shows workbench / Hermes gateway / cron in one screen, plus `restart / down / log / weekly / timeline`.
+
 ## v1.9.2 · 2026-11-07
 
 - 修 `skill/events_to_feishu.py`：读「表里已有」时按 2000 行一页用数字 offset 翻完整张表。此前只读第一页，表超过 2000 行后按事件 ID 去重失效，会把已有行重复写一遍。

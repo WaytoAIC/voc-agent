@@ -20,6 +20,7 @@
   alexa     <自家>/alexa_compare.json（Alexa 怎么说）
   actions   现场分析/actions.json（飞书「行动项跟踪」的本地镜像，actions.py pull 生成）
   jobcard   导出/VOC Agent 岗位卡.html（「VOC Agent」页内嵌的岗位卡；公开版放 workbench/jobcard.html）
+  timeline  现场分析/timeline.json（项目时间线 + 功能价值，timeline.py 生成；没有就现算）
 接口：
   /api/health        工作台和 Hermes 是否都在线
   /api/config        注入给页面的 config 部分
@@ -29,6 +30,7 @@
   /api/dashboard     自家产品的 dashboard.json；/api/offsite、/api/alexa 同理
   /api/detail?asin=  产品详情页的全部数据（现场分析/detail.py 从 data.json + 竞品 + actions.json 算；没数据的块返回空，页面显示去哪接）
   /api/status        设置页：数据源接没接、本周体检数、运行记录（现场分析/runs.jsonl）、本周群消息草稿（现场分析/weekly_draft.md）
+  /api/timeline      项目时间线 + 功能价值（现场分析/timeline.py 现算）
 演示数据开关：voc.config.json 的 workbench.demo（默认 true）或环境变量 VOC_DEMO=0/1。关掉后 products.json 里标了 "demo": true 的展示行不再注入，
   列表里只剩 现场分析/ 下真实分析过的 ASIN；自家产品仍以 own.asin 为准。
   /report/<ASIN>     打开 现场分析/<ASIN>/报告.html
@@ -53,6 +55,10 @@ for _p in (ROOT / "现场分析", ROOT / "skill", HERE):     # voccfg.py：本�
     sys.path.insert(0, str(_p))
 import voccfg  # noqa: E402
 import detail  # noqa: E402  产品详情数据（本地在 现场分析/，公开仓在 skill/）
+try:
+    import timeline  # noqa: E402  项目时间线 + 功能价值
+except ImportError:  # 公开仓旧版本没有
+    timeline = None
 
 CFG = voccfg.load(HERE)
 _demo_env = os.environ.get("VOC_DEMO")
@@ -159,6 +165,20 @@ def status():
             "tags": {"neg": len([t for t in CFG["tags"]["neg"] if not t.startswith("_")]), "pos": len([t for t in CFG["tags"]["pos"] if not t.startswith("_")])}}
 
 
+def timeline_data(fresh=False):
+    """时间线：优先读 timeline.py 写的文件（每周运转留痕时更新）；没有或要最新就现算。"""
+    if not fresh:
+        t = _json(LIVE_DIR / "timeline.json")
+        if t:
+            return t
+    if timeline is None:
+        return None
+    try:
+        return timeline.collect()
+    except Exception as e:  # 时间线算不出不拖垮整页
+        return {"error": str(e), "events": [], "features": []}
+
+
 def page_data():
     own = LIVE_DIR / OWN
     d = _json(own / "data.json") or {}
@@ -171,7 +191,7 @@ def page_data():
             details[a] = {"asin": a, "exists": False, "error": str(e)}
     return {"config": page_config(), "products": demo_products(),
             "dashboard": _json(own / "dashboard.json"), "offsite": d.get("offsite"), "alexa": _json(own / "alexa_compare.json"),
-            "actions": acts, "jobcard": _text(JOBCARD), "details": details, "status": status()}
+            "actions": acts, "jobcard": _text(JOBCARD), "details": details, "status": status(), "timeline": timeline_data()}
 
 
 def render_page(data=None):
@@ -233,6 +253,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return self._send(500, json.dumps({"error": f"算不出 {asin} 的详情：{e}"}, ensure_ascii=False))
         if path == "/api/status":
             return self._send(200, json.dumps(status(), ensure_ascii=False))
+        if path == "/api/timeline":
+            return self._send(200, json.dumps(timeline_data(fresh=True) or {"error": "没有 timeline.py"}, ensure_ascii=False))
         if path == "/api/dashboard":
             return self._file(LIVE_DIR / OWN / "dashboard.json", "看板（先跑 现场分析/dashboard.py）")
         if path == "/api/alexa":

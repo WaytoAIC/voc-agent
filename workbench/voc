@@ -1,0 +1,77 @@
+#!/bin/bash
+# VOC 工作台一条命令：voc up | down | status | open | weekly [参数] | log
+# up     装成 launchd 常驻（开机自启、挂了自动拉起），监听 127.0.0.1:8790，然后打开浏览器
+#        launchd 直接起 python 读不了 ~/Desktop（macOS 文件权限），所以和 Hermes 网关一样用 osascript 包一层
+# down   卸掉常驻
+# status 工作台 / Hermes 网关 / 定时任务 是否在线
+# weekly 立刻跑一次每周运转（和定时跑的是同一条脚本）
+# log    看工作台日志
+# timeline 重算项目时间线（工作台 设置 → 资产库）
+set -u
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+WB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"                      # 本地 工作台/，公开仓 workbench/
+if [ -d "$ROOT/现场分析" ]; then SKILL="$ROOT/现场分析"; DATA="$ROOT/现场分析"; else SKILL="$ROOT/skill"; DATA="${VOC_DATA_DIR:-$ROOT/voc-reports}"; fi
+LABEL="com.waytoaic.voc-workbench"
+PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
+PORT="${VOC_PORT:-8790}"
+LOG="$DATA/_runs/serve.log"
+PY="$(command -v python3 || echo /usr/bin/python3)"
+WRAP="$HOME/.hermes/profiles/voc/scripts/voc-weekly.sh"
+
+write_plist() {
+  mkdir -p "$(dirname "$PLIST")" "$(dirname "$LOG")"
+  cat > "$PLIST" <<PL
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>$LABEL</string>
+  <key>ProgramArguments</key><array>
+    <string>/usr/bin/osascript</string><string>-l</string><string>JavaScript</string><string>-e</string>
+    <string>ObjC.import("stdlib"); const status=$.system("exec '$PY' '$WB/serve.py' --port $PORT >> '$LOG' 2>&amp;1"); const signal=status &amp; 127; $.exit(status === -1 ? 1 : signal === 0 ? (status >> 8) &amp; 255 : 128 + signal);</string>
+  </array>
+  <key>WorkingDirectory</key><string>$ROOT</string>
+  <key>EnvironmentVariables</key><dict>
+    <key>PATH</key><string>$HOME/.hermes/node/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>PYTHONUNBUFFERED</key><string>1</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>5</integer>
+  <key>StandardOutPath</key><string>$LOG</string>
+  <key>StandardErrorPath</key><string>$LOG</string>
+</dict></plist>
+PL
+}
+
+health() { curl -s --max-time 3 "http://127.0.0.1:$PORT/api/health"; }
+
+case "${1:-status}" in
+  up)
+    write_plist
+    launchctl bootout "gui/$(id -u)/$LABEL" >/dev/null 2>&1 || true
+    launchctl bootstrap "gui/$(id -u)" "$PLIST" || { echo "launchctl bootstrap 失败，看 $LOG"; exit 1; }
+    for _ in 1 2 3 4 5 6 7 8 9 10; do h="$(health)"; [ -n "$h" ] && break; sleep 1; done
+    if [ -n "${h:-}" ]; then echo "工作台已常驻：http://127.0.0.1:$PORT  $h"; [ "${2:-}" != "--no-open" ] && open "http://127.0.0.1:$PORT"; else echo "起不来，看日志：$LOG"; tail -20 "$LOG"; exit 1; fi ;;
+  down)
+    launchctl bootout "gui/$(id -u)/$LABEL" && echo "已卸掉常驻（plist 还在 $PLIST，voc up 会重装）" ;;
+  restart)
+    launchctl kickstart -k "gui/$(id -u)/$LABEL" && sleep 1 && echo "已重启：$(health)" ;;
+  status)
+    h="$(health)"
+    if [ -n "$h" ]; then echo "工作台 在线  http://127.0.0.1:$PORT  $h"; else echo "工作台 不在线（voc up）"; fi
+    launchctl print "gui/$(id -u)/$LABEL" >/dev/null 2>&1 && echo "launchd  已装 $LABEL" || echo "launchd  没装（voc up）"
+    launchctl print "gui/$(id -u)/ai.hermes.gateway" >/dev/null 2>&1 && echo "Hermes   网关 launchd 在" || echo "Hermes   网关 launchd 不在（命令速查 2）"
+    J="$HOME/.hermes/profiles/voc/cron/jobs.json"
+    [ -f "$J" ] && "$PY" - "$J" <<'PY'
+import json,sys
+for j in json.load(open(sys.argv[1])).get("jobs",[]):
+    if "VOC" in (j.get("name") or ""):
+        print(f"定时     「{j['name']}」{j.get('schedule_display')}  上次 {str(j.get('last_run_at') or '')[:16]} {j.get('last_status')}  下次 {str(j.get('next_run_at') or '')[:16]}  {'启用' if j.get('enabled') else '停用'}")
+PY
+    ;;
+  open) open "http://127.0.0.1:$PORT" ;;
+  weekly) shift; cd "$ROOT" && if [ -x "$WRAP" ]; then bash "$WRAP" "$@"; else "$PY" "$SKILL/weekly.py" "$@"; fi ;;
+  timeline) cd "$ROOT" && "$PY" "$SKILL/timeline.py" ;;
+  log) tail -n "${2:-40}" "$LOG" ;;
+  *) sed -n 2,8p "$0" ;;
+esac

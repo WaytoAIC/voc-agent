@@ -10,7 +10,10 @@
   4 行动卡   actions.py pull → readback（只打印；weekly.readback_write=true 才写回飞书的两个 AI 字段）→ check --draft
   5 入飞书   新评论 / 新事件写进「VOC 事件明细」（_tools/events_to_feishu.py）
   6 群草稿   voc-reports/weekly_draft.md：本周新声音、最大问题变化、退货、卡住的行动。不自动发：工作台设置页「发到群」点了才发
-口径：voc.config.json 的 weekly 段（pages / detail / competitors / feishu / readback_write / export / schedule）。
+  7 留痕     timeline.py 重算项目时间线（工作台「资产库」页）；本周周报存 voc-reports/_history/周报-<日期>.md（进 git）；
+             weekly.commit=true 时把这次运转改动的数据、看板、行动卡、时间线、周报 commit 进仓（只 add 这几个路径，落款 weekly.commit_sign，默认 @Hermes；
+             环境变量 VOC_COMMIT_SIGN 可改；--no-commit 跳过）。仓库历史就是项目时间线，资产随每周运转自动沉淀。
+口径：voc.config.json 的 weekly 段（pages / detail / competitors / feishu / readback_write / export / schedule / commit / commit_sign）。
 数据目录：VOC_DATA_DIR（默认 现场分析/；公开版默认 ./voc-reports）。
 --dry-run：不调卖家精灵、不调模型、不写飞书，只走本地算数和草稿，看流程通不通。
 每次的完整输出在 voc-reports/_runs/weekly-<时间>.log。
@@ -29,7 +32,8 @@ import voccfg  # noqa: E402
 
 ARGS = sys.argv[1:]
 CFG = voccfg.load(HERE)
-W = {"pages": 3, "detail": True, "competitors": True, "feishu": True, "readback_write": False, "export": False, **{k: v for k, v in (CFG.get("weekly") or {}).items() if not k.startswith("_")}}
+W = {"pages": 3, "detail": True, "competitors": True, "feishu": True, "readback_write": False, "export": False, "commit": True, "commit_sign": "@Hermes",
+     **{k: v for k, v in (CFG.get("weekly") or {}).items() if not k.startswith("_")}}
 PAGES = int(ARGS[ARGS.index("--pages") + 1]) if "--pages" in ARGS else int(W["pages"])
 DRY = "--dry-run" in ARGS
 ONLY = ARGS[ARGS.index("--asin") + 1].upper() if "--asin" in ARGS else None
@@ -328,9 +332,14 @@ def s_draft():
         src = snap.get("sources") or {}
         win_n = sum(int(x or 0) for x in src.values())
         k = float(pj.get("k") or 0)
-        if not v.get("now"):                                                 # 这周没声音：报窗口累计，别拿 0 说事
-            L.append(f"- 最新一周（{snap.get('week', '')}）没有新声音；近 4 周（{snap.get('window', '')}）声音 {win_n} 条"
-                     + (f"（真实 {round(win_n / k)} 条）" if k else "") + "，评论少的品看月度和累计，别看周环比")
+        if not v.get("now"):                                                 # 这周没声音：报窗口累计和月度，别拿 0 说事
+            fr, mo = dash.get("fresh") or {}, dash.get("monthly") or []
+            last_mo = next((m for m in reversed(mo) if m.get("reviews")), None)
+            L.append(f"- 最新完整周（{snap.get('week', '')}）没有新声音；近 4 周（{snap.get('window', '')}）声音 {win_n} 条"
+                     + (f"（真实 {round(win_n / k)} 条）" if k else "")
+                     + (f"；评论最新到 {fr['lastReview']}" if fr.get("lastReview") else "")
+                     + (f"，最近有评论的月份 {last_mo['label']}：{last_mo['reviews']} 条" + (f"（真实 {last_mo['realReviews']}）" if last_mo.get("realReviews") is not None else "") if last_mo else "")
+                     + "；评论少的品看月度和累计，别看周环比")
         else:
             L.append(f"- 最新一周（{snap.get('week', '')}）：声音 {v.get('now', '—')} 条（上周 {v.get('prev', '—')}），差评占比 {ns.get('now', '—')}%（上周 {ns.get('prev', '—')}%）"
                      + (f"；最大问题「{tp.get('tag')}」{tp.get('now')}%（上周 {tp.get('prev')}%）" if tp.get("tag") and tp.get("tag") != "—" else "")
@@ -347,11 +356,69 @@ def s_draft():
         L += ["  " + l for l in ck.splitlines()[1:]]
     if REPORT["problems"]:
         L.append("- 本次运转有失败：" + "；".join(REPORT["problems"]))
-    L.append("- 看板、报告已更新：本机工作台 http://127.0.0.1:8790（点「产品」看详情）")
+    L.append("- 看板、报告已更新：本机工作台 http://127.0.0.1:8790（点「产品」看详情；设置 → 资产库看时间线）")
     text = "\n".join(L)
     (DATA / "weekly_draft.md").write_text(text + "\n", encoding="utf-8")
     log(text)
     return {"draft": str(DATA / "weekly_draft.md"), "lines": len(L)}
+
+
+# ---------- 7 留痕 ----------
+def s_keep():
+    res = {}
+    # 本周周报：群草稿 + 这次运转每步的数字，进 git（runs.jsonl 不进仓，这份是留给仓库历史的）
+    hist = DATA / "_history"
+    hist.mkdir(exist_ok=True)
+    draft = (DATA / "weekly_draft.md").read_text(encoding="utf-8") if (DATA / "weekly_draft.md").exists() else ""
+    lines = [f"# VOC 周报 {STAMP:%Y-%m-%d}" + ("（演练）" if DRY else ""), "", draft.strip(), "", "## 这次运转", ""]
+    for name, st in REPORT["steps"].items():
+        bits = {k: ("、".join(map(str, v)) if isinstance(v, list) else v) for k, v in st.items() if k not in ("ok", "seconds", "byAsin", "checkText", "draft", "log") and v not in (None, "", [], {})}
+        by = st.get("byAsin") or {}
+        if by:
+            bits["byAsin"] = "；".join(f"{a} " + "、".join(f"{k} {v}" for k, v in x.items() if v not in (None, [], {}, False)) for a, x in by.items())
+        lines.append(f"- {name}：{'完成' if st.get('ok') else '失败'}（{st.get('seconds', 0)}s）" + ("　" + "；".join(f"{k} {v}" for k, v in bits.items()) if bits else ""))
+    dash = data_json(DATA / OWN / "dashboard.json") or {}
+    if dash.get("latestWeek"):
+        fr, cu = dash.get("fresh") or {}, dash.get("cumulative") or {}
+        lines += ["", f"看板锚定 {dash.get('runDate')}，最新完整周 {dash['latestWeek']}；评论最新到 {fr.get('lastReview')}，退货最新到 {(fr.get('lastEvent') or {}).get('退货')}；"
+                  f"累计评论 {cu.get('reviews')}" + (f"（真实 {cu.get('realReviews')}）" if cu.get("realReviews") is not None else "") + f"，退货 {(cu.get('events') or {}).get('退货')}。"]
+    hp = hist / f"周报-{STAMP:%Y-%m-%d}.md"
+    hp.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    res["history"] = str(hp.relative_to(ROOT)) if hp.is_relative_to(ROOT) else str(hp)
+    tl = next((p for p in (HERE / "timeline.py", WB / "timeline.py") if p.exists()), None)
+    if tl:
+        rc, out = run([PY, tl], timeout=120)
+        res["timeline"] = rc == 0
+    if "--no-commit" in ARGS or not W["commit"] or DRY:
+        res["commit"] = "跳过（--no-commit / weekly.commit=false / --dry-run）"
+        return res
+    if not (ROOT / ".git").exists() or not DATA.is_relative_to(ROOT):
+        res["commit"] = "跳过（不在 git 仓里）"
+        return res
+    paths = [DATA / "actions.json", DATA / "timeline.json", hist]
+    for a in [OWN, *COMPS]:
+        for f in ("data.json", "报告.html", "dashboard.json", "alexa_compare.json"):
+            if (DATA / a / f).exists():
+                paths.append(DATA / a / f)
+    rel = [str(p.relative_to(ROOT)) for p in paths if p.exists()]
+    rc, _ = run(["git", "-C", ROOT, "add", "--", *rel], timeout=60)
+    if rc:
+        res["ok"], res["error"] = False, "git add 失败"
+        return res
+    staged = subprocess.run(["git", "-C", str(ROOT), "-c", "core.quotepath=false", "diff", "--cached", "--name-only"], capture_output=True, text=True).stdout.splitlines()
+    if not staged:
+        res["commit"] = "没有改动，不提交"
+        return res
+    sign = os.environ.get("VOC_COMMIT_SIGN") or W["commit_sign"]
+    title = f"VOC分析: 每周运转 {STAMP:%Y-%m-%d}——新评论 {REPORT['newReviews']}、打标 {REPORT['tagged']}、入飞书 {REPORT['feishu']} 行" + ("，有失败" if REPORT["problems"] else "") + f" {sign}"
+    body = "自动留痕：weekly.py 第 7 步。改动 " + "、".join(staged) + "\n" + "\n".join(f"- {n}：{'完成' if st.get('ok') else '失败'}" for n, st in REPORT["steps"].items())
+    rc, out = run(["git", "-C", ROOT, "commit", "-q", "-m", title, "-m", body], timeout=60)
+    if rc:
+        res["ok"], res["error"] = False, "git commit 失败（看日志；落款要在 sops 宪法的七个之内）"
+        return res
+    res["commit"] = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
+    res["files"] = len(staged)
+    return res
 
 
 def data_json(p):
@@ -370,6 +437,7 @@ def main():
     step("行动卡", s_actions)
     step("入飞书", s_feishu)
     step("群草稿", s_draft)
+    step("留痕", s_keep)
     REPORT["ok"] = not REPORT["problems"]
     REPORT["seconds"] = round((dt.datetime.now() - STAMP).total_seconds(), 1)
     REPORT["log"] = str(LOG.relative_to(ROOT) if LOG.is_relative_to(ROOT) else LOG)
