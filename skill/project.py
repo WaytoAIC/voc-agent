@@ -373,6 +373,9 @@ def main():
     for k in ("journey", "calc", "stages", "tagStage"):
         if old.get(k) is not None and not old.get("demo"):
             d[k] = old[k]
+    for k in ("offsite", "alexa"):                                           # 站外 / Alexa 块不是从评论投出来的（Reddit 讨论、平台问答本来就是公开的），重投时原样带上，别冲掉
+        if old.get(k) is not None:
+            d[k] = old[k]
     voccfg.canonicalize(d, CFG)
     if DRY:
         say(f"  --dry-run：会写 {len(out_reviews)} 条变体、{len(out_events)} 条事件 → {OUT}")

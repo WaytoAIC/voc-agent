@@ -702,7 +702,7 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
         <div class="sv" data-sv="changes" hidden>
           <div class="view">
             <div class="panel">
-              <div><h2>改了什么，数字有没有变</h2><p class="sub">竖线是每一次改动（飞书行动卡的「实际完成日」）；按月算评论占比，评论少的月份不拿来下结论</p></div>
+              <div><h2>改了什么，数字有没有变</h2><p class="sub">竖线是每一次改动（飞书行动卡的「实际完成日」），颜色是到期的判断；灰色带是断货和大促，那几周的数字不拿来下结论</p></div>
               <div class="chart" id="tl"></div>
             </div>
             <div class="panel"><h2>每次改动的结果</h2><div style="display:grid;gap:8px" id="results"></div></div>
@@ -1365,11 +1365,11 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
       ob.appendChild(el('tr',p.watch?{class:'click','data-prod':p.id,tabindex:'0'}:{class:'muted'},
         `<td>${prodCell(p,true)}</td><td class="n num">${p.rating}</td><td class="n num">${p.newRev}</td><td class="n">${p.watch?negCell(p):'<span class="hint">—</span>'}</td><td class="n">${retCell(p)}</td><td class="n">${exCell(p)}</td><td>${p.issue}</td>
          <td>${p.watch?`<span class="chip ${p.status[0]}">${p.status[1]}</span>`:`<button class="btn sm" type="button" data-start="${p.id}">开始分析</button>`}</td>`));
-      if(openKids.has(p.id)&&!KIDROWS[p.id]&&p.kidrows&&p.kidrows.length){
+      if(openKids.has(p.id)&&p.kidrows&&p.kidrows.length){
         ob.appendChild(el('tr',{class:'kid'},`<td class="hint">款式</td><td class="n hint">评论占比</td><td></td><td class="n hint">差评占比</td><td class="n hint">退货</td><td class="n hint">换货</td><td class="hint">这个款式最大的问题</td><td></td>`));
         p.kidrows.forEach(([sku,n,share,neg,ret,ex,top])=>ob.appendChild(el('tr',{class:'kid'},`<td><b>${esc(sku)}</b><span class="skuline num">${n} 条评论</span></td><td class="n num">${share}%</td><td></td><td class="n num">${neg}%</td><td class="n num">${ret??'—'}</td><td class="n num">${ex??'—'}</td><td>${esc(top)}</td><td></td>`)));
       }
-      if(openKids.has(p.id)&&KIDROWS[p.id]){
+      if(openKids.has(p.id)&&KIDROWS[p.id]&&!(p.kidrows&&p.kidrows.length)){
         ob.appendChild(el('tr',{class:'kid'},`<td class="hint">子 ASIN · MSKU · 款式</td><td class="n hint">销量占比</td><td></td><td></td><td class="n hint">退货率</td><td class="n hint">换货</td><td class="hint">这个款式最大的问题</td><td></td>`));
         KIDROWS[p.id].forEach(([ca,ms,spec,share,r,ex,top])=>ob.appendChild(el('tr',{class:'kid'},`<td><b>${spec}</b><span class="skuline num">${ca} · ${ms}</span></td><td class="n num">${share}</td><td></td><td></td><td class="n num"${r>10?' style="color:var(--bad);font-weight:700"':''}>${r}%</td><td class="n num">${ex}</td><td>${top}</td><td></td>`)));
         if(KIDMORE[p.id]) ob.appendChild(el('tr',{class:'kid'},`<td colspan="8" class="hint">${KIDMORE[p.id]}</td>`));
@@ -1563,6 +1563,8 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   }
   function drawResults(asin){
     const box=$('#results'); box.innerHTML='';
+    const CR=D&&D.changes&&D.changes.results;
+    if(CR&&CR.length){ CR.forEach(r=>box.appendChild(el('div',{class:'result'},`<span class="chip ${r.chip[0]}">${esc(r.chip[1])}</span><div><b>${esc(r.title)}</b><p>${esc(r.text||'')}</p></div>${r.act&&ACTIONS.some(a=>a.id===r.act)?`<button class="link" type="button" data-act="${esc(r.act)}">详情</button>`:'<span></span>'}`))); return; }
     const rows=ACTIONS.filter(a=>a.result&&(!asin||a.asin===asin));
     if(!rows.length){ box.innerHTML=EMPTY('改动结果', ACTIONS.length?'这个产品的行动卡还没有到期读回（actions.py readback）':NOTE.actions); return; }
     rows.forEach(a=>box.appendChild(el('div',{class:'result'},`<span class="chip ${a.result[0]}">${a.result[1]}</span><div><b>${esc(a.title)}</b><p>${esc(a.result[2])}</p></div><button class="link" type="button" data-act="${a.id}">详情</button>`)));
@@ -1603,7 +1605,26 @@ table.subterms th,table.subterms td{padding:6px 8px;background:transparent}
   drawAlexa();
 
   /* 改动与效果 */
+  // 改动与效果 · 周视图：产品有 changes.json（周曲线 + 改动线 + 断货 / 大促灰带）时画这个；没有就退回按月的行动卡曲线
+  function drawTLWeekly(C,anim){
+    const V=C.values, N=V.length, W=860,H=300,L=48,R=46,T=30,B=36;
+    const lo=Math.floor((Math.min(...V)-4)/5)*5, hi=Math.ceil((Math.max(...V)+2)/5)*5;
+    const x=i=>L+i*(W-L-R)/(N-1), y=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
+    const tone={good:css('--good'),bad:css('--bad'),warn:css('--warn'),plain:css('--muted')};
+    let s=`<svg viewBox="0 0 ${W} ${H}"${anim?' class="anim"':''} role="img" aria-label="${esc(C.metric)}，按周，标出每次改动">`;
+    for(let v=lo;v<=hi;v+=5) s+=`<line class="grid" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${v}%</text>`;
+    s+=`<text class="lab" x="${L}" y="${T-14}" style="fill:${css('--ink')}">${esc(C.metric)}</text>`;
+    (C.bands||[]).forEach(b=>{ s+=`<rect x="${x(b.w)-9}" y="${T}" width="${Math.max(18,(W-L-R)/(N-1)*.5)}" height="${H-T-B}" fill="${css('--faint')}" opacity=".14"/><text class="lab" x="${x(b.w)+((W-L-R)/(N-1)*.25)-9+9}" y="${H-B-6}" text-anchor="middle" style="font-size:10.5px">${esc(b.t)}</text>`; });
+    let lastX=-99, lvl=0;
+    (C.marks||[]).forEach(m=>{ const mx=x(m.w), c=tone[m.r]||tone.plain; lvl=(mx-lastX<96)?lvl+1:0; lastX=mx; const right=mx>W-R-120;
+      s+=`<line x1="${mx}" x2="${mx}" y1="${T}" y2="${H-B}" stroke="${c}" stroke-width="1.6" stroke-dasharray="4 3"/><text class="lab" x="${mx+(right?-5:5)}" y="${T+12+lvl*15}" text-anchor="${right?'end':'start'}" style="fill:${c};font-weight:700"${m.act?` data-act="${esc(m.act)}" cursor="pointer"`:''}>${esc(m.t)}${m.date?` ${esc(m.date)}`:''}</text>`; });
+    s+=`<polyline points="${V.map((v,i)=>`${x(i)},${y(v)}`).join(' ')}" class="line-me" pathLength="1" fill="none" stroke="${css('--accent')}" stroke-width="2.6"/>`;
+    const li=N-1; s+=`<circle cx="${x(li)}" cy="${y(V[li])}" r="5" fill="${css('--accent')}"/><text x="${x(li)+8}" y="${y(V[li])-10}" text-anchor="middle" style="fill:${css('--ink')};font-weight:700">${V[li]}%</text>`;
+    C.weeks.forEach((w,i)=>{ if(N<=12||i%2===(N-1)%2) s+=`<text x="${x(i)}" y="${H-B+18}" text-anchor="middle">${esc(w)}</text>`; });
+    s+='</svg>'; $('#tl').innerHTML=s;
+  }
   function drawTL(anim){
+    if(D&&D.changes&&(D.changes.values||[]).length>1){ drawTLWeekly(D.changes,anim); return; }
     const cur=PRODUCTS.find(p=>p.id===curProd), withS=ACTIONS.filter(a=>a.series&&a.series.points.some(p=>p.share!=null));
     const a=withS.find(x=>cur&&x.asin===cur.asin)||withS[0];
     if(!a){ $('#tl').innerHTML='<p class="hint">还没有动作—结果曲线：在飞书「行动项跟踪」填上「实际完成日」和「看哪个数」（评论占比类），再跑 现场分析/actions.py timeline</p>'; return; }

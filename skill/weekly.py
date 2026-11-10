@@ -254,6 +254,9 @@ def s_calc():
         res["dashboard"] = rc == 0
         if rc:
             res["ok"], res["error"] = False, f"dashboard.py 退出码 {rc}"
+        chg = HERE / "_demo" / "build_changes.py"                             # 「改动与效果」示意周曲线往后延到最新完整周（只有本地演示仓有）
+        if chg.exists() and (DATA / OWN / "changes.json").exists():
+            run([PY, chg])
     else:
         res["note"] = f"自家 {OWN} 还没有 data.json"
     if "--export" in ARGS or W["export"]:
@@ -397,7 +400,7 @@ def s_keep():
         return res
     paths = [DATA / "actions.json", DATA / "timeline.json", hist]
     for a in [OWN, *COMPS]:
-        for f in ("data.json", "报告.html", "dashboard.json", "alexa_compare.json"):
+        for f in ("data.json", "报告.html", "dashboard.json", "alexa_compare.json", "changes.json"):
             if (DATA / a / f).exists():
                 paths.append(DATA / a / f)
     rel = [str(p.relative_to(ROOT)) for p in paths if p.exists()]

@@ -127,9 +127,61 @@ def page_config():
                        "group_name": GROUP_NAME, "can_post": bool(GROUP_ID)}}
 
 
+def summary(asin):
+    d = LIVE_DIR / asin
+    if not (asin.isalnum() and (d / "data.json").exists()):
+        return {"asin": asin, "exists": False}
+    data = _json(d / "data.json") or {}
+    voccfg.canonicalize(data, CFG)
+    rv = [r for r in data.get("reviews", []) if not r.get("vine")]
+    neg = data.get("tagsNeg", [])
+    cnt = {}
+    for r in rv:
+        for x in r.get("tags", []):
+            if x in neg:
+                cnt[x] = cnt.get(x, 0) + 1
+    top = max(cnt.items(), key=lambda kv: kv[1]) if cnt else None
+    pr = data.get("product", {})
+    rep = d / "报告.html"
+    now = datetime.date.today()
+    last_t = max((r.get("t") or 0) for r in rv) if rv else 0
+    ref = datetime.date.fromtimestamp(last_t / 1000) if last_t else now     # 「本周」= 数据最新一天往前 7 天；数据停在过去也能看
+    new_rev = sum(1 for r in rv if r.get("t") and (ref - datetime.date.fromtimestamp(r["t"] / 1000)).days < 7)
+    ev = [e for e in data.get("events", []) if e.get("date")]
+    ev_ref = max((datetime.date.fromisoformat(e["date"]) for e in ev), default=None)
+    in30 = lambda t: sum(1 for e in ev if e.get("type") == t and (ev_ref - datetime.date.fromisoformat(e["date"])).days < 30) if ev_ref else None
+    drill = (data.get("calc") or {}).get("drill") or {}
+    kidrows = [[s["sku"], s["n"], s["share"], s["negShare"],
+                sum(1 for e in ev if e.get("type") == "退货" and e.get("sku") == s["sku"]) if ev else None,
+                sum(1 for e in ev if e.get("type") == "换货" and e.get("sku") == s["sku"]) if ev else None,
+                (s.get("top") or [{}])[0].get("name", "—")] for s in drill.get("skus", []) if s.get("sku")][:8]
+    return {"asin": asin, "exists": True, "report": rep.exists(), "updated": int(rep.stat().st_mtime) if rep.exists() else 0,
+            "name": pr.get("name") or pr.get("title") or asin, "brand": pr.get("brand"), "rating": pr.get("rating"),
+            "n": len(rv), "neg": round(sum(1 for r in rv if r.get("star", 5) <= 3) / len(rv) * 100, 1) if rv else None,
+            "top": [top[0], top[1]] if top else None, "own": asin == OWN or data.get("role") == "自家",
+            "newRev": new_rev, "ret30": in30("退货"), "ex30": in30("换货"), "msg30": in30("买家消息"), "kidrows": kidrows,
+            "pulledAt": (data.get("pulled") or {}).get("at")}
+
+
 def demo_products():
-    rows = (_json(PRODUCTS) or {}).get("products", [])
-    return rows if DEMO else [r for r in rows if not r.get("demo")]
+    """「我的产品」列表：products.json 的展示行（名称 / 图片 / 款式数）+ 真实分析过的 ASIN 的数字。
+    展示行对应的 ASIN 在数据目录里有 data.json → 评分、新评论、差评占比、退货、最大的问题全部换成算出来的数，"demo" 标记去掉；
+    没有 data.json 的展示行（示例用的自家其他产品）只在 workbench.demo=true 时显示。"""
+    out = []
+    for r in (_json(PRODUCTS) or {}).get("products", []):
+        live = summary(r.get("asin", "").upper()) if r.get("asin") else {"exists": False}
+        if live.get("exists"):
+            r = {k: v for k, v in r.items() if k not in ("demo", "ret", "retT", "negT", "rd", "todo")}
+            r.update({"rating": live.get("rating") or r.get("rating"), "newRev": live.get("newRev"), "neg": live.get("neg"), "retN": live.get("ret30"), "ex": live.get("ex30"),
+                      "kidrows": live.get("kidrows") or [], "pulledAt": live.get("pulledAt"), "n": live.get("n"),
+                      "issue": f"{live['top'][0]}（{live['top'][1]}/{live['n']} 条）" if live.get("top") else "—",
+                      "report": f"/report/{live['asin']}" if live.get("report") else r.get("report"), "status": ["good", "已分析"]})
+            if len(r["kidrows"]) > 1:
+                r["kids"] = len(r["kidrows"])
+            out.append(r)
+        elif DEMO or not r.get("demo"):
+            out.append(r)
+    return out
 
 
 def analyzed_asins():
@@ -279,39 +331,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return self._send(200, json.dumps(self._summary(asin), ensure_ascii=False))
 
     def _summary(self, asin):
-        d = LIVE_DIR / asin
-        if not (asin.isalnum() and (d / "data.json").exists()):
-            return {"asin": asin, "exists": False}
-        data = _json(d / "data.json") or {}
-        voccfg.canonicalize(data, CFG)
-        rv = [r for r in data.get("reviews", []) if not r.get("vine")]
-        neg = data.get("tagsNeg", [])
-        cnt = {}
-        for r in rv:
-            for x in r.get("tags", []):
-                if x in neg:
-                    cnt[x] = cnt.get(x, 0) + 1
-        top = max(cnt.items(), key=lambda kv: kv[1]) if cnt else None
-        pr = data.get("product", {})
-        rep = d / "报告.html"
-        now = datetime.date.today()
-        last_t = max((r.get("t") or 0) for r in rv) if rv else 0
-        ref = datetime.date.fromtimestamp(last_t / 1000) if last_t else now     # 「本周」= 数据最新一天往前 7 天；数据停在过去也能看
-        new_rev = sum(1 for r in rv if r.get("t") and (ref - datetime.date.fromtimestamp(r["t"] / 1000)).days < 7)
-        ev = [e for e in data.get("events", []) if e.get("date")]
-        ev_ref = max((datetime.date.fromisoformat(e["date"]) for e in ev), default=None)
-        in30 = lambda t: sum(1 for e in ev if e.get("type") == t and (ev_ref - datetime.date.fromisoformat(e["date"])).days < 30) if ev_ref else None
-        drill = (data.get("calc") or {}).get("drill") or {}
-        kidrows = [[s["sku"], s["n"], s["share"], s["negShare"],
-                    sum(1 for e in ev if e.get("type") == "退货" and e.get("sku") == s["sku"]) if ev else None,
-                    sum(1 for e in ev if e.get("type") == "换货" and e.get("sku") == s["sku"]) if ev else None,
-                    (s.get("top") or [{}])[0].get("name", "—")] for s in drill.get("skus", []) if s.get("sku")][:8]
-        return {"asin": asin, "exists": True, "report": rep.exists(), "updated": int(rep.stat().st_mtime) if rep.exists() else 0,
-                "name": pr.get("name") or pr.get("title") or asin, "brand": pr.get("brand"), "rating": pr.get("rating"),
-                "n": len(rv), "neg": round(sum(1 for r in rv if r.get("star", 5) <= 3) / len(rv) * 100, 1) if rv else None,
-                "top": [top[0], top[1]] if top else None, "own": asin == OWN or data.get("role") == "自家",
-                "newRev": new_rev, "ret30": in30("退货"), "ex30": in30("换货"), "msg30": in30("买家消息"), "kidrows": kidrows,
-                "pulledAt": (data.get("pulled") or {}).get("at")}
+        return summary(asin)
 
     def _post_to_group(self):
         n = int(self.headers.get("Content-Length", "0"))

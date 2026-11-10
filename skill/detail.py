@@ -203,6 +203,7 @@ def build(asin, actions=None, own_asin=None):
         "topIssues": top_issues, "loves": loves, "vs": vs, "themes": themes, "kids": kid_list,
         "journey": {"stages": stages, "hasComp": bool(comp_journeys), "gap": gap},
         "returns": returns,
+        "changes": _json(DATA / asin / "changes.json"),                      # 「改动与效果」的周曲线 + 改动线（有这个文件才画周视图）
         "compare": {"names": names, "rows": rows, "mine": cmp.get("mine")} if comps else None,
         "report": (DATA / asin / "报告.html").exists(),
     }

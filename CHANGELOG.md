@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.0.2 · 2026-11-11
+
+- `skill/project.py`：重投时原样带上别名 data.json 里的 `offsite` / `alexa` 块。此前每次投影都会把站外 VOC 的分析结果冲掉，工作台「站外 VOC」页变空。
+  Fix: re-projection now keeps the `offsite` / `alexa` blocks of the alias data.json; they used to be dropped on every run, emptying the off-site page.
+- `workbench/serve.py`：「我的产品」列表 = `products.json` 展示行（名称、图片）+ 数据目录里算出来的数字；展示行的 ASIN 有 data.json 就用真实数字并去掉 `demo` 标记，没有数据的示例行只在 `workbench.demo=true` 时显示。
+  The product list now merges display rows from `products.json` (name, photo) with live numbers from the data directory; rows without data are shown only when `workbench.demo` is true.
+- 产品详情「改动与效果」：数据目录里有 `<ASIN>/changes.json`（周数值、改动线、特殊周、结果列表）时画周视图——周曲线、每次改动一条按判断着色的竖线、断货 / 大促灰带；没有就仍按行动卡画月度曲线。`detail.py` 带出 `changes`，`weekly.py` 留痕时一并提交。
+  The "changes and effects" tab draws a weekly view (line, one coloured marker per change, grey bands for stock-outs / promotions) when `<ASIN>/changes.json` exists, and falls back to the monthly action-card curve otherwise.
+
 ## v2.0.1 · 2026-11-10
 
 - CI 修正：runner 钉 `ubuntu-24.04`（`ubuntu-latest` 已是 26.04，setup-python 上没有 Python 3.9 的包）；测试里的临时 git 仓配好 `user.name` / `user.email`（`weekly.py` 第 7 步自己跑 `git commit`，没身份的机器会报 empty ident）。v2.0.0 的 CI 因此是红的，功能不变。
